@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2015 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifi_fail_to_scan">Netzwerksuche nicht möglich</string>
+    <string name="wifi_security_none">Keine</string>
+    <string name="wifi_remembered">Gespeichert</string>
+    <string name="wifi_disabled_generic">Deaktiviert</string>
+    <string name="wifi_disabled_network_failure">IP-Konfigurationsfehler</string>
+    <string name="wifi_disabled_wifi_failure">Wi-Fi-Verbindungsfehler</string>
+    <string name="wifi_disabled_password_failure">Authentisierungsproblem</string>
+    <string name="wifi_not_in_range">Nicht in Reichweite</string>
+    <string name="wifi_no_internet">Kein Internetzugriff erkannt, keine automatische Neuverbindung.</string>
+    <string name="saved_network">Gespeichert von <xliff:g id="name">%1$s</xliff:g></string>
+    <string name="connected_via_wfa">Über Wi\u2011Fi-Assistent verbunden</string>
+    <string name="connected_via_passpoint">Über %1$s verbunden</string>
+    <string name="available_via_passpoint">Über %1$s verfügbar</string>
+    <string name="wifi_connected_no_internet">Verbunden, kein Internet</string>
+    <string name="bluetooth_disconnected">Getrennt</string>
+    <string name="bluetooth_disconnecting">Trennen \u2026</string>
+    <string name="bluetooth_connecting">Verbinden \u2026</string>
+    <string name="bluetooth_connected">Verbindungaufgebaut</string>
+    <string name="bluetooth_pairing">Koppeln \u2026</string>
+    <string name="bluetooth_connected_no_headset">Verbunden (kein Telefon)</string>
+    <string name="bluetooth_connected_no_a2dp">Verbunden (kein Medium)</string>
+    <string name="bluetooth_connected_no_map">Verbunden (kein Mitteilungszugriff)</string>
+    <string name="bluetooth_connected_no_headset_no_a2dp">Verbunden (kein Telefon oder Medium)</string>
+    <string name="bluetooth_profile_a2dp">Medienaudio</string>
+    <string name="bluetooth_profile_headset">Telefonaudio</string>
+    <string name="bluetooth_profile_opp">Dateiübertragung</string>
+    <string name="bluetooth_profile_hid">Eingabegerät</string>
+    <string name="bluetooth_profile_pan">Internetzugriff</string>
+    <string name="bluetooth_profile_pbap">Kontakte werden geteilt</string>
+    <string name="bluetooth_profile_pbap_summary">Verwenden für Kontakte teilen</string>
+    <string name="bluetooth_profile_pan_nap">Internetverbindungsfreigabe</string>
+    <string name="bluetooth_profile_map">Mitteilungszugriff</string>
+    <string name="bluetooth_profile_sap">SIM-Zugriff</string>
+    <string name="bluetooth_a2dp_profile_summary_connected">Mit Medienaudio verbunden</string>
+    <string name="bluetooth_headset_profile_summary_connected">Mit Telefonaudio verbunden</string>
+    <string name="bluetooth_opp_profile_summary_connected">Mit Dateitransferserver verbunden</string>
+    <string name="bluetooth_map_profile_summary_connected">Mit MAP verbunden</string>
+    <string name="bluetooth_sap_profile_summary_connected">Mit SAP verbunden</string>
+    <string name="bluetooth_opp_profile_summary_not_connected">Nicht mit Dateitransferserver verbunden</string>
+    <string name="bluetooth_hid_profile_summary_connected">Mit Eingabegerät verbunden</string>
+    <string name="bluetooth_pan_user_profile_summary_connected">Mit Gerät zum Internetzugriff verbunden</string>
+    <string name="bluetooth_pan_nap_profile_summary_connected">Lokale Internetverbindung mit Gerät teilen</string>
+    <string name="bluetooth_pan_profile_summary_use_for">Zum Internetzugriff verwenden</string>
+    <string name="bluetooth_map_profile_summary_use_for">Für MAP verwenden</string>
+    <string name="bluetooth_sap_profile_summary_use_for">Zum SIM-Zugriff verwenden</string>
+    <string name="bluetooth_a2dp_profile_summary_use_for">Für Medienaudio verwenden</string>
+    <string name="bluetooth_headset_profile_summary_use_for">Für Telefonaudio verwenden</string>
+    <string name="bluetooth_opp_profile_summary_use_for">Zum Dateitransfer verwenden</string>
+    <string name="bluetooth_hid_profile_summary_use_for">Zur Eingabe verwenden</string>
+    <string name="bluetooth_pairing_accept">Koppeln</string>
+    <string name="bluetooth_pairing_accept_all_caps">Koppeln</string>
+    <string name="bluetooth_pairing_decline">ABBRECHEN</string>
+    <string name="bluetooth_pairing_will_share_phonebook">Zugriffsrechte auf Ihre Kontakte und das Anrufprotokoll koppeln, wenn verbunden.</string>
+    <string name="bluetooth_pairing_error_message">Koppeln mit <xliff:g id="device_name">%1$s</xliff:g> nicht möglich.</string>
+    <string name="bluetooth_pairing_pin_error_message">Koppeln mit <xliff:g id="device_name">%1$s</xliff:g> wegen falscher PIN oder falschem Schlüssel nicht möglich.</string>
+    <string name="bluetooth_pairing_device_down_error_message">Kommunikation mit <xliff:g id="device_name">%1$s</xliff:g> nicht möglich.</string>
+    <string name="bluetooth_pairing_rejected_error_message">Kopplung von <xliff:g id="device_name">%1$s</xliff:g> abgelehnt.</string>
+    <string name="accessibility_wifi_off">Wi-Fi aus</string>
+    <string name="accessibility_no_wifi">Wi-Fi getrennt</string>
+    <string name="accessibility_wifi_one_bar">Wi-Fi 1 Balken</string>
+    <string name="accessibility_wifi_two_bars">Wi-Fi 2 Balken</string>
+    <string name="accessibility_wifi_three_bars">Wi-Fi 3 Balken</string>
+    <string name="accessibility_wifi_signal_full">Wi-Fi-Empfang voll</string>
+</resources>

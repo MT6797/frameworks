@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="app_name">ফটোভিউয়ারস্যাম্পল</string>
+    <string name="menu_settings">"সেটিং"</string>
+    <string name="title_activity_main">মেইনএকটিভিটি</string>
+    <string name="launch">ফটোভিউয়ারচালুকরুন</string>
+</resources>

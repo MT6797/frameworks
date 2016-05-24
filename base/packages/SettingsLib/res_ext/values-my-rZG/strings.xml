@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2015 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifi_fail_to_scan">ကြန္ရက္မရွာႏုိင္ပါ</string>
+    <string name="wifi_security_none">အသံတိတ္</string>
+    <string name="wifi_remembered">သိမ္းခဲ့သည္</string>
+    <string name="wifi_disabled_generic">ပိတ္ထားျပီး</string>
+    <string name="wifi_disabled_network_failure">IP ပုံစံခ်ျခင္း မေအာင္ျမင္ပါ</string>
+    <string name="wifi_disabled_wifi_failure">WiFi ခ်ိတ္ဆက္မႈ မေအာင္ျမင္ပါ</string>
+    <string name="wifi_disabled_password_failure">စစ္မွန္ေၾကာင္း အေထာက္အထား ျပသခ်က္တြင္ ျပႆနာရွိေနသည္</string>
+    <string name="wifi_not_in_range">သတ္မွတ္အတိုင္းအတာတြင္းမရွိ</string>
+    <string name="wifi_no_internet">အင္တာနက္ ခ်ိတ္ဆက္မႈ မေတြ႕ပါ၊ အလိုအေလ်ာက္ ျပန္လည္ မခ်ိတ္ဆက္ႏုိင္ပါ။</string>
+    <string name="saved_network"> <xliff:g id="name">%1$s</xliff:g> မွ သိမ္းထားသည္</string>
+    <string name="connected_via_wfa">Wi\u2011Fi အကူအညီမွတဆင့္ ခ်ိတ္ဆက္ထားသည္</string>
+    <string name="connected_via_passpoint">%1$s မွတဆင့္ ခ်ိတ္ဆက္ထားသည္</string>
+    <string name="available_via_passpoint">%1$s မွတဆင့္ ရႏိုင္သည္</string>
+    <string name="wifi_connected_no_internet">ခ်ိတ္ဆက္မႈလုပ္ၿပီးၿပီ၊ အင္တာနက္မရပါ</string>
+    <string name="bluetooth_disconnected">ခ်ိတ္ဆက္မႈျဖဳတ္ထားသည္</string>
+    <string name="bluetooth_disconnecting">ခ်ိတ္ဆက္မႈျဖဳတ္ေနသည္\u2026</string>
+    <string name="bluetooth_connecting">ခ်ိတ္ဆက္ေနသည္\u2026</string>
+    <string name="bluetooth_connected">ခ်ိတ္ဆက္ထားသည္</string>
+    <string name="bluetooth_pairing">ခ်ိတ္တြဲေနသည္\u2026</string>
+    <string name="bluetooth_connected_no_headset">ခ်ိတ္ဆက္ခဲ့သည္ (ဖုန္းမရွိ)</string>
+    <string name="bluetooth_connected_no_a2dp">ခ်ိတ္ဆက္ခဲ့သည္ (မီဒီယာမရွိ)</string>
+    <string name="bluetooth_connected_no_map">ခ်ိတ္ဆက္ၿပီး (မက္ေဆ့ခ်္ မသုံးရေသး)</string>
+    <string name="bluetooth_connected_no_headset_no_a2dp">ခ်ိတ္ဆက္ခဲ့သည္ (ဖုန္း သို႔မဟုတ္ မီဒီယာ မရွိ)</string>
+    <string name="bluetooth_profile_a2dp">မီဒီယာအသံ</string>
+    <string name="bluetooth_profile_headset">ဖုန္းအသံ</string>
+    <string name="bluetooth_profile_opp">ဖိုင္ေျပာင္းျခင္း</string>
+    <string name="bluetooth_profile_hid">ထည့္သြင္းရန္စက္</string>
+    <string name="bluetooth_profile_pan">အင္တာနက္သို႔ဝင္ခြင့္</string>
+    <string name="bluetooth_profile_pbap">အဆက္အသြယ္ကို မၽွေဝရန္</string>
+    <string name="bluetooth_profile_pbap_summary">"အဆက္အသြယ္ကို မၽွေဝရန္ အတြက္ သုံးရန္"</string>
+    <string name="bluetooth_profile_pan_nap">အင္တာနက္ခ်ိတ္ဆက္မႈေဝငွျခင္း</string>
+    <string name="bluetooth_profile_map">မက္ေဆ့ခ်္သုံးစြဲမႈ</string>
+    <string name="bluetooth_profile_sap">SIM ရယူသုံးစြဲမႈ</string>
+    <string name="bluetooth_a2dp_profile_summary_connected">မီဒီယာအသံသို႔ ခ်ိတ္ဆက္ၿပီး</string>
+    <string name="bluetooth_headset_profile_summary_connected">ဖုန္းအသံသို႔ခ်ိတ္ဆက္ၿပီး</string>
+    <string name="bluetooth_opp_profile_summary_connected">ဖိုင္ေျပာင္းေရႊ႕သည့္ဆာဗာသို႔ခ်ိတ္ဆက္ၿပီး</string>
+    <string name="bluetooth_map_profile_summary_connected">ေျမပုံသို႔ ခ်ိတ္ဆက္ထားသည္</string>
+    <string name="bluetooth_sap_profile_summary_connected">SAP သို႔ ခ်ိတ္ဆက္ထားသည္</string>
+    <string name="bluetooth_opp_profile_summary_not_connected">ဖိုင္ေျပာင္းေရႊ႕သည့္ ဆာဗာသို႔ ခ်ိတ္ဆက္မထားပါ</string>
+    <string name="bluetooth_hid_profile_summary_connected">ထည့္သြင္းရန္စက္သို႔ ခ်ိတ္ဆက္ထားၿပီး</string>
+    <string name="bluetooth_pan_user_profile_summary_connected">အင္တာနက္သံုးရန္ အတြက္စက္ႏွင့္ ခ်ိတ္ဆက္ထားၿပီး</string>
+    <string name="bluetooth_pan_nap_profile_summary_connected">နယ္ခံအင္တာနက္ခ်ိတ္ဆက္ျခင္းကို စက္ျဖင့္ေဝငွသံုးျခင္း</string>
+    <string name="bluetooth_pan_profile_summary_use_for">အင္တာနက္သို႔ ဝင္ေရာက္ခြင့္အတြက္ သံုးပါ</string>
+    <string name="bluetooth_map_profile_summary_use_for">ေျမပုံအတြက္ သုံးပါ</string>
+    <string name="bluetooth_sap_profile_summary_use_for">SIM ရယူသုံးစြဲမႈအတြက္ သုံးပါ</string>
+    <string name="bluetooth_a2dp_profile_summary_use_for">မီဒီယာအသံအတြက္ သံုးပါ</string>
+    <string name="bluetooth_headset_profile_summary_use_for">ဖုန္းအသံအတြက္သံုးပါ</string>
+    <string name="bluetooth_opp_profile_summary_use_for">ဖိုင္လႊဲေျပာင္းျခင္းအတြက္ သုံးပါ</string>
+    <string name="bluetooth_hid_profile_summary_use_for">ထည့္သြင္းျခင္းအတြက္သံုးပါ</string>
+    <string name="bluetooth_pairing_accept">တြဲရန္</string>
+    <string name="bluetooth_pairing_accept_all_caps">တြဲရန္</string>
+    <string name="bluetooth_pairing_decline">ပယ္ဖ်က္ပါ</string>
+    <string name="bluetooth_pairing_will_share_phonebook">တြဲဖက္ျခင္းသည္ ခ်ိတ္ဆက္ေသာအခါ သင့္အဆက္အသြယ္မ်ားႏွင့္ ေခၚဆိုမႈမွတ္တမ္းကို အသံုးျပဳခြင့္ျပဳသည္။</string>
+    <string name="bluetooth_pairing_error_message"><xliff:g id="device_name">%1$s</xliff:g> ႏွင့္ မခ်ိတ္တြဲႏိုင္ပါ။</string>
+    <string name="bluetooth_pairing_pin_error_message">မမွန္ကန္ေသာ PIN သို႔မဟုတ္ ျဖတ္ေက်ာ္ကီးေၾကာင့္ <xliff:g id="device_name">%1$s</xliff:g> ႏွင့္ မခ်ိတ္တြဲႏိုင္ပါ။</string>
+    <string name="bluetooth_pairing_device_down_error_message"> <xliff:g id="device_name">%1$s</xliff:g> ႏွင့္ မဆက္သြယ္ႏုိင္ပါ။</string>
+    <string name="bluetooth_pairing_rejected_error_message">  <xliff:g id="device_name">%1$s</xliff:g>မွ တြဲျခင္းကို ျငင္းပယ္သည္။ </string>
+    <string name="accessibility_wifi_off">Wifi ပိတ္ထားသည္။</string>
+    <string name="accessibility_no_wifi">Wifi ခ်ိတ္ဆက္မႈ ျဖဳတ္ထားသည္။</string>
+    <string name="accessibility_wifi_one_bar">Wifi သေကၤတတစ္တံုး။</string>
+    <string name="accessibility_wifi_two_bars">Wifi သေကၤတႏွစ္တံုး။</string>
+    <string name="accessibility_wifi_three_bars">Wifi သေကၤတသံုးတံုး။</string>
+    <string name="accessibility_wifi_signal_full">ဝိုင္-ဖိုင္ ထုတ္လႊင့္ခ်က္ အျပည့္။</string>
+</resources>

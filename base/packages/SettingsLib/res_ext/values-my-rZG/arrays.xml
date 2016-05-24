@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2015 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string-array name="wifi_status">
+    <item></item>
+    <item>စကင္ဖတ္ေနသည္\u2026</item>
+    <item>  %1$sသို႔ ခ်ိတ္ဆက္ေနသည္\u2026 </item>
+    <item>စစ္မွန္ေၾကာင္း အတည္ျပဳေနသည္\u2026</item>
+    <item>IP လိပ္စာကို ရယူေနသည္\u2026</item>
+    <item>ခ်ိတ္ဆက္ၿပီး</item>
+    <item>ဆိုင္းထားသည္</item>
+    <item>ခ်ိတ္ဆက္မႈကို ျဖတ္ေနသည္\u2026</item>
+    <item>ခ်ိတ္ဆက္မႈျပတ္ေတာက္ခဲ့သည္</item>
+    <item>မေအာင္ျမင္ပါ</item>
+    <item>ပိတ္ဆို႔ခဲ့သည္</item>
+    <item>အားနည္းေသာ ခ်ိတ္ဆက္မႈကို ယာယီ ေရွာင္ရွားေနသည္</item>
+  </string-array>
+  <string-array name="wifi_status_with_ssid">
+    <item></item>
+    <item>စကင္ဖတ္ေနသည္\u2026</item>
+    <item>  %1$sသို႔ ခ်ိတ္ဆက္ေနသည္\u2026 </item>
+    <item>  %1$sႏွင့္ စစ္မွန္ေၾကာင္း အတည္ျပဳေနသည္\u2026 </item>
+    <item>  %1$sမွ IP လိပ္စာကို ရယူေနသည္\u2026 </item>
+    <item>  %1$sသို႔ ခ်ိတ္ဆက္ခဲ့သည္ </item>
+    <item>ဆိုင္းထားသည္</item>
+    <item>  %1$sမွ ျဖတ္ေနသည္\u2026 </item>
+    <item>ခ်ိတ္ဆက္မႈျပတ္ေတာက္ခဲ့သည္</item>
+    <item>မေအာင္ျမင္ပါ</item>
+    <item>ပိတ္ဆို႔ခဲ့သည္</item>
+    <item>အားနည္းေသာ ခ်ိတ္ဆက္မႈကို ယာယီ ေရွာင္ရွားေနသည္</item>
+  </string-array>
+</resources>

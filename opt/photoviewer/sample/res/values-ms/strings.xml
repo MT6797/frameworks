@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="app_name">"PhotoViewerSample"</string>
+    <string name="menu_settings">Tetapan</string>
+    <string name="title_activity_main">"AktivitiUtama"</string>
+    <string name="launch">"LancarkanPhotoViewer"</string>
+</resources>

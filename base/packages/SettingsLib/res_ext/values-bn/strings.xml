@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2015 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifi_fail_to_scan">নেটওয়ার্ক স্ক্যান করতে পারছে না</string>
+    <string name="wifi_security_none">কোনটিনয়</string>
+    <string name="wifi_remembered">সংরক্ষিত</string>
+    <string name="wifi_disabled_generic">নিষ্ক্রিয়</string>
+    <string name="wifi_disabled_network_failure">আইপি কনফিগারেশনে ব্যর্থতা</string>
+    <string name="wifi_disabled_wifi_failure">ওয়াইফাই সংযোগে ব্যর্থতা</string>
+    <string name="wifi_disabled_password_failure">সত্যপ্রতিপাদনে সমস্যা</string>
+    <string name="wifi_not_in_range">রেঞ্জের মধ্যে নেই</string>
+    <string name="wifi_no_internet">ইন্টারনেট সংযোগ খুঁজে পাওয়া যায়নি, স্বয়ংক্রিয়ভাবে পুনরায় সংযুক্ত হবে না।</string>
+    <string name="saved_network">সংরক্ষিত হয়েছে <xliff:g id="name">%1$s</xliff:g></string>
+    <string name="connected_via_wfa">ওয়াই\u2011ফাই সহায়ক দিয়ে সংযুক্ত</string>
+    <string name="connected_via_passpoint">%1$s দিয়ে সংযুক্ত</string>
+    <string name="available_via_passpoint">%1$s দিয়ে পাওয়া যায়</string>
+    <string name="wifi_connected_no_internet">সংযুক্ত, ইন্টারনেট নেই</string>
+    <string name="bluetooth_disconnected">বিচ্ছিন্ন</string>
+    <string name="bluetooth_disconnecting">বিচ্ছিন্ন হচ্ছে\u2026</string>
+    <string name="bluetooth_connecting">সংযুক্ত হচ্ছে\u2026</string>
+    <string name="bluetooth_connected">সংযুক্ত</string>
+    <string name="bluetooth_pairing">পেয়ার হচ্ছে\u2026</string>
+    <string name="bluetooth_connected_no_headset">সংযুক্ত (কোন ফোন নেই)</string>
+    <string name="bluetooth_connected_no_a2dp">সংযুক্ত (কোন মিডিয়া নেই)</string>
+    <string name="bluetooth_connected_no_map">সংযুক্ত (বার্তায় কোন প্রবেশাধিকার নেই)</string>
+    <string name="bluetooth_connected_no_headset_no_a2dp">সংযুক্ত (কোন ফোন বা মিডিয়া নেই)</string>
+    <string name="bluetooth_profile_a2dp">মিডিয়া অডিও</string>
+    <string name="bluetooth_profile_headset">ফোন অডিও</string>
+    <string name="bluetooth_profile_opp">ফাইলস্থানান্তর</string>
+    <string name="bluetooth_profile_hid">ইনপুট ডিভাইস</string>
+    <string name="bluetooth_profile_pan">ইন্টারনেট ব্যবহারের সুযোগ</string>
+    <string name="bluetooth_profile_pbap">পরিচিতজন শেয়ার করা</string>
+    <string name="bluetooth_profile_pbap_summary">পরিচিতজন শেয়ার করার জন্য ব্যবহার করুন</string>
+    <string name="bluetooth_profile_pan_nap">ইন্টারনেট সংযোগ শেয়ার করা</string>
+    <string name="bluetooth_profile_map">বার্তায় প্রবেশাধিকার</string>
+    <string name="bluetooth_profile_sap">সিমে প্রবেশাধিকার</string>
+    <string name="bluetooth_a2dp_profile_summary_connected">মিডিয়া অডিও\'র সাথে সংযুক্ত</string>
+    <string name="bluetooth_headset_profile_summary_connected">ফোন অডিও\'র সাথে সংযুক্ত</string>
+    <string name="bluetooth_opp_profile_summary_connected">ফাইল স্থানান্তর সার্ভারের সাথে সংযুক্ত</string>
+    <string name="bluetooth_map_profile_summary_connected">মানচিত্রের সাথে সংযুক্ত</string>
+    <string name="bluetooth_sap_profile_summary_connected">এসএপিতে সংযুক্ত</string>
+    <string name="bluetooth_opp_profile_summary_not_connected">ফাইল স্থানান্তর সার্ভারের সাথে সংযুক্ত নয়।</string>
+    <string name="bluetooth_hid_profile_summary_connected">ইনপুট ডিভাইসের সাথে সংযুক্ত</string>
+    <string name="bluetooth_pan_user_profile_summary_connected">ইন্টারনেটে প্রবেশের জন্য ডিভাইসের সাথে সংযুক্ত</string>
+    <string name="bluetooth_pan_nap_profile_summary_connected">ডিভাইসের সাথে স্থানীয় ইন্টারনেট সংযোগ শেয়ার করছে</string>
+    <string name="bluetooth_pan_profile_summary_use_for">ইন্টারনেটে প্রবেশের জন্য ব্যবহার করুন</string>
+    <string name="bluetooth_map_profile_summary_use_for">মানচিত্রের জন্য ব্যবহার করুন</string>
+    <string name="bluetooth_sap_profile_summary_use_for">সিমে প্রবেশাধিকারের জন্য ব্যবহার করুন</string>
+    <string name="bluetooth_a2dp_profile_summary_use_for">মিডিয়া অডিও\'র জন্য ব্যবহার করুন</string>
+    <string name="bluetooth_headset_profile_summary_use_for">ফোন অডিও\'র জন্য ব্যবহার করুন</string>
+    <string name="bluetooth_opp_profile_summary_use_for">ফাইল ট্রান্সফারের জন্য ব্যবহার করুন</string>
+    <string name="bluetooth_hid_profile_summary_use_for">ইনপুটের জন্য ব্যবহার করুন</string>
+    <string name="bluetooth_pairing_accept">জোড়া</string>
+    <string name="bluetooth_pairing_accept_all_caps">জোড়া</string>
+    <string name="bluetooth_pairing_decline">বাতিলকরুন</string>
+    <string name="bluetooth_pairing_will_share_phonebook">সংযুক্ত থাকা অবস্থায় আপনার পরিচিতজন এবং কল ইতিহাসে প্রবেশের অনুমতির জোড়া তৈরি করা।</string>
+    <string name="bluetooth_pairing_error_message"><xliff:g id="device_name">%1$s</xliff:g> সাথে পেয়ার করতে পারেনি।</string>
+    <string name="bluetooth_pairing_pin_error_message">ভুল পিন বা পাসকির জন্য <xliff:g id="device_name">%1$s</xliff:g> সাথে পেয়ার করতে পারেনি।</string>
+    <string name="bluetooth_pairing_device_down_error_message"><xliff:g id="device_name">%1$s</xliff:g> সাথে যোগাযোগ করতে পারছে না।</string>
+    <string name="bluetooth_pairing_rejected_error_message">  <xliff:g id="device_name">%1$s</xliff:g> কর্তৃক জোড়া তৈরি প্রত্যাখাত হয়েছে। </string>
+    <string name="accessibility_wifi_off">ওয়াইফাই বন্ধ।</string>
+    <string name="accessibility_no_wifi">ওয়াইফাই এর সংযোগ বিচ্ছিন্ন করা হয়েছে।</string>
+    <string name="accessibility_wifi_one_bar">ওয়াইফাই এক বার।</string>
+    <string name="accessibility_wifi_two_bars">ওয়াইফাই দুই বার।</string>
+    <string name="accessibility_wifi_three_bars">ওয়াইফাই তিন বার।</string>
+    <string name="accessibility_wifi_signal_full">ওয়াই-ফাইতে পূর্ণ সংকেত আছে ।</string>
+</resources>

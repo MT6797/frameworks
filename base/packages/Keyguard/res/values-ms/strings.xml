@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name"/>
+    <string name="keyguard_password_enter_pin_code"/>
+    <string name="keyguard_password_enter_puk_code"/>
+    <string name="keyguard_password_enter_puk_prompt"/>
+    <string name="keyguard_password_enter_pin_prompt"/>
+    <string name="keyguard_password_entry_touch_hint"/>
+    <string name="keyguard_password_enter_password_code"/>
+    <string name="keyguard_password_enter_pin_password_code"/>
+    <string name="keyguard_password_wrong_pin_code"/>
+    <string name="keyguard_charged"/>
+    <string name="keyguard_plugged_in"/>
+    <string name="keyguard_low_battery"/>
+    <string name="keyguard_instructions_when_pattern_disabled"/>
+    <skip/>
+    <string name="keyguard_network_locked_message"/>
+    <string name="keyguard_missing_sim_message_short"/>
+    <string name="keyguard_missing_sim_message" product="tablet"/>
+    <string name="keyguard_missing_sim_message" product="default"/>
+    <string name="keyguard_missing_sim_instructions"/>
+    <string name="keyguard_missing_sim_instructions_long"/>
+    <string name="keyguard_permanent_disabled_sim_message_short"/>
+    <string name="keyguard_permanent_disabled_sim_instructions">Kad SIM anda telah dilumpuhkan secara kekal.\n Hubungi pembekal perkhidmatan wayarles anda untuk mendapatkan kad SIM lain.</string>
+    <string name="keyguard_sim_locked_message"/>
+    <string name="keyguard_sim_puk_locked_message"/>
+    <string name="keyguard_sim_unlock_progress_dialog_message">Membuka kunci kad SIM\u2026</string>
+    <string name="keyguard_accessibility_pattern_unlock"/>
+    <string name="keyguard_accessibility_pin_unlock"/>
+    <string name="keyguard_accessibility_password_unlock"/>
+    <string name="keyguard_accessibility_pattern_area" msgid="7679891324509597904"/>
+    <string name="keyguard_accessibility_slide_area"/>
+    <string name="keyguard_accessibility_pin_area"/>
+    <string name="keyguard_accessibility_sim_pin_area"/>
+    <string name="keyguard_accessibility_sim_puk_area"/>
+    <string name="keyguard_accessibility_next_alarm"/>
+    <skip/>
+    <string name="keyboardview_keycode_delete"/>
+    <string name="keyboardview_keycode_enter"/>
+    <string name="kg_forgot_pattern_button_text"/>
+    <string name="kg_wrong_pattern"/>
+    <string name="kg_wrong_password"/>
+    <string name="kg_wrong_pin"/>
+    <string name="kg_too_many_failed_attempts_countdown"/>
+    <string name="kg_pattern_instructions"/>
+    <string name="kg_sim_pin_instructions"/>
+    <string name="kg_sim_pin_instructions_multi">Masukkan PIN SIM untuk \"<xliff:g id="carrier" example="CARD1">%1$s</xliff:g>\"</string>
+    <string name="kg_pin_instructions"/>
+    <string name="kg_password_instructions"/>
+    <string name="kg_puk_enter_puk_hint"/>
+    <string name="kg_puk_enter_puk_hint_multi">SIM \"<xliff:g id="carrier" example="CARD1">%1$s</xliff:g>\" kini dilumpuhkan. Masukkan kod PUK untuk meneruskan. Hubungi pembawa untuk mendapatkan butiran.</string>
+    <string name="kg_puk_enter_pin_hint"/>
+    <string name="kg_enter_confirm_pin_hint"/>
+    <string name="kg_sim_unlock_progress_dialog_message">Membuka kunci kad SIM\u2026</string>
+    <string name="kg_invalid_sim_pin_hint"/>
+    <string name="kg_invalid_sim_puk_hint"/>
+    <string name="kg_invalid_puk"/>
+    <string name="kg_invalid_confirm_pin_hint" product="default"/>
+    <string name="kg_login_too_many_attempts"/>
+    <string name="kg_too_many_failed_pin_attempts_dialog_message">Anda telah menaip PIN dengan salah sebanyak <xliff:g id="number">%d</xliff:g> kali. \n\nCuba lagi dalam <xliff:g id="number">%d</xliff:g> saat.</string>
+    <string name="kg_too_many_failed_password_attempts_dialog_message">Anda telah menaip PIN dengan salah sebanyak <xliff:g id="number">%d</xliff:g> kali. \n\nCuba lagi dalam <xliff:g id="number">%d</xliff:g> saat.</string>
+    <string name="kg_too_many_failed_pattern_attempts_dialog_message">Anda telah melukis corak buka kunci dengan salah sebanyak <xliff:g id="number">%d</xliff:g> kali. \n\nCuba lagi dalam <xliff:g id="number">%d</xliff:g> saat.</string>
+    <string name="kg_failed_attempts_almost_at_wipe" product="tablet"/>
+    <string name="kg_failed_attempts_almost_at_wipe" product="default"/>
+    <string name="kg_failed_attempts_now_wiping" product="tablet"/>
+    <string name="kg_failed_attempts_now_wiping" product="default"/>
+    <string name="kg_failed_attempts_almost_at_erase_user" product="tablet">"Anda telah salah membuka kunci tablet sebanyak <xliff:g id="NUMBER_0">%d</xliff:g> kali. Selepas <xliff:g id="NUMBER_1">%d</xliff:g> lagi percubaan yang gagal, pengguna ini akan dialih keluar sekali gus memadam semua data pengguna."</string>
+    <string name="kg_failed_attempts_almost_at_erase_user" product="default">"Anda telah salah membuka kunci telefon sebanyak <xliff:g id="NUMBER_0">%d</xliff:g> kali. Selepas <xliff:g id="NUMBER_1">%d</xliff:g> lagi percubaan yang gagal, pengguna ini akan dialih keluar sekali gus memadam semua data pengguna."</string>
+    <string name="kg_failed_attempts_now_erasing_user" product="tablet">"Anda telah salah membuka kunci tablet sebanyak <xliff:g id="NUMBER">%d</xliff:g> kali. Pengguna ini akan dialih keluar sekali gus memadam semua data pengguna."</string>
+    <string name="kg_failed_attempts_now_erasing_user" product="default">"Anda telah salah membuka kunci telefon sebanyak <xliff:g id="NUMBER">%d</xliff:g> kali. Pengguna ini akan dialih keluar sekali gus memadam semua data pengguna."</string>
+    <string name="kg_failed_attempts_almost_at_erase_profile" product="tablet">"Anda telah salah membuka kunci tablet sebanyak <xliff:g id="NUMBER_0">%d</xliff:g> kali. Selepas <xliff:g id="NUMBER_1">%d</xliff:g> lagi percubaan yang gagal, profil kerja anda akan dialih keluar sekali gus memadam semua data profil."</string>
+    <string name="kg_failed_attempts_almost_at_erase_profile" product="default">"Anda telah salah membuka kunci telefon sebanyak <xliff:g id="NUMBER_0">%d</xliff:g> kali. Selepas <xliff:g id="NUMBER_1">%d</xliff:g> lagi percubaan yang gagal, profil kerja ini akan dialih keluar sekali gus memadam semua data profil."</string>
+    <string name="kg_failed_attempts_now_erasing_profile" product="tablet">"Anda telah salah membuka kunci tablet sebanyak <xliff:g id="NUMBER">%d</xliff:g> kali. Profil kerja ini akan dialih keluar sekali gu memadam semua data profil."</string>
+    <string name="kg_failed_attempts_now_erasing_profile" product="default">"Anda telah salah membuka kunci telefon sebanyak <xliff:g id="NUMBER">%d</xliff:g> kali. Profil kerja ini akan dialih keluar sekali gus memadam semua data profil."</string>
+    <string name="kg_failed_attempts_almost_at_login" product="tablet">Anda telah melukis corak buka kunci dengan salah sebanyak <xliff:g id="number">%d</xliff:g> kali. Selepas <xliff:g id="number">%d</xliff:g> lagi percubaan yang tidak berjaya, anda akan diminta untuk membuka kunci tablet anda menggunakan akaun e-mel.\n\n Cuba lagi dalam <xliff:g id="number">%d</xliff:g> saat.</string>
+    <string name="kg_failed_attempts_almost_at_login" product="default">Anda telah melukis corak buka kunci dengan salah sebanyak <xliff:g id="number">%d</xliff:g> kali. Selepas <xliff:g id="number">%d</xliff:g> lagi percubaan yang tidak berjaya, anda akan diminta untuk membuka kunci telefon anda menggunakan akaun e-mel.\n\n Cuba lagi dalam <xliff:g id="number">%d</xliff:g> saat.</string>
+    <string name="kg_password_wrong_pin_code_pukked">"Kod PIN SIM tidak betul, jadi anda harus menghubungi pembawa anda untuk membuka kunci peranti."</string>
+    <plurals name="kg_password_wrong_pin_code">
+        <item quantity="one">"Kod PIN SIM tidak betul. Anda mempunyai <xliff:g id="NUMBER">%d</xliff:g> percubaan lagi sebelum anda harus menghubungi pembawa anda untuk membuka kunci peranti."</item>
+        <item quantity="other">"Kod PIN SIM tidak betul, anda mempunyai <xliff:g id="NUMBER">%d</xliff:g> percubaan lagi."</item>
+    </plurals>
+    <string name="kg_password_wrong_puk_code_dead">"SIM tidak boleh digunakan. Hubungi pembawa anda."</string>
+    <plurals name="kg_password_wrong_puk_code">
+        <item quantity="one">"Kod PUK SIM tidak betul, anda mempunyai <xliff:g id="NUMBER">%d</xliff:g> percubaan lagi sebelum SIM tidak boleh digunakan secara kekal."</item>
+        <item quantity="other">"Kod PUK SIM tidak betul, anda mempunyai <xliff:g id="NUMBER">%d</xliff:g> percubaan lagi sebelum SIM tidak boleh digunakan secara kekal."</item>
+    </plurals>
+    <string name="kg_password_pin_failed">"Operasi PIN SIM gagal!"</string>
+    <string name="kg_password_puk_failed">"Operasi PUK SIM gagal!"</string>
+    <string name="kg_pin_accepted">"Kod Diterima!"</string>
+    <string name="keyguard_carrier_default">"Tiada perkhidmatan."</string>
+    <string name="accessibility_ime_switch_button" msgid="5032926134740456424">"Butang tukar kaedah input."</string>
+    <string name="airplane_mode">"Mod pesawat"</string>
+    <string name="kg_prompt_reason_restart_pattern">Corakdiperlukanapabilaandamemulakansemulaperanti.</string>
+    <string name="kg_prompt_reason_restart_pin">PINdiperlukanapabilaandamemulakansemulaperanti.</string>
+    <string name="kg_prompt_reason_restart_password">Katalaluandiperlukanapabilaandamemulakansemulaperanti.</string>
+    <string name="kg_prompt_reason_switch_profiles_pattern">Corakdiperlukanapabilaandamenukarprofil.</string>
+    <string name="kg_prompt_reason_switch_profiles_pin">PINdiperlukanapabilaandamenukarprofil.</string>
+    <string name="kg_prompt_reason_switch_profiles_password">Katalaluandiperlukanapabilaandamenukarprofil.</string>
+    <plurals name="kg_prompt_reason_time_pattern">
+        <item quantity="one">Peranti tidak dikunci selama <xliff:g id="number">%d</xliff:g> jam. Sahkan corak.</item>
+        <item quantity="other">Peranti tidak dikunci selama <xliff:g id="number">%d</xliff:g> jam. Sahkan corak.</item>
+    </plurals>
+    <plurals name="kg_prompt_reason_time_pin">
+        <item quantity="one">Peranti tidak dikunci selama <xliff:g id="number">%d</xliff:g> jam. Sahkan PIN.</item>
+        <item quantity="other">Peranti tidak dikunci selama <xliff:g id="number">%d</xliff:g> jam. Sahkan PIN.</item>
+    </plurals>
+    <plurals name="kg_prompt_reason_time_password">
+        <item quantity="one">Peranti tidak dikunci selama <xliff:g id="number">%d</xliff:g> jam. Sahkan kata laluan.</item>
+        <item quantity="other">Peranti tidak dikunci selama <xliff:g id="number">%d</xliff:g> jam. Sahkan kata laluan.</item>
+    </plurals>
+    <string name="fingerprint_not_recognized">Tidakdikenali</string>
+</resources>
