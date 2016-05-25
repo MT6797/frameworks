@@ -1533,7 +1533,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             return;
                         if (mNavigationBar != null && mNavigationBarOnBottom) {
                             requestTransientBars(mNavigationBar);
-                        }
+                        }else{  
+                           Log.i(TAG, "onSwipeFromBottom...mHasNavigationBar:"+mHasNavigationBar+"  keyguardOn:"+keyguardOn());  
+			             if(mHasNavigationBar && !keyguardOn())
+                           	showNavigationBar();  
+                        }  
                     }
                     @Override
                     public void onSwipeFromRight() {
@@ -7623,4 +7627,22 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         return null;
     }
+//add by liliang.bao begin
+  private void showNavigationBar(){  
+        mHandler.post(new Runnable() {  
+            @Override  
+            public void run() {  
+                try {  
+                    IStatusBarService statusbar = getStatusBarService();  
+                   if (statusbar != null) {  
+                        statusbar.showNavigationBar();  
+                    }  
+                } catch (RemoteException e) {  
+                    // re-acquire status bar service next time it is needed.  
+                    mStatusBarService = null;  
+                }  
+            }  
+        });  
+    }
+//add by liliang.bao end
 }

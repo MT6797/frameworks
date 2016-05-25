@@ -2249,4 +2249,5 @@ public abstract class BaseStatusBar extends SystemUI implements
     public void hideDefaultAccountStatus() {
     }
     /// @ }
+   public void showNavigationBar(){}   //add by liliang.bao
 }

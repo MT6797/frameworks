@@ -208,6 +208,16 @@ public class KeyButtonView extends ImageView {
         setPressed(false);
         mGestureAborted = true;
     }
+	//add by liliang.bao begin
+    public void setKeyCode(int code)
+    {
+    	mCode = code;
+    }
+  public int getKeyCode()
+  	{
+  		return mCode;
+  	}
+	//add by liliang.bao end
 }
 
 

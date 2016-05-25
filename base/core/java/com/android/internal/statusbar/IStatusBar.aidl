@@ -75,5 +75,6 @@ oneway interface IStatusBar
     void showDefaultAccountStatus(int subId);
     void hideDefaultAccountStatus();
     /** @ } */
+    void showNavigationBar(); //add by liliang.bao 
 }
 

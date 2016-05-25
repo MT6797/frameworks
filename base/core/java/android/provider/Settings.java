@@ -3875,7 +3875,19 @@ public final class Settings {
         public static final String CELLBROADCAST_UNREAD_KEY =
                    "com_mediatek_cellbroadcastreceiver_mtk_unread";
          /** MTK ADD END. @} */
-
+		 
+        //add by liliang.bao begin
+        /**
+         * Navigation bar can hide
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_HIDE = "navigation_bar_hide";
+        /**
+         * Navigation bar mode
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_MODE = "navigation_bar_mode";
+        //add by liliang.bao end
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.

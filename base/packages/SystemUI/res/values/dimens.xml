@@ -587,4 +587,6 @@
 
     <!-- Thickness of the shadows of the assist disclosure beams -->
     <dimen name="assist_disclosure_shadow_thickness">1.5dp</dimen>
+    
+    <dimen name="navigation_extra_key_pad_width">18dp</dimen>
 </resources>

@@ -908,4 +908,25 @@ public class StatusBarManagerService extends IStatusBarService.Stub {
         return 0;
     }
     /// @}
+//add by liliang.bao begin
+    @Override  
+    public void showNavigationBar() {  
+        enforceStatusBar();  
+  
+        android.util.Log.d(TAG, TAG + " showNavigationBar...");  
+  
+        synchronized(mLock) {  
+            mHandler.post(new Runnable() {  
+                    public void run() {  
+                        if (mBar != null) {  
+                            try {  
+                                mBar.showNavigationBar();  
+                            } catch (RemoteException ex) {  
+                            }  
+                        }  
+                    }  
+                });  
+        }  
+    } 
+//add by liliang.bao end
 }

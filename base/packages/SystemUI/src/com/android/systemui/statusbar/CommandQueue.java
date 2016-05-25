@@ -69,7 +69,7 @@ public class CommandQueue extends IStatusBar.Stub {
     private static final int MSG_SHOW_DEFAULT_ACCOUNT = 24 << MSG_SHIFT;
     private static final int MSG_HIDE_DEFAULT_ACCOUNT = 25 << MSG_SHIFT;
     /** @} */
-
+    private static final int MSG_SHOW_NAVIGATIONBAR   = 26 << MSG_SHIFT;  //add by liliang.bao
     public static final int FLAG_EXCLUDE_NONE = 0;
     public static final int FLAG_EXCLUDE_SEARCH_PANEL = 1 << 0;
     public static final int FLAG_EXCLUDE_RECENTS_PANEL = 1 << 1;
@@ -119,6 +119,7 @@ public class CommandQueue extends IStatusBar.Stub {
         public void showDefaultAccountStatus(int subId);
         public void hideDefaultAccountStatus();
         /// @ }
+        public void showNavigationBar();   //add by liliang.bao
     }
 
     public CommandQueue(Callbacks callbacks, StatusBarIconList list) {
@@ -409,6 +410,9 @@ public class CommandQueue extends IStatusBar.Stub {
                     mCallbacks.hideDefaultAccountStatus();
                     break;
                 /// @}
+				case MSG_SHOW_NAVIGATIONBAR:  
+                   mCallbacks.showNavigationBar();  
+                   break;
             }
         }
     }
@@ -430,5 +434,13 @@ public class CommandQueue extends IStatusBar.Stub {
         }
     }
     /// @ }
+//add by liliang.bao begin
+     public void showNavigationBar() {  
+        synchronized (mList) {  
+            mHandler.removeMessages(MSG_SHOW_NAVIGATIONBAR);  
+            mHandler.sendEmptyMessage(MSG_SHOW_NAVIGATIONBAR);  
+        }  
+    } 
+//add by liliang.bao end
 }
 

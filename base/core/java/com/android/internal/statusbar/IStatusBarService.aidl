@@ -95,4 +95,5 @@ interface IStatusBarService
     void showDefaultAccountStatus(int subId);
     void hideDefaultAccountStatus();
     /** @ } */
+    void showNavigationBar();//add by liliang.bao
 }

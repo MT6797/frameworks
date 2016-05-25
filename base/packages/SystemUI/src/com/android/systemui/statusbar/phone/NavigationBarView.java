@@ -58,7 +58,8 @@ import java.util.ArrayList;
 import com.mediatek.common.MPlugin;
 import com.mediatek.systemui.ext.DefaultNavigationBarPlugin;
 import com.mediatek.systemui.ext.INavigationBarPlugin;
-
+import com.android.systemui.statusbar.policy.KeyButtonRipple;
+import android.provider.Settings;
 public class NavigationBarView extends LinearLayout {
     final static boolean DEBUG = false;
     final static String TAG = "PhoneStatusBar/NavigationBarView";
@@ -268,6 +269,16 @@ public class NavigationBarView extends LinearLayout {
         view.setImageDrawable(mNavBarPlugin.getBackImage(view.getDrawable()));
         return view;
     }
+    public View getHideBarButton() {  
+       View view = mCurrentView.findViewById(R.id.hide_bar_btn);  
+       view.setBackground(new KeyButtonRipple(getContext(), view));  
+       return view;  
+    } 
+    public View getPullStatusBarButton() {  
+        View view = mCurrentView.findViewById(R.id.pull_status_bar_btn);  
+        view.setBackground(new KeyButtonRipple(getContext(), view));  
+        return view;  
+     } 
 
     public KeyButtonView getHomeButton() {
         KeyButtonView view = (KeyButtonView) mCurrentView.findViewById(R.id.home);
@@ -328,11 +339,18 @@ public class NavigationBarView extends LinearLayout {
 
         mNavigationIconHints = hints;
 
-        ((ImageView)getBackButton()).setImageDrawable(backAlt
+    //    ((ImageView)getBackButton()).setImageDrawable(backAlt
+   //             ? (mVertical ? mBackAltLandIcon : mBackAltIcon)
+    //            : (mVertical ? mBackLandIcon : mBackIcon));
+      if(4 == ((KeyButtonView)getBackButton()).getKeyCode())
+          ((ImageView)getBackButton()).setImageDrawable(backAlt
                 ? (mVertical ? mBackAltLandIcon : mBackAltIcon)
                 : (mVertical ? mBackLandIcon : mBackIcon));
-
-        ((ImageView)getRecentsButton()).setImageDrawable(mVertical ? mRecentLandIcon : mRecentIcon);
+     else if(4 == ((KeyButtonView)getRecentsButton()).getKeyCode())
+	  ((ImageView)getRecentsButton()).setImageDrawable(backAlt
+                ? (mVertical ? mBackAltLandIcon : mBackAltIcon)
+                : (mVertical ? mBackLandIcon : mBackIcon));
+    //    ((ImageView)getRecentsButton()).setImageDrawable(mVertical ? mRecentLandIcon : mRecentIcon);
 
         final boolean showImeButton = ((hints & StatusBarManager.NAVIGATION_HINT_IME_SHOWN) != 0);
         getImeSwitchButton().setVisibility(showImeButton ? View.VISIBLE : View.INVISIBLE);
@@ -352,9 +370,9 @@ public class NavigationBarView extends LinearLayout {
 
         mDisabledFlags = disabledFlags;
 
-        final boolean disableHome = ((disabledFlags & View.STATUS_BAR_DISABLE_HOME) != 0);
+        boolean disableHome = ((disabledFlags & View.STATUS_BAR_DISABLE_HOME) != 0);
         boolean disableRecent = ((disabledFlags & View.STATUS_BAR_DISABLE_RECENT) != 0);
-        final boolean disableBack = ((disabledFlags & View.STATUS_BAR_DISABLE_BACK) != 0)
+        boolean disableBack = ((disabledFlags & View.STATUS_BAR_DISABLE_BACK) != 0)
                 && ((mNavigationIconHints & StatusBarManager.NAVIGATION_HINT_BACK_ALT) == 0);
         final boolean disableSearch = ((disabledFlags & View.STATUS_BAR_DISABLE_SEARCH) != 0);
 
@@ -376,7 +394,29 @@ public class NavigationBarView extends LinearLayout {
             // Unless home is hidden, then in DPM locked mode and no exit available.
             disableRecent = false;
         }
-
+		
+	//add by liliang.bao begin
+	       int navigationHide = Settings.System.getInt(mContext.getContentResolver(),
+				android.provider.Settings.System.NAVIGATION_BAR_HIDE, 0);
+		int mode = Settings.System.getInt(mContext.getContentResolver(),
+				android.provider.Settings.System.NAVIGATION_BAR_MODE, -1);
+	if(4 == ((KeyButtonView)getRecentsButton()).getKeyCode())
+	{
+			boolean temp = disableBack;
+		    	disableBack = disableRecent;
+			disableRecent = temp;
+			if(mode==3 || mode==4)
+		    		getPullStatusBarButton().setVisibility(disableBack     ? View.INVISIBLE : View.VISIBLE);
+			if(navigationHide == 1)
+		       	getHideBarButton().setVisibility(disableBack     ? View.INVISIBLE : View.VISIBLE);
+	}else
+	{
+			if(mode==3 || mode==4)
+				getPullStatusBarButton().setVisibility(disableRecent     ? View.INVISIBLE : View.VISIBLE);
+			if(navigationHide == 1)
+		       	getHideBarButton().setVisibility(disableRecent     ? View.INVISIBLE : View.VISIBLE);
+	}
+       //add by liliang.bao end
         getBackButton()   .setVisibility(disableBack       ? View.INVISIBLE : View.VISIBLE);
         getHomeButton()   .setVisibility(disableHome       ? View.INVISIBLE : View.VISIBLE);
         getRecentsButton().setVisibility(disableRecent     ? View.INVISIBLE : View.VISIBLE);

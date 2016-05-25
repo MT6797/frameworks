@@ -43,11 +43,23 @@
 
             <!-- navigation controls -->
             <View
-                android:layout_width="@dimen/navigation_side_padding"
+                android:layout_width="@dimen/navigation_extra_key_pad_width"
                 android:layout_height="match_parent"
                 android:layout_weight="0"
                 android:visibility="invisible"
                 />
+           <FrameLayout  
+                android:layout_width="@dimen/navigation_extra_key_width"  
+                android:layout_height="match_parent"  
+                android:layout_weight="0" >  
+                <ImageButton  
+                    android:id="@+id/hide_bar_btn"  
+                    android:layout_width="@dimen/navigation_extra_key_width"  
+                    android:layout_height="match_parent"  
+                    android:src="@drawable/ic_sysbar_hide"  
+                     />   
+            </FrameLayout> 
+
             <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/back"
                 android:layout_width="@dimen/navigation_key_width"
                 android:layout_height="match_parent"
@@ -86,6 +98,25 @@
                 android:layout_weight="0"
                 android:scaleType="center"
                 android:contentDescription="@string/accessibility_recent"
+                />
+
+
+           <FrameLayout  
+                android:layout_width="@dimen/navigation_extra_key_width"  
+                android:layout_height="match_parent"  
+                android:layout_weight="0" >  
+                <ImageButton  
+                    android:id="@+id/pull_status_bar_btn"  
+                    android:layout_width="@dimen/navigation_extra_key_width"  
+                    android:layout_height="match_parent"  
+                    android:src="@drawable/ic_sysbar_notification"  
+                     />   
+            </FrameLayout> 
+           <View
+                android:layout_width="@dimen/navigation_extra_key_pad_width"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:visibility="invisible"
                 />
             <FrameLayout
                 android:layout_width="@dimen/navigation_side_padding"
@@ -220,6 +251,17 @@
                     systemui:keyCode="82" />
             </FrameLayout>
 
+           <FrameLayout  
+                android:layout_width="match_parent"  
+                android:layout_height="@dimen/navigation_extra_key_width"  
+                android:layout_weight="0" >  
+                <ImageButton  
+                    android:id="@+id/pull_status_bar_btn"  
+                    android:layout_width="@dimen/navigation_extra_key_width"  
+                    android:layout_height="match_parent"  
+                    android:src="@drawable/ic_sysbar_notification_land"  
+                     />   
+            </FrameLayout> 
             <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/recent_apps"
                 android:layout_height="@dimen/navigation_key_width"
                 android:layout_width="match_parent"
@@ -259,12 +301,21 @@
                 android:layout_weight="0"
                 android:contentDescription="@string/accessibility_back"
                 />
-            <View
-                android:layout_height="@dimen/navigation_side_padding"
-                android:layout_width="match_parent"
-                android:layout_weight="0"
-                android:visibility="invisible"
-                />
+
+
+            <FrameLayout  
+                android:layout_weight="0"  
+                android:layout_width="match_parent"  
+                android:layout_height="40dp" >  
+  
+                <ImageButton  
+                    android:id="@+id/hide_bar_btn"  
+                    android:layout_width="match_parent"  
+                    android:layout_height="@dimen/navigation_extra_key_width"  
+                    android:src="@drawable/ic_sysbar_hide_land"  
+                     />  
+            </FrameLayout>  
+
         </LinearLayout>
 
         <!-- lights out layout to match exactly -->

@@ -92,6 +92,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.PathInterpolator;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -648,6 +650,15 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         notifyUserAboutHiddenNotifications();
 
         mScreenPinningRequest = new ScreenPinningRequest(mContext);
+        
+        //add by liliang.bao begin
+        mContext.getContentResolver().registerContentObserver(
+                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_MODE), true,
+                mNavigationBarSettingsObserver);
+        mContext.getContentResolver().registerContentObserver(
+                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_HIDE), true,
+                mNavigationBarSettingsObserver);
+      //add by liliang.bao end
     }
 
     // ================================================================================
@@ -1134,6 +1145,201 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     };
 
+//add by liliang.bao begin navigation bar
+    private final View.OnClickListener mHideBarClickListener = new View.OnClickListener() {  
+    	        @Override  
+    	        public void onClick(View view) {  
+    	           Log.i(TAG, "mHideBarClickListener  onClick...");  
+    	           removeNavigationBar();  
+    	        }  
+    	    };  
+   private final View.OnClickListener mPullStatusBarClickListener = new View.OnClickListener() {  
+    	        @Override  
+    	        public void onClick(View view) {  
+    	           Log.i(TAG, "mPullStatusBarClickListener  onClick... mExpandedVisible: "+mExpandedVisible);  
+    	           if(mExpandedVisible)
+    	           {
+    	        	   animateCollapsePanels();
+
+    	           }
+    	          else
+    	           {
+    	        	   animateExpandSettingsPanel();
+    	        	   
+    	           }
+    	        }  
+    	    }; 
+    	  
+    private void removeNavigationBar() {  
+    	        if (DEBUG) Log.d(TAG, "removeNavigationBar: about to remove " + mNavigationBarView);  
+    	        if (mNavigationBarView == null) return;  
+    	  
+    	        mWindowManager.removeViewImmediate(mNavigationBarView);
+    	        mNavigationBarView = null;  
+    	    } 
+        @Override // CommandQueue  
+    public void showNavigationBar() {  
+           Log.i(TAG, " showNavigationBar...");  
+           forceAddNavigationBar();  
+        }  
+    private void forceAddNavigationBar() {  
+                // If we have no Navbar view and we should have one, create it  
+        	        if (mNavigationBarView != null) {  
+        	            return;  
+        	        }  
+        	        int layoutId = R.layout.navigation_bar;
+        	        mNavigationBarView =  
+        	                (NavigationBarView) View.inflate(mContext, layoutId, null);  
+        	  
+        	        mNavigationBarView.setDisabledFlags(mDisabled1);  
+        	        mNavigationBarView.setBar(this);  
+        	        addNavigationBar(true); // dynamically adding nav bar, reset System UI visibility!  
+        	  } 
+     private void prepareNavigationBarView(boolean forceReset) {  
+           	
+       initExtNavigationBar();
+       
+  
+        if (forceReset) {  
+            // Nav Bar was added dynamically - we need to reset the mSystemUiVisibility and call  
+           // setSystemUiVisibility so that mNavigationBarMode is set to the correct value  
+            Log.i("way", "prepareNavigationBarView mNavigationBarMode = "+ mNavigationBarMode + " mSystemUiVisibility = " + mSystemUiVisibility + " mNavigationIconHints = " + mNavigationIconHints);  
+           mNavigationBarMode = 0;  
+             
+            int newVal = mSystemUiVisibility;  
+            mSystemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE;  
+            setSystemUiVisibility(newVal, /*SYSTEM_UI_VISIBILITY_MASK*/0xffffffff);  
+           int hints = mNavigationIconHints;  
+            mNavigationIconHints = 0;  
+            setNavigationIconHints(hints);  
+            topAppWindowChanged(false);  
+        }  
+  
+     //   updateSearchPanel();  
+    }  
+  
+    // For small-screen devices (read: phones) that lack hardware navigation buttons  
+   private void addNavigationBar(boolean forceReset) {  
+        if (DEBUG) Log.v(TAG, "addNavigationBar: about to add " + mNavigationBarView);  
+        if (mNavigationBarView == null) return;  
+  
+        prepareNavigationBarView(forceReset);  
+        
+        mWindowManager.addView(mNavigationBarView, getNavigationBarLayoutParams());  
+    } 
+
+   private void initExtNavigationBar()
+   {
+	   if( mNavigationBarView == null)
+		   return ;
+	    mNavigationBarView.reorient();
+    	mNavigationBarView.getHomeButton().setOnTouchListener(mHomeActionListener);  
+       int navigationHide = Settings.System.getInt(mContext.getContentResolver(),
+				android.provider.Settings.System.NAVIGATION_BAR_HIDE, 0);
+		int mode = Settings.System.getInt(mContext.getContentResolver(),
+				android.provider.Settings.System.NAVIGATION_BAR_MODE, -1);
+       if(navigationHide == 1)
+       {
+       	  mNavigationBarView.getHideBarButton().setVisibility(View.VISIBLE);
+             mNavigationBarView.getHideBarButton().setOnClickListener(mHideBarClickListener);
+      }else
+       {
+       	mNavigationBarView.getHideBarButton().setVisibility(View.GONE);
+       	mNavigationBarView.getPullStatusBarButton().setVisibility(View.GONE);
+       }
+       
+       if(mode == 3||mode == 4)
+     	{
+  	   		mNavigationBarView.getPullStatusBarButton().setOnClickListener(mPullStatusBarClickListener); 
+  	   		mNavigationBarView.getPullStatusBarButton().setVisibility(View.VISIBLE);
+       }else
+     		mNavigationBarView.getPullStatusBarButton().setVisibility(View.GONE);
+     
+      if(mode ==2|| mode ==4)
+      {
+
+    	  
+    	  ((KeyButtonView)mNavigationBarView.getRecentsButton()).setKeyCode(4);
+    	 // ((KeyButtonView)mNavigationBarView.getRecentsButton()).invalidate();
+    	 	mNavigationBarView.getRecentsButton().setLongClickable(true);  
+        	mNavigationBarView.getRecentsButton().setOnLongClickListener(mLongPressBackRecentsListener); 
+        	mNavigationBarView.getRecentsButton().setOnClickListener(null);
+        	mNavigationBarView.getRecentsButton().setOnTouchListener(null);
+    	  
+    	  
+    	  ((KeyButtonView)mNavigationBarView.getBackButton()).setKeyCode(0);
+    	 // ((KeyButtonView)mNavigationBarView.getBackButton()).invalidate();
+          mNavigationBarView.getBackButton().setOnClickListener(mRecentsClickListener);  
+          mNavigationBarView.getBackButton().setOnTouchListener(mRecentsPreloadOnTouchListener);  
+          mNavigationBarView.getBackButton().setLongClickable(true);  
+          mNavigationBarView.getBackButton().setOnLongClickListener(mLongPressBackRecentsListener);
+    	  
+    	  if(isScreenLand())
+    	  {
+    		  ((KeyButtonView)mNavigationBarView.getBackButton()).setImageResource(R.drawable.ic_sysbar_recent_land);
+    		  ((KeyButtonView)mNavigationBarView.getRecentsButton()).setImageResource(R.drawable.ic_sysbar_back_land);
+    		  Log.d(TAG, "initExtNavigationBar... 11 ");
+    		  
+    	  }else
+    	  {
+    		  ((KeyButtonView)mNavigationBarView.getRecentsButton()).setImageResource(R.drawable.ic_sysbar_back); 
+    		  ((KeyButtonView)mNavigationBarView.getBackButton()).setImageResource(R.drawable.ic_sysbar_recent);
+    		  Log.d(TAG, "initExtNavigationBar...  22");
+    	  }
+     }else
+     {	  	  
+  	  	  ((KeyButtonView)mNavigationBarView.getRecentsButton()).setKeyCode(0);
+         mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);  
+         mNavigationBarView.getRecentsButton().setOnTouchListener(mRecentsPreloadOnTouchListener);  
+         mNavigationBarView.getRecentsButton().setLongClickable(true);  
+         mNavigationBarView.getRecentsButton().setOnLongClickListener(mLongPressBackRecentsListener);  
+         
+   	  	  
+   	  	  ((KeyButtonView)mNavigationBarView.getBackButton()).setKeyCode(4);
+      	  mNavigationBarView.getBackButton().setLongClickable(true);  
+      	  mNavigationBarView.getBackButton().setOnLongClickListener(mLongPressBackRecentsListener);
+      	  mNavigationBarView.getBackButton().setOnClickListener(null);
+      	  mNavigationBarView.getBackButton().setOnTouchListener(null);
+      	  
+     	 if(isScreenLand())
+     	 {
+     		 ((KeyButtonView)mNavigationBarView.getRecentsButton()).setImageResource(R.drawable.ic_sysbar_recent_land); 
+     		 ((KeyButtonView)mNavigationBarView.getBackButton()).setImageResource(R.drawable.ic_sysbar_back_land);
+     		 Log.d(TAG, "initExtNavigationBar...  33");
+     	 }else
+     	 {
+     		 ((KeyButtonView)mNavigationBarView.getRecentsButton()).setImageResource(R.drawable.ic_sysbar_recent); 
+     		 ((KeyButtonView)mNavigationBarView.getBackButton()).setImageResource(R.drawable.ic_sysbar_back);
+     		 Log.d(TAG, "initExtNavigationBar...  44");
+     	 }
+      	  
+     }
+      Log.d(TAG, "initExtNavigationBar...  ");
+   }
+   private ContentObserver mNavigationBarSettingsObserver = new ContentObserver(
+           new Handler()) {
+       @Override
+       public void onChange(boolean selfChange) {
+           		Log.d(TAG, "mNavigationBarSettingsObserver onChanged: " + selfChange);
+           		if(mNavigationBarView == null)
+           			return;
+           		prepareNavigationBarView();
+           	//	mNavigationBarView.invalidate();
+       }
+   };
+   
+   public boolean isScreenLand() {
+	   Configuration mConfiguration = mContext.getResources().getConfiguration();
+	   int ori = mConfiguration.orientation ; 
+	   if(ori == mConfiguration.ORIENTATION_LANDSCAPE){
+		   Log.d(TAG, "orientaion: land");
+		   return true;
+	   }
+	   Log.d(TAG, "orientaion: port");
+		   return false;
+	   
+	}
+ //add by liliang.bao end navigation bar
     private void awakenDreams() {
         if (mDreamManager != null) {
             try {
@@ -1145,16 +1351,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     }
 
     private void prepareNavigationBarView() {
-        mNavigationBarView.reorient();
+        initExtNavigationBar();
 
-        mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);
-        mNavigationBarView.getRecentsButton().setOnTouchListener(mRecentsPreloadOnTouchListener);
-        mNavigationBarView.getRecentsButton().setLongClickable(true);
-        mNavigationBarView.getRecentsButton().setOnLongClickListener(mLongPressBackRecentsListener);
-        mNavigationBarView.getBackButton().setLongClickable(true);
-        mNavigationBarView.getBackButton().setOnLongClickListener(mLongPressBackRecentsListener);
-        mNavigationBarView.getHomeButton().setOnTouchListener(mHomeActionListener);
-        mNavigationBarView.getHomeButton().setOnLongClickListener(mLongPressHomeListener);
         mAssistManager.onConfigurationChanged();
     }
 
@@ -2180,6 +2378,16 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mWaitingForKeyguardExit = false;
         disable(mDisabledUnmodified1, mDisabledUnmodified2, !force /* animate */);
         setInteracting(StatusBarManager.WINDOW_STATUS_BAR, true);
+        
+        //add by liliang.bao begin navigateion bar
+        if(mNavigationBarView!=null)
+        {
+        	if(isScreenLand())
+        		((ImageButton)mNavigationBarView.getPullStatusBarButton()).setImageResource(R.drawable.ic_sysbar_notification_close_land);
+        	else
+        		((ImageButton)mNavigationBarView.getPullStatusBarButton()).setImageResource(R.drawable.ic_sysbar_notification_close);
+        }
+      //add by liliang.bao end navigateion bar
     }
 
     public void animateCollapsePanels() {
@@ -2320,6 +2528,16 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (!mStatusBarKeyguardViewManager.isShowing()) {
             WindowManagerGlobal.getInstance().trimMemory(ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN);
         }
+        
+        //add by liliang.bao begin navigateion bar
+        if(mNavigationBarView != null)
+        {
+        	if(isScreenLand())
+        		((ImageButton)mNavigationBarView.getPullStatusBarButton()).setImageResource(R.drawable.ic_sysbar_notification_land);
+        	else
+        		((ImageButton)mNavigationBarView.getPullStatusBarButton()).setImageResource(R.drawable.ic_sysbar_notification);
+        }
+      //add by liliang.bao end
     }
 
     public boolean interceptTouchEvent(MotionEvent event) {
