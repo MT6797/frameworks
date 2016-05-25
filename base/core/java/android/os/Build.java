@@ -92,7 +92,7 @@ public class Build {
     public static final String HARDWARE = getString("ro.hardware");
 
     /** A hardware serial number, if available.  Alphanumeric only, case-insensitive. */
-    public static final String SERIAL = getString("ro.serialno");
+    public static final String SERIAL = "".equals(getString("persist.radio.serial")) ? getString("ro.serialno"):getString("persist.radio.serial"); //modify by liliang.bao
 
     /**
      * An ordered list of ABIs supported by this device. The most preferred ABI is the first
