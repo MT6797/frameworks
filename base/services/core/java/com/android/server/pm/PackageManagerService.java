@@ -17312,7 +17312,7 @@ private static final String APP_FILTER_CONFIG_PATH="/custom/etc/filter.xml";
             ApplicationInfo info = getApplicationInfo("com.google.android.gms", 0, 0);
             if (info != null && (info.flags & 0x1) != 0) {
                 Slog.d(TAG, "Is GMS Build.");
-                mIsGms = true;
+                mIsGms = false;//true;
             } else {
                 Slog.d(TAG, "Not GMS Build.");
                 mIsGms = false;
