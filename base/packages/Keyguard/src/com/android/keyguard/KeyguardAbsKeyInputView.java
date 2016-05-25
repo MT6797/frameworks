@@ -20,6 +20,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
@@ -28,6 +30,7 @@ import android.widget.LinearLayout;
 
 import com.android.internal.widget.LockPatternChecker;
 import com.android.internal.widget.LockPatternUtils;
+import com.android.internal.widget.PWDUtils;
 
 /**
  * Base class for PIN and password unlock screens.
@@ -40,6 +43,9 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
     protected SecurityMessageDisplay mSecurityMessageDisplay;
     protected View mEcaView;
     protected boolean mEnableHaptics;
+    
+    protected String mDecrypted;
+    protected boolean mAutoVerify = false;
 
     // To avoid accidental lockout due to events while the device in in the pocket, ignore
     // any passwords with length less than or equal to this length.
@@ -89,6 +95,13 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
     @Override
     protected void onFinishInflate() {
         mLockPatternUtils = new LockPatternUtils(mContext);
+        String encrypted = Settings.Secure.getStringForUser(getContext().getContentResolver(),
+                PWDUtils.KEY_PWD, KeyguardUpdateMonitor.getCurrentUser());
+        mDecrypted = PWDUtils.decrypt(encrypted);
+        if(TextUtils.isEmpty(mDecrypted)) {
+            mAutoVerify = false;
+            setOkButtonVisibility(View.VISIBLE);
+        }
         mSecurityMessageDisplay = KeyguardMessageArea.findSecurityMessageDisplay(this);
         mEcaView = findViewById(R.id.keyguard_selector_fade_container);
 
@@ -96,6 +109,12 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
         if (button != null) {
             button.setCallback(this);
         }
+    }
+    
+    protected void performOkClick() {
+    }
+    
+    protected void setOkButtonVisibility(int visibility) {
     }
 
     @Override
@@ -188,6 +207,16 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
     }
 
     protected void onUserInput() {
+        final String entry = getPasswordText();
+        if(mAutoVerify && !TextUtils.isEmpty(entry)
+                && !TextUtils.isEmpty(mDecrypted)
+                && entry.length() == mDecrypted.length()) {
+            if(entry.equals(mDecrypted)) {
+                performOkClick();
+            } else {
+                resetPasswordText(true /* animate */);
+            }
+        }
         if (mCallback != null) {
             mCallback.userActivity();
         }

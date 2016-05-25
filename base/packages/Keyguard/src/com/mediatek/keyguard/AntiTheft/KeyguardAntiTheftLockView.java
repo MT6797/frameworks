@@ -59,6 +59,7 @@ public class KeyguardAntiTheftLockView extends KeyguardPinBasedInputView {
      */
     public KeyguardAntiTheftLockView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mAutoVerify = false;
         mAntiTheftManager = AntiTheftManager.getInstance(null, null, null) ;
     }
 

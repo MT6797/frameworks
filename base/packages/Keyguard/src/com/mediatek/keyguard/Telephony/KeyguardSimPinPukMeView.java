@@ -219,6 +219,7 @@ public class KeyguardSimPinPukMeView extends KeyguardPinBasedInputView {
     public KeyguardSimPinPukMeView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        mAutoVerify = false;
         mKeyguardUtils = new KeyguardUtils(context);
         mSb = new StringBuffer();
         mUpdateMonitor = KeyguardUpdateMonitor.getInstance(getContext());

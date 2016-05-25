@@ -206,6 +206,7 @@
                     android:src="@drawable/ic_done_wht"
                     android:background="@drawable/ripple_drawable"
                     android:contentDescription="@string/keyboardview_keycode_enter"
+                    android:visibility="invisible"
                     />
         </LinearLayout>
     </LinearLayout>

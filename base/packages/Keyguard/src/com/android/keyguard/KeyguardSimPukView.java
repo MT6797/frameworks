@@ -182,6 +182,7 @@ public class KeyguardSimPukView extends KeyguardPinBasedInputView {
 
     public KeyguardSimPukView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mAutoVerify = false;
         mKeyguardUtils = new KeyguardUtils(context);
     }
 

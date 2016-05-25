@@ -66,6 +66,7 @@ public class KeyguardPasswordView extends KeyguardAbsKeyInputView
 
     public KeyguardPasswordView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mAutoVerify = true;
         mShowImeAtScreenOn = context.getResources().
                 getBoolean(R.bool.kg_show_ime_at_screen_on);
         mDisappearYTranslation = getResources().getDimensionPixelSize(
@@ -336,5 +337,10 @@ public class KeyguardPasswordView extends KeyguardAbsKeyInputView
             return true;
         }
         return false;
+    }
+    
+    @Override
+    protected void performOkClick() {
+        verifyPasswordAndUnlock();
     }
 }

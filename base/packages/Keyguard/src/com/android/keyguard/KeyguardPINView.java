@@ -52,6 +52,7 @@ public class KeyguardPINView extends KeyguardPinBasedInputView {
 
     public KeyguardPINView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mAutoVerify = true;
         mAppearAnimationUtils = new AppearAnimationUtils(context);
         mDisappearAnimationUtils = new DisappearAnimationUtils(context,
                 125, 0.6f /* translationScale */,

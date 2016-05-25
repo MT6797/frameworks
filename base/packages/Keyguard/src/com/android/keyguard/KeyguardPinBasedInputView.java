@@ -109,6 +109,20 @@ public abstract class KeyguardPinBasedInputView extends KeyguardAbsKeyInputView
     private void performClick(View view) {
         view.performClick();
     }
+    
+    @Override
+    protected void performOkClick() {
+        if(null != mOkButton) {
+            mOkButton.performClick();
+        }
+    }
+    
+    @Override
+    protected void setOkButtonVisibility(int visibility) {
+        if(null != mOkButton) {
+            mOkButton.setVisibility(visibility);
+        }
+    }
 
     private void performNumberClick(int number) {
         switch (number) {

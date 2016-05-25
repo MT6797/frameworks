@@ -93,6 +93,7 @@ public class KeyguardSimPinView extends KeyguardPinBasedInputView {
 
     public KeyguardSimPinView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mAutoVerify = false;
         mKeyguardUtils = new KeyguardUtils(context);
     }
 
