@@ -270,13 +270,14 @@ private int getId(int id)
 	 String packageName = getResourcePackageName(id);		
 	 if("android".equals(packageName))
 	 	{
-	 	  synchronized(this)
+		  /*   fix bug for bug3606     get customized default_wallpaper from wallpaperPlugin
+ 	 	  synchronized(this)
 	 	   {
 	 		if(!mHasCustLoadSystemRes)
 	 	    		resId = getCustomSystemResId(id);
 			else if(mCustSystemResExist && mHasCustLoadSystemRes)
 				resId = getCustomSystemResId(id);
-	 	    }
+	 	    }*/
 	 	}
 	 else
 	 	{
