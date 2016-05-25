@@ -846,6 +846,43 @@ public class MtpDatabase {
 
         switch (property) {
             case MtpConstants.DEVICE_PROPERTY_SYNCHRONIZATION_PARTNER:
+			{
+				//Ainge
+                // writable string properties kept in shared preferences
+                String value = mDeviceProperties.getString(Integer.toString(property), "");
+                int length = value.length();
+                if (length > 255) {
+                    length = 255;
+                }
+                value.getChars(0, length, outStringValue, 0);
+                outStringValue[length] = 0;
+                /// M: Added for USB Develpment debug, more log for more debuging help @{
+                if(length > 0) {
+                    Log.w(TAG, "getDeviceProperty  property = " + Integer.toHexString(property));
+                    Log.w(TAG, "getDeviceProperty  value = " + value + ", length = " + length);
+                }
+                Log.w(TAG, "getDeviceProperty  length = " + length);
+
+                /// M: Added Modification for ALPS00278882 @{
+                // Return the device name for the PC display if the FriendlyName is empty!!
+                String deviceName;
+                deviceName = SystemProperties.get("ro.product.name");
+
+                int lengthDeviceName = deviceName.length();
+                if (lengthDeviceName > 255) {
+                    lengthDeviceName = 255;
+                }
+                if(lengthDeviceName >0) {
+                    deviceName.getChars(0, lengthDeviceName, outStringValue, 0);
+                    outStringValue[lengthDeviceName] = 0;
+                    Log.d(TAG, "getDeviceProperty  deviceName = " + deviceName + ", lengthDeviceName = " + lengthDeviceName);
+                } else {
+                    Log.d(TAG, "getDeviceProperty  lengthDeviceName = " + lengthDeviceName);
+                }
+                /// M: @}
+				//Ainge
+                return MtpConstants.RESPONSE_OK;
+            }
             case MtpConstants.DEVICE_PROPERTY_DEVICE_FRIENDLY_NAME:
                 // writable string properties kept in shared preferences
                 String value = mDeviceProperties.getString(Integer.toString(property), "");
@@ -855,6 +892,35 @@ public class MtpDatabase {
                 }
                 value.getChars(0, length, outStringValue, 0);
                 outStringValue[length] = 0;
+                /// M: Added for USB Develpment debug, more log for more debuging help @{
+                if(length > 0) {
+                    Log.i(TAG, "getDeviceProperty  property = " + Integer.toHexString(property));
+                    Log.i(TAG, "getDeviceProperty  value = " + value + ", length = " + length);
+                }
+                else if(SystemProperties.get("ro.sys.usb.mtp.whql.enable").equals("0"))
+                {
+                    Log.i(TAG, "getDeviceProperty  length = " + length);
+                    /// M: Added Modification for ALPS00278882 @{
+                    if(property == MtpConstants.DEVICE_PROPERTY_DEVICE_FRIENDLY_NAME) {
+                        // Return the device name for the PC display if the FriendlyName is empty!!
+                        String deviceName;
+                        deviceName = SystemProperties.get("ro.product.name");
+
+                        int lengthDeviceName = deviceName.length();
+                        if (lengthDeviceName > 255) {
+                            lengthDeviceName = 255;
+                        }
+                        if(lengthDeviceName >0) {
+                            deviceName.getChars(0, lengthDeviceName, outStringValue, 0);
+                            outStringValue[lengthDeviceName] = 0;
+                            Log.d(TAG, "getDeviceProperty  deviceName = " + deviceName + ", lengthDeviceName = " + lengthDeviceName);
+                        } else {
+                            Log.d(TAG, "getDeviceProperty  lengthDeviceName = " + lengthDeviceName);
+                        }
+                    }
+                    /// M: @}
+                }
+                /// M: @}
                 return MtpConstants.RESPONSE_OK;
 
             case MtpConstants.DEVICE_PROPERTY_IMAGE_SIZE:
@@ -877,7 +943,7 @@ public class MtpDatabase {
 
     private int setDeviceProperty(int property, long intValue, String stringValue) {
         switch (property) {
-            case MtpConstants.DEVICE_PROPERTY_SYNCHRONIZATION_PARTNER:
+            //case MtpConstants.DEVICE_PROPERTY_SYNCHRONIZATION_PARTNER:
             case MtpConstants.DEVICE_PROPERTY_DEVICE_FRIENDLY_NAME:
                 // writable string properties kept in shared prefs
                 SharedPreferences.Editor e = mDeviceProperties.edit();
