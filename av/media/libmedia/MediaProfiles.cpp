@@ -2750,7 +2750,7 @@ MediaProfiles::createMTKHighVideoProfile(camcorder_mode CamMode, camera_id CamId
                 }
                 else {
                     videoCodec = new MediaProfiles::VideoCodec(
-                            VIDEO_ENCODER_MPEG_4_SP, 4200*1000/CamMode, 640, 480, 30/CamMode);
+                            VIDEO_ENCODER_H264, 9000*1000/CamMode, 1280, 720, 30/CamMode);
                 }
             }
             break;
