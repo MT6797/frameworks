@@ -168,6 +168,12 @@ public class SearchEngineManagerService extends ISearchEngineManagerService.Stub
         for (int i = 1; i < searchEngines.length; i++) {
             String configInfo = searchEngines[i];
             SearchEngine info = SearchEngine.parseFrom(configInfo, sp);
+	   //{add search engine ASK
+            if(android.os.SystemProperties.getInt("ro.nb_se_ask_support", 0) != 1
+                    && "ask".equalsIgnoreCase(info.getName())) {
+                continue;
+            }
+            //add end}
             mSearchEngines.add(info);
         }
 
