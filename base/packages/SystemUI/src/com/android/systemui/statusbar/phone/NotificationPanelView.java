@@ -1007,6 +1007,10 @@ public class NotificationPanelView extends PanelView implements
     }
 
     private void setQsExpanded(boolean expanded) {
+	//fix bug3544 begin
+	if(mKeyguardShowing)
+		return;
+       //fix bug 3544 end
         boolean changed = mQsExpanded != expanded;
         if (changed) {
             mQsExpanded = expanded;
@@ -1022,7 +1026,8 @@ public class NotificationPanelView extends PanelView implements
     public void setBarState(int statusBarState, boolean keyguardFadingAway,
             boolean goingToFullShade) {
         int oldState = mStatusBarState;
-        boolean keyguardShowing = statusBarState == StatusBarState.KEYGUARD;
+        boolean keyguardShowing = statusBarState == StatusBarState.KEYGUARD
+                || statusBarState == StatusBarState.SHADE_LOCKED;    //fix bug3544
         setKeyguardStatusViewVisibility(statusBarState, keyguardFadingAway, goingToFullShade);
         setKeyguardBottomAreaVisibility(statusBarState, goingToFullShade);
 
@@ -1279,7 +1284,7 @@ public class NotificationPanelView extends PanelView implements
     }
 
     private void updateQsState() {
-        boolean expandVisually = mQsExpanded || mStackScrollerOverscrolling || mHeaderAnimating;
+        boolean expandVisually = mQsExpanded || mStackScrollerOverscrolling ;//|| mHeaderAnimating; //fix bug3544
         mHeader.setVisibility((mQsExpanded || !mKeyguardShowing || mHeaderAnimating)
                 ? View.VISIBLE
                 : View.INVISIBLE);

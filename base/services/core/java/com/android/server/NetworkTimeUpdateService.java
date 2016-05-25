@@ -201,15 +201,26 @@ public class NetworkTimeUpdateService {
               Log.d(TAG, "isEmulator:" + tempString);
               return;
            }
-
+//add by liliang.bao begin
+	int year=2016, month=4, day=26;
+	String version = SystemProperties.get("ro.custom.build.version", "");
+        int pos = version.lastIndexOf("_");
+        if(pos > 0)
+        {
+    	    pos+=1;
+    	    year = Integer.parseInt(version.substring(pos, pos+4));
+    	    month = Integer.parseInt(version.substring(pos+4, pos+6));
+    	    day = Integer.parseInt(version.substring(pos+6, pos+8));   	   
+        }
+//add by liliang.bao end
            String decryptState = SystemProperties.get("vold.decrypt", "");
            Log.d(TAG, "decryptState:" + decryptState);
            if ("".equals(decryptState) || DECRYPT_STATE.equals(decryptState)) {
               Time today = new Time(Time.getCurrentTimezone());
               today.setToNow();
               Log.d(TAG, "First boot:" + tempString + " with date:" + today);
-              today.set(1, 0, mDefaultYear);
-              Log.d(TAG, "Set the year to " + mDefaultYear);
+              today.set(day, month-1, year); //modify by liliang.bao 
+              Log.d(TAG, "Set the year to " + year+" month:"+month+" day:"+day);
                      SystemProperties.set(BOOT_SYS_PROPERTY, "false");
                  SystemClock.setCurrentTimeMillis(today.toMillis(false));
               }

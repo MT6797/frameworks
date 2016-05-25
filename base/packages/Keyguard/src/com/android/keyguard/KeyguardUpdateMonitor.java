@@ -754,12 +754,12 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
 
         @Override
         public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
-            handleFingerprintHelp(helpMsgId, helpString.toString());
+            handleFingerprintHelp(helpMsgId, helpString !=null ? helpString.toString():" ");
         }
 
         @Override
         public void onAuthenticationError(int errMsgId, CharSequence errString) {
-            handleFingerprintError(errMsgId, errString.toString());
+            	handleFingerprintError(errMsgId, errString != null ? errString.toString():" ");
         }
 
         @Override

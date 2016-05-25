@@ -1534,10 +1534,10 @@
     <!-- Normal polling frequency in milliseconds -->
     <integer name="config_ntpPollingInterval">86400000</integer>
     <!-- Try-again polling interval in milliseconds, in case the network request failed -->
-    <integer name="config_ntpPollingIntervalShorter">60000</integer>
+    <integer name="config_ntpPollingIntervalShorter">30000</integer>
     <!-- Number of times to try again with the shorter interval, before backing
          off until the normal polling interval. A value < 0 indicates infinite. -->
-    <integer name="config_ntpRetry">3</integer>
+    <integer name="config_ntpRetry">30</integer>
     <!-- If the time difference is greater than this threshold in milliseconds,
          then update the time. -->
     <integer name="config_ntpThreshold">5000</integer>
