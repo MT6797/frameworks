@@ -144,12 +144,12 @@ void SensorService::onFirstRef()
                     mUserSensorList.add(aSensor);
                 }
 
-                aSensor = registerVirtualSensor( new OrientationSensor() );
+             /*   aSensor = registerVirtualSensor( new OrientationSensor() );
                 if (virtualSensorsNeeds & (1<<SENSOR_TYPE_ROTATION_VECTOR)) {
                     // if we are doing our own rotation-vector, also add
                     // the orientation sensor and remove the HAL provided one.
                     mUserSensorList.replaceAt(aSensor, orientationIndex);
-                }
+                }*/
 
                 // virtual debugging sensors are not added to mUserSensorList
                 registerVirtualSensor( new CorrectedGyroSensor(list, count) );
