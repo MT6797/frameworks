@@ -679,6 +679,7 @@ public abstract class PanelView extends FrameLayout {
                 notifyBarPanelExpansionChanged();
             }
         });
+	animator.setDuration(100);
         mHeightAnimator = animator;
         animator.start();
     }
