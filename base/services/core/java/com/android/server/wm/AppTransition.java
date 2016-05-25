@@ -371,6 +371,8 @@ public class AppTransition implements Dump {
         if (DEBUG_ANIM) Slog.v(TAG, "Loading animations: layout params pkg="
                 + (lp != null ? lp.packageName : null)
                 + " resId=0x" + (lp != null ? Integer.toHexString(lp.windowAnimations) : null));
+	if(lp!=null&&"com.nb.hall.floatwindow".equals(lp.packageName))
+		return null;
         if (lp != null && lp.windowAnimations != 0) {
             // If this is a system resource, don't try to load it from the
             // application resources.  It is nice to avoid loading application

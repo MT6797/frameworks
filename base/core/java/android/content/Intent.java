@@ -2490,6 +2490,10 @@ public class Intent implements Parcelable, Cloneable {
     @SdkConstant(SdkConstantType.BROADCAST_INTENT_ACTION)
     public static final String ACTION_HEADSET_PLUG = android.media.AudioManager.ACTION_HEADSET_PLUG;
 
+    @SdkConstant(SdkConstantType.BROADCAST_INTENT_ACTION)
+    public static final String ACTION_STYLUE_PLUG = "android.intent.action.STYLUE_PLUG";
+    @SdkConstant(SdkConstantType.BROADCAST_INTENT_ACTION)
+    public static final String ACTION_ORBIT_FLEX = "android.intent.action.ORBIT_FLEX";
     /**
      * M: Broadcast Action: action used for HDMI cable plug event
      * The broadcat is sent when the HDMI cable is plug in or out

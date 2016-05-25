@@ -93,6 +93,10 @@ import static android.os.PowerManagerInternal.WAKEFULNESS_DREAMING;
 import static android.os.PowerManagerInternal.WAKEFULNESS_DOZING;
 
 import com.mediatek.aal.AalUtils;
+import java.io.BufferedReader;
+import java.io.IOException;
+import android.app.KeyguardManager;
+import java.io.FileReader;
 
 /**
  * The power manager service is responsible for coordinating power management
@@ -626,6 +630,9 @@ public final class PowerManagerService extends SystemService
             filter.addAction(Intent.ACTION_DOCK_EVENT);
             mContext.registerReceiver(new DockReceiver(), filter, null, mHandler);
 
+            filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_ORBIT_FLEX);
+            mContext.registerReceiver(new HallReceiver(), filter, null, mHandler);
             // Register for SD Hot Plug notification 
             filter = new IntentFilter();
             filter.addAction(Intent.ACTION_SD_INSERTED);
@@ -3183,6 +3190,41 @@ public final class PowerManagerService extends SystemService
         }
     }
 
+    private final class HallReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            synchronized (mLock) {
+				if("1".equals(readHallState()))
+					{
+						KeyguardManager mKeyguardManager = (KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE);
+						boolean flag = mKeyguardManager.inKeyguardRestrictedInputMode();
+						if(flag)
+						{
+                    					userActivityNoUpdateLocked(SystemClock.uptimeMillis(),
+                     					PowerManager.USER_ACTIVITY_EVENT_OTHER, 0, Process.SYSTEM_UID);
+							 Slog.d(TAG, "bll====>HallReceiver");
+						}
+					}
+            }
+        }
+    }
+    private String readHallState()
+    {	
+    	try
+    	{
+        	BufferedReader reader = new BufferedReader(new FileReader("/sys/class/input/input1/status"), 256);
+       	 try {
+        			String state = reader.readLine();
+        			 Slog.d(TAG, "bll====>hall state: "+state);
+            			return state;
+        		} finally {
+            			reader.close();
+        		} 
+    			}catch(Exception e)
+    			{
+    			}
+    		return "1";
+    }
     private final class SDHotPlugReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

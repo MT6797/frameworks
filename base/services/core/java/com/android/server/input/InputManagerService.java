@@ -34,6 +34,7 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ActivityManagerNative;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -70,6 +71,7 @@ import android.os.MessageQueue;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
@@ -101,6 +103,7 @@ import java.util.HashSet;
 
 import libcore.io.Streams;
 import libcore.util.Objects;
+import android.os.SystemClock;
 
 /*
  * Wraps the C++ InputManager and provides its callbacks.
@@ -1428,6 +1431,10 @@ public class InputManagerService extends IInputManager.Stub
         }
     }
 
+    private void wakeupSystem() {
+        PowerManager mPowerManager = (PowerManager)mContext.getSystemService(Context.POWER_SERVICE);
+        mPowerManager.wakeUp(SystemClock.uptimeMillis());
+    }
     // Native callback.
     private void notifySwitch(long whenNanos, int switchValues, int switchMask) {
         if (DEBUG) {
@@ -1448,6 +1455,38 @@ public class InputManagerService extends IInputManager.Stub
         if (mUseDevInputEventForAudioJack && (switchMask & SW_JACK_BITS) != 0) {
             mWiredAccessoryCallbacks.notifyWiredAccessoryChanged(whenNanos, switchValues,
                     switchMask);
+        }
+        if((switchValues == 32 || switchValues == 0) && (switchMask == 32)){
+	        Intent intent = new Intent();
+            wakeupSystem();
+            Slog.d(TAG, "STYLUE_PLUG: " + "switchValues = " + switchValues + " -- " + "switchMask = " + switchMask);
+            intent.putExtra("state", switchValues);
+	        intent.setAction(Intent.ACTION_STYLUE_PLUG);
+	        final long ident = Binder.clearCallingIdentity();
+            try {
+                ActivityManagerNative.broadcastStickyIntent(intent, null, UserHandle.USER_ALL);
+            } finally {
+                Binder.restoreCallingIdentity(ident);
+	        }
+	    }
+        if((switchValues == 4096 || switchValues == 0) && (switchMask == 4096)){
+            Intent intent1 = new Intent();
+            Slog.d(TAG, "ORBIT_FLEX: " + "switchValues = " + switchValues + "switchMask = " + switchMask);
+            if(switchValues == 4096){
+                intent1.putExtra("state", 1);
+                Slog.d(TAG, "state = 1, orbit flex open");
+            } else {
+                intent1.putExtra("state", 0);
+                Slog.d(TAG, "state = 0, orbit flex close");
+            }
+            intent1.setAction(Intent.ACTION_ORBIT_FLEX);
+            final long ident1 = Binder.clearCallingIdentity();
+            try {
+                ActivityManagerNative.broadcastStickyIntent(intent1, null, UserHandle.USER_ALL);
+            } finally {
+                Binder.restoreCallingIdentity(ident1);
+            }
+	   wakeupSystem();
         }
     }
 
