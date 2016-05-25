@@ -1512,7 +1512,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         /// M: Disable gesture in immersive mode.
                         if (isGestureIsolated())
                             return;
-                        if (mStatusBar != null) {
+	  // added by liliang.bao, for MMITest.
+	      boolean canSwipe = true;
+            ActivityManager am = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
+            ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
+            if (cn != null &&
+                    cn.getClassName() != null &&(
+                    cn.getClassName().equals("com.wxkjcom.mmitest.ExecuteTest")||cn.getClassName().equals("com.nb.mmitest.ExecuteTest"))){
+			canSwipe = false;
+            }
+            // end added by liliang.bao
+                        if (mStatusBar != null&&canSwipe) {//can't pull down status bar for mmitest add by lilinag.bao 20141021
                             requestTransientBars(mStatusBar);
                         }
                     }
@@ -2756,7 +2766,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // it handle it, because that gives us the correct 5 second
         // timeout.
         if (keyCode == KeyEvent.KEYCODE_HOME) {
-
+     // added by liliang.bao, for MMITest. It's a temporary solution, need to been fixed in app.
+            ActivityManager am = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
+            ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
+            if (cn != null &&
+                    cn.getClassName() != null &&
+                    (cn.getClassName().equals("com.wxkjcom.mmitest.ExecuteTest")||cn.getClassName().equals("com.nb.mmitest.ExecuteTest"))){
+                Log.i(TAG, "now the top activity is com.wxkjcom.mmitest.ExecuteTest, so give it the key.");
+                return 0;
+            }
+            // end added by liliang.bao
             // If we have released the home key, and didn't do anything else
             // while it was pressed, then it is time to go home!
             if (!down) {
@@ -2833,6 +2852,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             return -1;
         } else if (keyCode == KeyEvent.KEYCODE_MENU) {
+// added by liliang.bao, for MMITest. It's a temporary solution, need to been fixed in app.
+            ActivityManager am = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
+            ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
+            if (cn != null &&
+                    cn.getClassName() != null &&(
+                    cn.getClassName().equals("com.wxkjcom.mmitest.ExecuteTest")||cn.getClassName().equals("com.nb.mmitest.ExecuteTest"))){
+                Log.i(TAG, "now the top activity is com.wxkjcom.mmitest.ExecuteTest, so give it the key.");
+                return 0;
+            }
+            // end added by liliang.bao
             // Hijack modified menu keys for debugging features
             final int chordBug = KeyEvent.META_SHIFT_ON;
 

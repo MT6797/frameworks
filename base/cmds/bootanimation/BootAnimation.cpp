@@ -100,14 +100,14 @@ static const char* mResourcePath[MNC_COUNT][PATH_COUNT] =
 #endif
 
 static const char* mAudioPath[2][PATH_COUNT] =
-{"/system/media/bootaudio.mp3", "/custom/media/bootaudio.mp3", "/data/local/bootaudio.mp3", /*  bootaudio path  */
- "/system/media/shutaudio.mp3", "/custom/media/shutaudio.mp3", "/data/local/shutaudio.mp3", /*  shutaudio path  */
+{"/system/media/bootaudio.mp3", "/custom/bootani/bootaudio.mp3", "/data/local/bootaudio.mp3", /*  bootaudio path  */
+ "/system/media/shutaudio.mp3", "/custom/bootani/shutaudio.mp3", "/data/local/shutaudio.mp3", /*  shutaudio path  */
 };
 
-#define CUSTOM_BOOTANIMATION_FILE "/custom/media/bootanimation.zip"
+#define CUSTOM_BOOTANIMATION_FILE "/custom/bootani/bootanimation.zip"
 #define USER_BOOTANIMATION_FILE   "/data/local/bootanimation.zip"
 #define SYSTEM_SHUTANIMATION_FILE "/system/media/shutanimation.zip"
-#define CUSTOM_SHUTANIMATION_FILE "/custom/media/shutanimation.zip"
+#define CUSTOM_SHUTANIMATION_FILE "/custom/bootani/shutanimation.zip"
 #define USER_SHUTANIMATION_FILE   "/data/local/shutanimation.zip"
 
 #define OEM_BOOTANIMATION_FILE "/oem/media/bootanimation.zip"

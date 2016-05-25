@@ -221,9 +221,9 @@ public final class ShutdownThread extends Thread {
                         com.android.internal.R.integer.config_longPressOnPowerBehavior);
         final int resourceId = mRebootSafeMode
                 ? com.android.internal.R.string.reboot_safemode_confirm
-                : (longPressBehavior == 2
+                : (mReboot ? com.android.internal.R.string.restart_confirm : (longPressBehavior == 2
                         ? com.android.internal.R.string.shutdown_confirm_question
-                        : com.android.internal.R.string.shutdown_confirm);
+                        : com.android.internal.R.string.shutdown_confirm));
 
         Log.d(TAG, "Notifying thread to start shutdown longPressBehavior=" + longPressBehavior);
 
@@ -237,7 +237,7 @@ public final class ShutdownThread extends Thread {
             sConfirmDialog = new AlertDialog.Builder(context)
                 .setTitle(mRebootSafeMode
                         ? com.android.internal.R.string.reboot_safemode_title
-                        : com.android.internal.R.string.power_off)
+                            : (mReboot ? com.android.internal.R.string.global_action_restart : com.android.internal.R.string.power_off))
                 .setMessage(resourceId)
                 .setPositiveButton(com.android.internal.R.string.yes,
                         new DialogInterface.OnClickListener() {
@@ -349,8 +349,11 @@ public final class ShutdownThread extends Thread {
                 sInstance.mPowerManager = (PowerManager)sInstance
                     .mContext.getSystemService(Context.POWER_SERVICE);
             }
-            sInstance.mPowerManager.goToSleep(SystemClock.uptimeMillis(),
-                    PowerManager.GO_TO_SLEEP_REASON_SHUTDOWN, 0);
+            sInstance.mPowerManager.goToSleep(SystemClock.uptimeMillis(), PowerManager.GO_TO_SLEEP_REASON_SHUTDOWN, 0);
+	    //add by liliang.bao  begin
+	     SystemProperties.set("service.bootanim.exit","1");
+	     stopBootAnimationSound();
+	   //add by liliang.bao  end
         }
     };
 
@@ -498,8 +501,11 @@ public final class ShutdownThread extends Thread {
         };
 
         beginAnimationTime = 0;
-        boolean mShutOffAnimation = configShutdownAnimation(context);
+        boolean mShutOffAnimation = true;//configShutdownAnimation(context);
         int screenTurnOffTime = getScreenTurnOffTime(context);
+	  //modify by liliang.bao begin
+      screenTurnOffTime = SystemProperties.getInt("sys.delay.playtime",MIN_SHUTDOWN_ANIMATION_PLAY_TIME);//mIBootAnim.getScreenTurnOffTime();
+      //modify by liliang.bao end
         synchronized (mEnableAnimatingSync) {
             if (mEnableAnimating) {
                 if (mShutOffAnimation) {
@@ -588,7 +594,10 @@ public final class ShutdownThread extends Thread {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        beginAnimationTime = SystemClock.elapsedRealtime() + MIN_SHUTDOWN_ANIMATION_PLAY_TIME;
+		//modify by liliang.bao begin
+	   Log.e(TAG, "========sys.delay.playtime:"+SystemProperties.getInt("sys.delay.playtime",MIN_SHUTDOWN_ANIMATION_PLAY_TIME));                  
+        beginAnimationTime = SystemClock.elapsedRealtime() + SystemProperties.getInt("sys.delay.playtime",MIN_SHUTDOWN_ANIMATION_PLAY_TIME);
+		//modify by liliang.bao end
         // +MediaTek 2012-02-25 Disable key dispatch
         try {
             final IWindowManager wm = IWindowManager.Stub.asInterface(
@@ -616,6 +625,15 @@ public final class ShutdownThread extends Thread {
         }
     }
 
+	  private static void stopBootAnimationSound() {
+        if (bPlayaudio) {
+            SystemProperties.set("ctl.stop","bootanim:shut mp3");
+            Log.d(TAG, "bootanim:shut mp3" );
+        } else {
+            SystemProperties.set("ctl.stop","bootanim:shut nomp3");
+            Log.d(TAG, "bootanim:shut nomp3" );
+        }
+    }
     void actionDone() {
         synchronized (mActionDoneSync) {
             mActionDone = true;
@@ -959,6 +977,9 @@ public final class ShutdownThread extends Thread {
             if (sInstance.mProgressDialog != null) {
                 sInstance.mProgressDialog.dismiss();
             } else if (beginAnimationTime > 0) {
+			//modify by liliang.bao begin
+			stopBootAnimationSound();
+			//modify by liliang.bao end
                 Log.i(TAG, "service.bootanim.exit = 1");
                 SystemProperties.set("service.bootanim.exit", "1");
             }

@@ -4187,4 +4187,8 @@
         <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> selected</item>
         <item quantity="other"><xliff:g id="count" example="3">%1$d</xliff:g> selected</item>
     </plurals>
+    
+    <string name="global_action_restart">Restart</string>
+    <string name="restart_confirm" product="default">Your phone will restart.</string>
+    <string name="restart_confirm" product="tablet">Your tablet will restart.</string>
 </resources>

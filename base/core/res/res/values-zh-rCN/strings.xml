@@ -1516,4 +1516,8 @@
       <item quantity="other">已选择 <xliff:g id="COUNT_1">%1$d</xliff:g> 项</item>
       <item quantity="one">已选择 <xliff:g id="COUNT_0">%1$d</xliff:g> 项</item>
     </plurals>
+    
+    <string name="global_action_restart">重启</string>
+    <string name="restart_confirm" product="tablet">"您的平板电脑会重启。"</string>
+    <string name="restart_confirm" product="default">"您的手机将会重启。"</string>
 </resources>

@@ -76,10 +76,20 @@ import android.view.ViewHierarchyEncoder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 
 import libcore.icu.NativePluralRules;
+import java.io.File;
+import java.io.IOException;
+import com.android.internal.util.XmlUtils;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 /**
  * Class for accessing an application's resources.  This sits on top of the
  * asset manager of the application (accessible through {@link #getAssets}) and
@@ -181,11 +191,388 @@ public class Resources {
 
     private CompatibilityInfo mCompatibilityInfo = CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO;
 
+//add by liliang.bao begin
+    private Resources mCustomRes = null;
+    private AssetManager mCustomAsset = null;
+    private boolean mCustApkExist = false;
+    private boolean mHasLoadRes = false;
+
+    private  Resources mCustomSystemRes = null;
+    private  AssetManager mCustomSystemAsset = null;
+    private  boolean mCustSystemResExist = false;
+    private  boolean mHasCustLoadSystemRes = false;
+   private final String CUSTOM_RES_APK_PATH="/custom/app-res/";
+//add by liliang.bao end
+ //add by liliang.bao for replace icon resources by custom begin
+
+   private static final String APP_ICON_CONFIG_PATH="/custom/etc/resources.xml";
+   /** @hide */
+   private static HashMap<String, String> mCustPackagesMap = new HashMap<String, String>();
     static {
         sPreloadedDrawables = new LongSparseArray[2];
         sPreloadedDrawables[0] = new LongSparseArray<>();
         sPreloadedDrawables[1] = new LongSparseArray<>();
+   		loadCustPackResource();
+   	}
+   /** @hide */
+   private static void loadCustPackResource()
+   	{  		
+		XmlPullParserFactory factory;
+        try {
+            factory = XmlPullParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(new FileInputStream(APP_ICON_CONFIG_PATH), "utf-8");
+            int eventType=parser.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType== XmlPullParser.START_TAG) {
+                    if (parser.getName().equals("resources")) {
+                        Log.i(TAG, "Tag: resource");
+                        mCustPackagesMap.clear();
+                    } else if (parser.getName().equals("item")) {
+                    	mCustPackagesMap.put(parser.getAttributeValue(0), parser.getAttributeValue(1));
+			           Log.i(TAG, "Tag: item:"+"packageName: "+parser.getAttributeValue(0)+"resPath: "+parser.getAttributeValue(1)+"\n");
+                    }
+                }else if(eventType== XmlPullParser.END_TAG){
+                }
+                eventType=parser.next();
+            }
+        } catch (XmlPullParserException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } catch (IOException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+   	}
+//add by liliang.bao for replace icon resources by custom end
+/**@hide*/
+private int getId(int id)
+{
+	if(id <=0)
+		return 0;
+	  //modify by liliang.bao for some id isn't in origin apk begin
+		try {
+	       	String name= getResourceName(id);	
+		} catch (Exception e) {
+		   if (mCustomAsset != null) {
+			 String str = mCustomAsset.getResourceName(id);
+		   	 if(str !=null)
+		   		return id;
+		   	 }
+		     throw new NotFoundException("Unable to find resource ID #0x"
+                + Integer.toHexString(id));
+		   
+		}
+	   //modify by liliang.bao end
+		
+	int resId = 0;
+	 String packageName = getResourcePackageName(id);		
+	 if("android".equals(packageName))
+	 	{
+	 	  synchronized(this)
+	 	   {
+	 		if(!mHasCustLoadSystemRes)
+	 	    		resId = getCustomSystemResId(id);
+			else if(mCustSystemResExist && mHasCustLoadSystemRes)
+				resId = getCustomSystemResId(id);
+	 	    }
+	 	}
+	 else
+	 	{
+	 	   synchronized(this)
+	 	   {
+    			if(!mHasLoadRes)
+        			resId = getCustomResId(id);
+			else if(mCustApkExist && mHasLoadRes)
+				resId = getCustomResId(id);
+	 	    }
+	 	}
+	 return resId;
+
+}
+/**@hide*/
+public void getValueForCustom(int id, TypedValue outValue, boolean resolveRefs)
+            throws NotFoundException {
+         
+		String packageName = getResourcePackageName(id);
+		if("android".equals(packageName))
+			{
+				boolean found = mCustomSystemRes.getAssets().getResourceValue(id, 0, outValue, resolveRefs);
+				if(found)return ;
+			}
+		else
+			{
+				boolean found = mCustomRes.getAssets().getResourceValue(id, 0, outValue, resolveRefs);
+				if(found)return;
+			}		
+        throw new NotFoundException("Resource ID #0x"
+                                    + Integer.toHexString(id));
     }
+
+/**@hide*/
+private int getCustomResId(int id)
+{
+		String resApkPathName="default-res.apk";
+	    final String name = getResourceName(id);	
+		int start = name.indexOf(":");
+		int pos = name.lastIndexOf("/");
+		String type = name.substring(start+1, pos);
+		pos+=1;
+		String resName = name.substring(pos);
+		String packageName = getResourcePackageName(id);				
+		if(packageName !=null&&mCustPackagesMap.get(packageName)!=null)
+		{
+			resApkPathName = CUSTOM_RES_APK_PATH+mCustPackagesMap.get(packageName)+"-res/"+mCustPackagesMap.get(packageName)+"-res.apk";
+		}		
+		
+		if(!mHasLoadRes)
+			{				
+				File file = new File(resApkPathName);
+				mCustApkExist = file.exists();
+			       mHasLoadRes = true;
+				if(!mCustApkExist)
+				{
+				//	Log.v(TAG, "===>file path:"+resApkPathName+ " not exist");
+					return 0;
+				}
+			}
+
+		if (mCustomRes==null)
+    			{
+    				mCustomAsset = new AssetManager();
+				int result  = mCustomAsset.addAssetPath(resApkPathName);
+			  //     Log.v(TAG, "=======>add "+resApkPathName+" resutl:"+result);
+				mCustomRes = new Resources(mCustomAsset,getDisplayMetrics(),getConfiguration());			
+    			}
+	
+		int resId = mCustomRes.getIdentifier(resName, type, packageName);
+	//	Log.v(TAG, "=======>get id "+resId+" resName:"+resName+" type:"+type+" packageName: "+packageName);	
+		return resId;
+}
+
+/**@hide*/
+private int getCustomSystemResId(int id)
+{
+		String resApkPathName="";
+	      final String name = getResourceName(id);	
+		int start = name.indexOf(":");
+		int pos = name.lastIndexOf("/");
+		String type = name.substring(start+1, pos);
+		pos+=1;
+		String resName = name.substring(pos);
+
+		resApkPathName+="android-res.apk";
+		resApkPathName = CUSTOM_RES_APK_PATH+"android-res/"+resApkPathName;
+		
+		if(!mHasCustLoadSystemRes)
+			{
+				File file = new File(resApkPathName);
+				mCustSystemResExist = file.exists();
+			       mHasCustLoadSystemRes = true;
+				if(!mCustSystemResExist)
+				{
+			//		Log.v(TAG, "===>file path:"+resApkPathName+ " not exist");
+					return 0;
+				}
+			}
+		if (mCustomSystemRes==null)
+    			{
+    				mCustomSystemAsset = new AssetManager();
+				int result  = mCustomSystemAsset.addAssetPath(resApkPathName);
+			  //     Log.v(TAG, "=======>add "+resApkPathName+" resutl:"+result);
+				mCustomSystemRes = new Resources(mCustomSystemAsset,getDisplayMetrics(),getConfiguration());			
+    			}	
+		 int resId= mCustomSystemRes.getIdentifier(resName, type, "com.android.custom");			
+	//	 Log.v(TAG, "=======>get system id "+resId+" resName:"+resName+" type: "+type);	
+		return resId;
+}
+    /**
+     * @hide
+     */
+    public void updateCustomResConfiguration(Configuration config,
+            DisplayMetrics metrics, CompatibilityInfo compat) {
+        synchronized (mAccessLock) {
+            if (false) {
+                Slog.i(TAG, "**** Updating config of " + this + ": old config is "
+                        + mConfiguration + " old compat is " + mCompatibilityInfo);
+                Slog.i(TAG, "**** Updating config of " + this + ": new config is "
+                        + config + " new compat is " + compat);
+            }
+            
+            /// M: Log specified resource Id @{
+            if (DEBUG_RESOURCE_ID) {
+                int orgLogId = sLogId;
+                sLogId = SystemProperties.getInt("debug.rms.logid", 0);
+                if(orgLogId != sLogId) {
+                    Slog.i(TAG, "**** Updating config, sLogId: " + sLogId);
+                }
+                if (0 != sLogId) {
+                    Slog.i(TAG, "**** Updating config of " + this + ": old config is "
+                            + mConfiguration + " old compat is " + mCompatibilityInfo);
+                    Slog.i(TAG, "**** Updating config of " + this + ": new config is "
+                            + config + " new compat is " + compat);
+                }
+            }
+            /// @}
+
+            if (compat != null) {
+                mCompatibilityInfo = compat;
+            }
+            if (metrics != null) {
+                mMetrics.setTo(metrics);
+            }
+            // NOTE: We should re-arrange this code to create a Display
+            // with the CompatibilityInfo that is used everywhere we deal
+            // with the display in relation to this app, rather than
+            // doing the conversion here.  This impl should be okay because
+            // we make sure to return a compatible display in the places
+            // where there are public APIs to retrieve the display...  but
+            // it would be cleaner and more maintainble to just be
+            // consistently dealing with a compatible display everywhere in
+            // the framework.
+            mCompatibilityInfo.applyToDisplayMetrics(mMetrics);
+
+            final int configChanges = calcConfigChanges(config);
+            if (mConfiguration.locale == null) {
+                mConfiguration.locale = Locale.getDefault();
+                mConfiguration.setLayoutDirection(mConfiguration.locale);
+            }
+            if (mConfiguration.densityDpi != Configuration.DENSITY_DPI_UNDEFINED) {
+                mMetrics.densityDpi = mConfiguration.densityDpi;
+                mMetrics.density = mConfiguration.densityDpi * DisplayMetrics.DENSITY_DEFAULT_SCALE;
+            }
+            mMetrics.scaledDensity = mMetrics.density * mConfiguration.fontScale;
+
+            String locale = null;
+            if (mConfiguration.locale != null) {
+                locale = adjustLanguageTag(mConfiguration.locale.toLanguageTag());
+            }
+
+            final int width, height;
+            if (mMetrics.widthPixels >= mMetrics.heightPixels) {
+                width = mMetrics.widthPixels;
+                height = mMetrics.heightPixels;
+            } else {
+                //noinspection SuspiciousNameCombination
+                width = mMetrics.heightPixels;
+                //noinspection SuspiciousNameCombination
+                height = mMetrics.widthPixels;
+            }
+
+            final int keyboardHidden;
+            if (mConfiguration.keyboardHidden == Configuration.KEYBOARDHIDDEN_NO
+                    && mConfiguration.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES) {
+                keyboardHidden = Configuration.KEYBOARDHIDDEN_SOFT;
+            } else {
+                keyboardHidden = mConfiguration.keyboardHidden;
+            }
+
+            mAssets.setConfiguration(mConfiguration.mcc, mConfiguration.mnc,
+                    locale, mConfiguration.orientation,
+                    mConfiguration.touchscreen,
+                    mConfiguration.densityDpi, mConfiguration.keyboard,
+                    keyboardHidden, mConfiguration.navigation, width, height,
+                    mConfiguration.smallestScreenWidthDp,
+                    mConfiguration.screenWidthDp, mConfiguration.screenHeightDp,
+                    mConfiguration.screenLayout, mConfiguration.uiMode,
+                    Build.VERSION.RESOURCES_SDK_INT);
+
+            if (DEBUG_CONFIG) {
+                Slog.i(TAG, "**** Updating config of " + this + ": final config is " + mConfiguration
+                        + " final compat is " + mCompatibilityInfo);
+            }
+
+            mDrawableCache.onConfigurationChange(configChanges);
+            mColorDrawableCache.onConfigurationChange(configChanges);
+            mColorStateListCache.onConfigurationChange(configChanges);
+            mAnimatorCache.onConfigurationChange(configChanges);
+            mStateListAnimatorCache.onConfigurationChange(configChanges);
+
+            flushLayoutCache();
+        }
+        synchronized (sSync) {
+            if (mPluralRule != null && config != null) {
+                mPluralRule = NativePluralRules.forLocale(config.locale);
+            }
+        }
+    }
+    /**
+     * @hide
+     */
+ Drawable loadCustomDrawable(TypedValue value, int id, Theme theme) throws NotFoundException {
+        if (TRACE_FOR_PRELOAD) {
+            // Log only framework resources
+            if ((id >>> 24) == 0x1) {
+                final String name = getResourceName(id);
+                if (name != null) {
+                    Log.d("PreloadDrawable", name);
+                }
+            }
+        }
+
+        final boolean isColorDrawable;
+        final DrawableCache caches;
+        final long key;
+        if (value.type >= TypedValue.TYPE_FIRST_COLOR_INT
+                && value.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            isColorDrawable = true;
+            caches = mColorDrawableCache;
+            key = value.data;
+        } else {
+            isColorDrawable = false;
+            caches = mDrawableCache;
+            key = (((long) value.assetCookie) << 32) | value.data;
+        }
+
+        // First, check whether we have a cached version of this drawable
+        // that was inflated against the specified theme.
+        if (!mPreloading) {
+            final Drawable cachedDrawable = caches.getInstance(key, theme);
+            if (cachedDrawable != null) {
+                return cachedDrawable;
+            }
+        }
+
+        // Next, check preloaded drawables. These may contain unresolved theme
+        // attributes.
+        final ConstantState cs;
+        if (isColorDrawable) {
+            cs = sPreloadedColorDrawables.get(key);
+        } else {
+            cs = sPreloadedDrawables[mConfiguration.getLayoutDirection()].get(key);
+        }
+
+        Drawable dr;
+        if (cs != null) {
+            dr = cs.newDrawable(this);
+        } else if (isColorDrawable) {
+            dr = new ColorDrawable(value.data);
+        } else {
+            dr = loadDrawableForCookie(value, id, null);
+        }
+
+        // Determine if the drawable has unresolved theme attributes. If it
+        // does, we'll need to apply a theme and store it in a theme-specific
+        // cache.
+        final boolean canApplyTheme = dr != null && dr.canApplyTheme();
+        if (canApplyTheme && theme != null) {
+            dr = dr.mutate();
+            dr.applyTheme(theme);
+            dr.clearMutated();
+        }
+
+        // If we were able to obtain a drawable, store it in the appropriate
+        // cache: preload, not themed, null theme, or theme-specific.
+        if (dr != null) {
+            dr.setChangingConfigurations(value.changingConfigurations);
+            cacheDrawable(value, isColorDrawable, caches, theme, canApplyTheme, key, dr);
+        }
+
+        return dr;
+    }
+
+
 
     /**
      * Returns the most appropriate default theme for the specified target SDK version.
@@ -334,6 +721,25 @@ public class Resources {
             Slog.i(TAG, "config is " + mConfiguration);
         }
         /// @}
+     //add by liliang.bao begin
+       int resId = getId(id);	 
+	if(resId > 0)
+		{
+			String packageName = getResourcePackageName(id);
+			if("android".equals(packageName))		
+			{
+				CharSequence resName =mCustomSystemRes.getAssets().getResourceText(resId);
+				if(resName!=null)
+					return resName;			
+			}
+			else
+			{
+				CharSequence resName =  mCustomRes.getAssets().getResourceText(resId);
+				if(resName!=null)
+					return resName;
+			}
+		}
+	//add by liliang.bao end
         CharSequence res = mAssets.getResourceText(id);
         if (res != null) {
             return res;
@@ -371,6 +777,33 @@ public class Resources {
         }
         /// @}
         NativePluralRules rule = getPluralRule();
+	 //add by liliang.bao begin
+       int resId = getId(id);	 
+	if(resId > 0)
+		{
+			String packageName = getResourcePackageName(id);
+			if("android".equals(packageName))		
+			{
+				CharSequence res =mCustomSystemRes.getAssets().getResourceBagText(resId,
+                		attrForQuantityCode(rule.quantityForInt(quantity)));
+				if(res!=null)
+					return res;
+				res = mCustomSystemRes.getAssets().getResourceBagText(resId, ID_OTHER);
+        			if (res != null) 
+           				return res;
+			}
+			else
+			{
+					CharSequence res =mCustomRes.getAssets().getResourceBagText(resId,
+                			attrForQuantityCode(rule.quantityForInt(quantity)));
+					if(res!=null)
+						return res;
+					res = mCustomRes.getAssets().getResourceBagText(resId, ID_OTHER);
+        				if (res != null) 
+           					return res;
+			}
+		}
+	//add by liliang.bao end
         CharSequence res = mAssets.getResourceBagText(id,
                 attrForQuantityCode(rule.quantityForInt(quantity)));
         if (res != null) {
@@ -566,6 +999,29 @@ public class Resources {
             Slog.i(TAG, "config is " + mConfiguration);
         }
         /// @}
+          //add by liliang.bao begin
+       int resId = getId(id);	 
+	if(resId > 0)
+		{
+			String packageName = getResourcePackageName(id);
+			if("android".equals(packageName))		
+			{
+				CharSequence resName =mCustomSystemRes.getAssets().getResourceText(resId);
+				if(resName!=null)
+					return resName;
+				else
+					return def;
+			}
+			else
+				{
+					CharSequence resName =  mCustomRes.getAssets().getResourceText(resId);
+					if(resName!=null)
+						return resName;
+					else
+					       return def;
+				}
+		}
+	//add by liliang.bao end
         CharSequence res = id != 0 ? mAssets.getResourceText(id) : null;
         return res != null ? res : def;
     }
@@ -588,6 +1044,25 @@ public class Resources {
             Slog.i(TAG, "config is " + mConfiguration);
         }
         /// @}
+              //add by liliang.bao begin
+       int resId = getId(id);	 
+	if(resId > 0)
+		{
+			String packageName = getResourcePackageName(id);
+			if("android".equals(packageName))		
+			{
+				CharSequence[] resName =mCustomSystemRes.getAssets().getResourceTextArray(resId);
+				if(resName!=null)
+					return resName;		
+			}
+			else
+			{
+				CharSequence[] resName =  mCustomRes.getAssets().getResourceTextArray(resId);
+					if(resName!=null)
+						return resName;				
+			}
+		}
+	//add by liliang.bao end
         CharSequence[] res = mAssets.getResourceTextArray(id);
         if (res != null) {
             return res;
@@ -615,6 +1090,25 @@ public class Resources {
             Slog.i(TAG, "config is " + mConfiguration);
         }
         /// @}
+         //add by liliang.bao begin
+       int resId = getId(id);
+	if(resId > 0)
+		{
+			String packageName = getResourcePackageName(id);
+			if("android".equals(packageName))		
+			{
+				String[] resName =mCustomSystemRes.getAssets().getResourceStringArray(resId);
+				if(resName!=null)
+					return resName;
+			}
+			else
+			{
+				String[] resName =  mCustomRes.getAssets().getResourceStringArray(resId);
+				if(resName!=null)
+					return resName;
+			}
+		}
+	//add by liliang.bao end
         String[] res = mAssets.getResourceStringArray(id);
         if (res != null) {
             return res;
@@ -641,6 +1135,25 @@ public class Resources {
             Slog.i(TAG, "config is " + mConfiguration);
         }
         /// @}
+      //add by liliang.bao begin
+       int resId = getId(id);
+	if(resId > 0)
+		{
+			String packageName = getResourcePackageName(id);
+			if("android".equals(packageName))		
+			{
+				int[] res =mCustomSystemRes.getAssets().getArrayIntResource(resId);
+				if(res!=null)
+					return res;
+			}
+			else
+			{
+				int[] res =  mCustomRes.getAssets().getArrayIntResource(resId);
+				if(res!=null)
+					return res;
+			}
+		}
+	//add by liliang.bao end
         int[] res = mAssets.getArrayIntResource(id);
         if (res != null) {
             return res;
@@ -670,6 +1183,40 @@ public class Resources {
             Slog.i(TAG, "config is " + mConfiguration);
         }
         /// @}
+//add by liliang.bao begin
+    Log.d(TAG, "obtainTypedArray ");
+     int resId = getId(id);
+	if(resId > 0)
+		{
+		String packageName = getResourcePackageName(id);
+			if("android".equals(packageName))		
+			{
+				 int len = mCustomSystemRes.getAssets().getArraySize(resId);
+				 if (len < 0) {
+            				throw new NotFoundException("Array resource ID #0x"
+                                        + Integer.toHexString(resId));
+        					}
+       			 Log.d(TAG, "===obtainTypedArray len:"+len);
+        				TypedArray array = TypedArray.obtain(this, len);
+       				array.mLength = mCustomSystemRes.getAssets().retrieveArray(resId, array.mData);
+        				array.mIndices[0] = 0;
+					return array;
+			}
+			else
+			{
+				int len = mCustomRes.getAssets().getArraySize(resId);
+				 if (len < 0) {
+            				throw new NotFoundException("Array resource ID #0x"
+                                        + Integer.toHexString(resId));
+        					}
+        			Log.d(TAG, "obtainTypedArray len:"+len);
+        				TypedArray array =TypedArray.obtain(this, len);
+       				array.mLength = mCustomRes.getAssets().retrieveArray(resId, array.mData);
+        				array.mIndices[0] = 0;
+					return array;
+			}
+		}
+	  //add by liliang.bao end
         int len = mAssets.getArraySize(id);
         if (len < 0) {
             throw new NotFoundException("Array resource ID #0x"
@@ -1324,6 +1871,29 @@ public class Resources {
             Slog.i(TAG, "config is " + mConfiguration);
         }
         /// @}
+        //add by liliang.bao begin
+       int resId = getId(id);
+	if(resId > 0)
+		{
+			synchronized (mTmpValue) {
+            			TypedValue value = mTmpValue;
+			       String packageName = getResourcePackageName(id);
+				 getValueForCustom(resId, value, true);
+			      if("android".equals(packageName))
+				{   
+				     if (value.type == TypedValue.TYPE_STRING) 
+                                     return mCustomSystemRes.loadXmlResourceParser(value.string.toString(), resId,
+                                                value.assetCookie, "layout");
+				}
+			     else 
+				{
+				     if (value.type == TypedValue.TYPE_STRING) 
+                                     return mCustomRes.loadXmlResourceParser(value.string.toString(), resId,
+                                                value.assetCookie, "layout");
+				}
+			}
+		}
+	//add by liliang.bao end
         return loadXmlResourceParser(id, "layout");
     }
 
@@ -1385,6 +1955,29 @@ public class Resources {
             Slog.i(TAG, "config is " + mConfiguration);
         }
         /// @}
+    //add by liliang.bao begin
+       int resId = getId(id);
+	if(resId > 0)
+		{
+				synchronized (mTmpValue) {
+            			TypedValue value = mTmpValue;
+			       String packageName = getResourcePackageName(id);
+				getValueForCustom(resId, value, true);
+			      if("android".equals(packageName))
+				{   
+				     if (value.type == TypedValue.TYPE_STRING) 
+                                     return mCustomSystemRes.loadXmlResourceParser(value.string.toString(), resId,
+                                                value.assetCookie, "xml");
+				}
+			     else 
+				{
+				     if (value.type == TypedValue.TYPE_STRING) 
+                                     return mCustomRes.loadXmlResourceParser(value.string.toString(), resId,
+                                                value.assetCookie, "xml");
+				}
+			}
+		}
+	//add by liliang.bao end
         return loadXmlResourceParser(id, "xml");
     }
 
@@ -1418,6 +2011,18 @@ public class Resources {
                 mTmpValue = null;
             }
         }
+			//add by liliang.bao begin
+       	int resId = getId(id);
+	     
+		if(resId > 0)
+		{ 	
+			String packageName = getResourcePackageName(id);
+			if("android".equals(packageName))
+				 return mCustomSystemRes.openRawResource(resId, value);
+			else
+			   	return mCustomRes.openRawResource(resId, value);
+		}
+	//add by liliang.bao end
         InputStream res = openRawResource(id, value);
         synchronized (mAccessLock) {
             if (mTmpValue == null) {
@@ -1451,6 +2056,25 @@ public class Resources {
         getValue(id, value, true);
 
         try {
+		//add by liliang.bao begin
+       		int resId = getId(id);
+			if(resId > 0)
+			{          		
+				String packageName = getResourcePackageName(id);
+				if("android".equals(packageName))
+					{
+						//mCustomSystemRes.getValue(resId, value, true);
+						return mCustomSystemRes.getAssets().openNonAsset(value.assetCookie, value.string.toString(),
+                    					AssetManager.ACCESS_STREAMING);
+					}
+				else
+					{
+						//mCustomRes.getValue(resId, value, true);
+						return mCustomRes.getAssets().openNonAsset(value.assetCookie, value.string.toString(),
+                    					AssetManager.ACCESS_STREAMING);
+					}
+			}
+		//add by liliang.bao end
             return mAssets.openNonAsset(value.assetCookie, value.string.toString(),
                     AssetManager.ACCESS_STREAMING);
         } catch (Exception e) {
@@ -1501,6 +2125,25 @@ public class Resources {
             getValue(id, value, true);
         }
         try {
+					//add by liliang.bao begin
+       		int resId = getId(id);
+			if(resId > 0)
+			{
+				String packageName = getResourcePackageName(id);
+				if("android".equals(packageName))
+					{
+						//mCustomSystemRes.getValue(resId, value, true);
+						return mCustomSystemRes.getAssets().openNonAssetFd(
+                    					value.assetCookie, value.string.toString());
+					}
+				else
+					{
+						//mCustomRes.getValue(resId, value, true);
+						return mCustomRes.getAssets().openNonAssetFd(
+                    			value.assetCookie, value.string.toString());
+					}
+			}
+		//add by liliang.bao end
             return mAssets.openNonAssetFd(
                 value.assetCookie, value.string.toString());
         } catch (Exception e) {
@@ -1542,6 +2185,23 @@ public class Resources {
             Slog.i(TAG, "config is " + mConfiguration);
         }
         /// @}
+         //add by liliang.bao begin
+       		int resId = getId(id);
+			if(resId > 0)
+			{
+				String packageName = getResourcePackageName(id);
+				if("android".equals(packageName))
+					{
+						boolean found = mCustomSystemRes.getAssets().getResourceValue(resId, 0, outValue, resolveRefs);
+						if(found)return ;
+					}
+				else
+					{
+						boolean found = mCustomRes.getAssets().getResourceValue(resId, 0, outValue, resolveRefs);
+						if(found)return;
+					}
+			}
+	//add by liliang.bao end   
         boolean found = mAssets.getResourceValue(id, 0, outValue, resolveRefs);
         if (found) {
             return;
@@ -1571,6 +2231,23 @@ public class Resources {
             Slog.i(TAG, "config is " + mConfiguration);
         }
         /// @}
+            //add by liliang.bao begin
+       		int resId = getId(id);
+			if(resId > 0)
+			{
+				String packageName = getResourcePackageName(id);
+				if("android".equals(packageName))
+					{
+						boolean found = mCustomSystemRes.getAssets().getResourceValue(id, density, outValue, resolveRefs);
+						if(found)return ;
+					}
+				else
+					{
+						boolean found = mCustomRes.getAssets().getResourceValue(id, density, outValue, resolveRefs);
+						if(found)return;
+					}
+			}
+	//add by liliang.bao end   
         boolean found = mAssets.getResourceValue(id, density, outValue, resolveRefs);
         if (found) {
             return;
@@ -2202,7 +2879,14 @@ public class Resources {
                 }
             }
             /// @}
-
+	   if(mCustomRes!=null)
+	   {
+			   //  Log.e(TAG, "==>updateConfiguration****begin******");
+			     mCustomRes.updateCustomResConfiguration(config,  metrics,  null);
+			   //  Log.e(TAG, "==>updateConfiguration****end******");
+	  }
+	  if(mCustomSystemRes!=null)
+	   	mCustomSystemRes.updateCustomResConfiguration(config,  metrics,  null);
             if (compat != null) {
                 mCompatibilityInfo = compat;
             }
@@ -2479,7 +3163,25 @@ public class Resources {
         } catch (Exception e) {
             // Ignore
         }
-        return mAssets.getResourceIdentifier(name, defType, defPackage);
+        //modify by liliang.bao  begin
+		int resId = mAssets.getResourceIdentifier(name, defType, defPackage);		
+		if(resId == 0)
+		{
+			if("android".equals(defPackage))		
+			{
+				if(mCustomSystemRes!=null)
+				resId =mCustomSystemRes.getAssets().getResourceIdentifier(name, defType, defPackage);
+		
+			}
+			else
+			{
+				if(mCustomRes!=null)
+					resId =  mCustomRes.getAssets().getResourceIdentifier(name, defType, defPackage);
+				//Log.d(TAG,"getIdentifier from custom app-res resId:"+resId+" name:"+name);
+			}
+		}
+	//modify by liliang.bao  end
+	return resId;
     }
 
     /**
@@ -2508,6 +3210,13 @@ public class Resources {
     public String getResourceName(@AnyRes int resid) throws NotFoundException {
         String str = mAssets.getResourceName(resid);
         if (str != null) return str;
+        //add by liliang.bao begin
+        if(mCustomRes!=null)
+            {
+                str =  mCustomRes.getAssets().getResourceName(resid);
+                if (str != null) return str;
+            }
+        //add by liliang.boa end
         throw new NotFoundException("Unable to find resource ID #0x"
                 + Integer.toHexString(resid));
     }
@@ -2527,6 +3236,13 @@ public class Resources {
     public String getResourcePackageName(@AnyRes int resid) throws NotFoundException {
         String str = mAssets.getResourcePackageName(resid);
         if (str != null) return str;
+	//add by liliang.bao begin
+	if(mCustomRes!=null)
+		{
+			str =  mCustomRes.getAssets().getResourcePackageName(resid);
+			if (str != null) return str;
+		}
+	//add by liliang.boa end
         throw new NotFoundException("Unable to find resource ID #0x"
                 + Integer.toHexString(resid));
     }
@@ -2765,6 +3481,23 @@ public class Resources {
 
     @Nullable
     Drawable loadDrawable(TypedValue value, int id, Theme theme) throws NotFoundException {
+		//add by liliang.bao begin
+       	int resId = getId(id);
+		if(resId > 0)
+		{
+		      String packageName = getResourcePackageName(id);
+			if("android".equals(packageName))
+			{
+					//mCustomSystemRes.getValue(resId, value, true);
+					return mCustomSystemRes.loadCustomDrawable(value, resId,theme);
+			}
+			else
+			{
+            				//mCustomRes.getValue(resId, value, true);
+					return mCustomRes.loadCustomDrawable(value, resId,theme);
+			}
+		}
+		//add by liliang.bao end
         if (TRACE_FOR_PRELOAD) {
             // Log only framework resources
             if ((id >>> 24) == 0x1) {

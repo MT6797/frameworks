@@ -826,10 +826,7 @@
 
     <!-- Vibrator pattern for feedback about booting with safe mode disabled -->
     <integer-array name="config_safeModeDisabledVibePattern">
-        <item>0</item>
-        <item>1</item>
-        <item>20</item>
-        <item>21</item>
+        <item>500</item>
     </integer-array>
 
     <!-- Vibrator pattern for feedback about booting with safe mode disabled -->
@@ -1574,7 +1571,7 @@
     <bool name="config_dreamsSupported">true</bool>
 
     <!-- If supported, are dreams enabled? (by default) -->
-    <bool name="config_dreamsEnabledByDefault">true</bool>
+    <bool name="config_dreamsEnabledByDefault">false</bool>
     <!-- If supported and enabled, are dreams activated when docked? (by default) -->
     <bool name="config_dreamsActivatedOnDockByDefault">true</bool>
     <!-- If supported and enabled, are dreams activated when asleep and charging? (by default) -->
@@ -2030,8 +2027,11 @@
          -->
     <string-array translatable="false" name="config_globalActionsList">
         <item>power</item>
+        <item>restart</item>
         <item>bugreport</item>
         <item>users</item>
+        <item>airplane</item>
+        <item>silent</item>
     </string-array>
 
     <!-- Number of milliseconds to hold a wake lock to ensure that drawing is fully

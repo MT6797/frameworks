@@ -93,6 +93,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     /* Valid settings for global actions keys.
      * see config.xml config_globalActionList */
     private static final String GLOBAL_ACTION_KEY_POWER = "power";
+    private static final String GLOBAL_ACTION_KEY_RESTART = "restart";
     private static final String GLOBAL_ACTION_KEY_AIRPLANE = "airplane";
     private static final String GLOBAL_ACTION_KEY_BUGREPORT = "bugreport";
     private static final String GLOBAL_ACTION_KEY_SILENT = "silent";
@@ -108,6 +109,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private final IDreamManager mDreamManager;
 
     private ArrayList<Action> mItems;
+    private boolean mHasRestartAction;
     private GlobalActionsDialog mDialog;
 
     private Action mSilentModeAction;
@@ -273,6 +275,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             }
             if (GLOBAL_ACTION_KEY_POWER.equals(actionKey)) {
                 mItems.add(new PowerAction());
+            } else if (GLOBAL_ACTION_KEY_RESTART.equals(actionKey)) {
+                mItems.add(new RestartAction());
+                mHasRestartAction = true;
             } else if (GLOBAL_ACTION_KEY_AIRPLANE.equals(actionKey)) {
                 mItems.add(mAirplaneModeOn);
             } else if (GLOBAL_ACTION_KEY_BUGREPORT.equals(actionKey)) {
@@ -342,12 +347,12 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
         @Override
         public boolean onLongPress() {
-            UserManager um = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
-            if (!um.hasUserRestriction(UserManager.DISALLOW_SAFE_BOOT)) {
+            if (!mHasRestartAction) {
                 mWindowManagerFuncs.rebootSafeMode(true);
                 return true;
+            } else {
+                return false;
             }
-            return false;
         }
 
         @Override
@@ -363,7 +368,35 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         @Override
         public void onPress() {
             // shutdown by making sure radio and power are handled accordingly.
-            mWindowManagerFuncs.shutdown(false /* confirm */);
+            mWindowManagerFuncs.shutdown(true /* confirm */);
+        }
+    }
+
+    private final class RestartAction extends SinglePressAction implements LongPressAction {
+        private RestartAction() {
+            super(com.android.internal.R.drawable.ic_lock_restart,
+                R.string.global_action_restart);
+        }
+
+        @Override
+        public boolean onLongPress() {
+            mWindowManagerFuncs.rebootSafeMode(true);
+            return true;
+        }
+
+        @Override
+        public boolean showDuringKeyguard() {
+            return true;
+        }
+
+        @Override
+        public boolean showBeforeProvisioning() {
+            return true;
+        }
+
+        @Override
+        public void onPress() {
+            mWindowManagerFuncs.reboot("user-request", true);
         }
     }
 
@@ -1098,7 +1131,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private void onAirplaneModeChanged() {
         // Let the service state callbacks handle the state.
-        if (mHasTelephony) return;
+   //     if (mHasTelephony) return;
 
         boolean airplaneModeOn = Settings.Global.getInt(
                 mContext.getContentResolver(),

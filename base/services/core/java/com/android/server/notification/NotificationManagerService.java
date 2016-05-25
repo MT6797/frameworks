@@ -828,7 +828,18 @@ public class NotificationManagerService extends SystemService {
                 mPplLock = true;
             } else if (action.equals(PPL_UNLOCK)) {
                 mPplLock = false;
-            }
+		//add by liliang.bao for mmi test begin
+            }else if(action.equals("com.mmitest.keyboard.flash"))
+            	{
+            		  mNotificationLight.setFlashing(mDefaultNotificationColor, Light.LIGHT_FLASH_TIMED,500, 500);
+			   Log.d(TAG, "com.mmitest.keyboard.flash!");
+            	}
+		else if(action.equals("com.mmitest.keyboard.off"))
+            	{
+            		  mNotificationLight.turnOff();
+					  Log.d(TAG, "com.mmitest.keyboard.off!");
+            	}
+		//add by liliang.bao end
             /// DM/PPL Lock @}
         }
     };
@@ -1010,7 +1021,11 @@ public class NotificationManagerService extends SystemService {
         filter.addAction(PPL_LOCK);
         filter.addAction(PPL_UNLOCK);
         /// DM/PPL Lock@}
-
+      //add by liliang.bao for mmi test begin
+	filter.addAction("com.mmitest.keyboard.flash");
+	filter.addAction("com.mmitest.keyboard.off");
+	//add by liliang.bao for mmi test end
+	
         getContext().registerReceiver(mIntentReceiver, filter);
 
         IntentFilter pkgFilter = new IntentFilter();

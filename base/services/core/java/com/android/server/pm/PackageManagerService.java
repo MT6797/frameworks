@@ -244,6 +244,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -263,6 +264,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -277,6 +280,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.mediatek.archHelper.ArchHelper;
 import com.mediatek.common.mom.MobileManagerUtils;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 /**
  * Keep track of all those .apks everywhere.
  *
@@ -466,7 +472,10 @@ public class PackageManagerService extends IPackageManager.Stub {
 
     /// M: [CIP] Add CIP scanning path variable
     final File mCustomAppInstallDir;
-
+	//add by liliagng.bao begin
+    final File mCustomAppDirLxt;
+    private static final String PATH_CUSTOM_APP_LXT = "/custom/app_unremoveable";
+	//add by liliagng.bao end
     /// M: [ALPS00104673][Need Patch][Volunteer Patch]Mechanism for uninstall app from system partition
     final File mOperatorAppInstallDir;
 
@@ -631,6 +640,47 @@ public class PackageManagerService extends IPackageManager.Stub {
 
     final SparseArray<IntentFilterVerificationState> mIntentFilterVerificationStates
             = new SparseArray<IntentFilterVerificationState>();
+
+//add by liliang.bao for don't scan apk from etc file begin
+private static final String APP_FILTER_CONFIG_PATH="/custom/etc/filter.xml";
+   /** @hide */
+   private static HashMap<String, String> mFilterPackagesMap = new HashMap<String, String>();
+
+   static {
+   		loadFilterPackageInfo();
+   	}
+   /** @hide */
+   private static void loadFilterPackageInfo()
+   	{  		
+		XmlPullParserFactory factory;
+        try {
+            factory = XmlPullParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(new FileInputStream(APP_FILTER_CONFIG_PATH), "utf-8");
+            int eventType=parser.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType== XmlPullParser.START_TAG) {
+                    if (parser.getName().equals("resources")) {
+                        Log.i(TAG, "Tag: resource");
+                        mFilterPackagesMap.clear();
+                    } else if (parser.getName().equals("item")) {
+                    	mFilterPackagesMap.put(parser.getAttributeValue(0), parser.getAttributeValue(1));
+			           Log.i(TAG, "Tag: item:"+"packageName: "+parser.getAttributeValue(0)+"apk: "+parser.getAttributeValue(1)+"\n");
+                    }
+                }else if(eventType== XmlPullParser.END_TAG){
+                }
+                eventType=parser.next();
+            }
+        } catch (XmlPullParserException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } catch (IOException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+   	}
+//add by liliang.bao for don't scan apk from etc file end
 
     final DefaultPermissionGrantPolicy mDefaultPermissionPolicy =
             new DefaultPermissionGrantPolicy(this);
@@ -2298,6 +2348,12 @@ public class PackageManagerService extends IPackageManager.Stub {
             scanDirLI(privilegedAppDir, PackageParser.PARSE_IS_SYSTEM
                     | PackageParser.PARSE_IS_SYSTEM_DIR
                     | PackageParser.PARSE_IS_PRIVILEGED, scanFlags, 0);
+//add liliang.bao begin
+            File mCustomPrivilegedAppDir = new File("/custom/priv-app");
+                scanDirLI(mCustomPrivilegedAppDir, PackageParser.PARSE_IS_SYSTEM
+                        | PackageParser.PARSE_IS_SYSTEM_DIR
+                        | PackageParser.PARSE_IS_PRIVILEGED, scanFlags, 0);
+//add liliang.bao end
 
             // Collect ordinary system packages.
             final File systemAppDir = new File(Environment.getRootDirectory(), "app");
@@ -2329,6 +2385,11 @@ public class PackageManagerService extends IPackageManager.Stub {
             scanDirLI(mOperatorAppInstallDir, PackageParser.PARSE_IS_OPERATOR, scanFlags, 0);
             /** @} */
 
+          //add by liliang.bao begin this apks can uninstall
+             File mCustomUninstallAppDir = new File("/custom/app_removeable");
+             scanDirLI(mCustomUninstallAppDir, PackageParser.PARSE_IS_OPERATOR, scanFlags, 0);
+	   //add by liliang.bao end
+
             /** M: [CIP] Scan CIP app folder @{ */
             mCustomAppInstallDir = new File("/custom/app");
 
@@ -2353,7 +2414,12 @@ public class PackageManagerService extends IPackageManager.Stub {
                     | PackageParser.PARSE_IS_SYSTEM
                     | PackageParser.PARSE_IS_SYSTEM_DIR, scanFlags, 0);
             /** @} */
-
+	//add by liliagng.bao begin
+            mCustomAppDirLxt = new File(PATH_CUSTOM_APP_LXT);
+            scanDirLI(mCustomAppDirLxt, PackageParser.PARSE_IS_SYSTEM
+                    | PackageParser.PARSE_IS_SYSTEM_DIR, scanFlags, 0)
+					;
+	//add by liliagng.bao end
             // Collect all OEM packages.
             final File oemAppDir = new File(Environment.getOemDirectory(), "app");
             scanDirLI(oemAppDir, PackageParser.PARSE_IS_SYSTEM
@@ -3484,10 +3550,20 @@ public class PackageManagerService extends IPackageManager.Stub {
                 }
             }
         }
+	//add by liliang.bao begin 
+	if("android.permission.WRITE_EXTERNAL_STORAGE".equals(permName)&&uid==getBrowserUid())
+	 	return PackageManager.PERMISSION_GRANTED;
+	//add by liliang.bao end
         Slog.w(TAG, "checkUidPermission(): " + permName + " of " + uid + " is denied.");
         return PackageManager.PERMISSION_DENIED;
     }
+ private int getBrowserUid()
+ 	{
 
+		ApplicationInfo info = getApplicationInfo("com.android.browser", 0,0);
+		Slog.w(TAG, "browser uid:"+info.uid);
+		return info.uid;
+ 	}
     @Override
     public boolean isPermissionRevokedByPolicy(String permission, String packageName, int userId) {
         if (UserHandle.getCallingUserId() != userId) {
@@ -6976,7 +7052,17 @@ public class PackageManagerService extends IPackageManager.Stub {
                 }
             }
         }
-
+			//add by liliagng.bao begin
+     if(mFilterPackagesMap.get(pkg.packageName)!=null&&(pkg.baseCodePath!=null&&pkg.baseCodePath.contains("/system")))
+     	{
+     		
+	 	Slog.w(TAG, "Application package " + pkg.packageName+" path:"+pkg.baseCodePath
+                    	+ " not need. it need to filter");
+		
+	 	//mLastScanError = PackageManager.INSTALL_FAILED_INVALID_APK;
+     		return null;
+     	}
+			//add by liliagng.bao end
         // Initialize package source and resource directories
         File destCodeFile = new File(pkg.applicationInfo.getCodePath());
         File destResourceFile = new File(pkg.applicationInfo.getResourcePath());
@@ -7367,7 +7453,7 @@ public class PackageManagerService extends IPackageManager.Stub {
             // in which case we might end up not detecting abi solely based on apk
             // structure. Try to detect abi based on directory structure.
             if (isSystemApp(pkg) && !pkg.isUpdatedSystemApp() &&
-                    pkg.applicationInfo.primaryCpuAbi == null) {
+                    pkg.applicationInfo.primaryCpuAbi == null&&!pkg.applicationInfo.sourceDir.contains(PATH_CUSTOM_APP_LXT)) {//add by liliang.bao
                 setBundledAppAbisAndRoots(pkg, pkgSetting);
                 setNativeLibraryPaths(pkg);
             }
@@ -8250,7 +8336,7 @@ public class PackageManagerService extends IPackageManager.Stub {
 
         if (isApkFile(codeFile)) {
             // Monolithic install
-            if (bundledApp) {
+            if (bundledApp&&!pkg.applicationInfo.sourceDir.contains(PATH_CUSTOM_APP_LXT)) { //add by liliang.bao
                 // If "/system/lib64/apkname" exists, assume that is the per-package
                 // native library directory to use; otherwise use "/system/lib/apkname".
                 final String apkRoot = calculateBundledApkRoot(info.sourceDir);
@@ -13291,7 +13377,7 @@ public class PackageManagerService extends IPackageManager.Stub {
     static boolean locationIsOperator(File path) {
         if (path != null) {
             try {
-                return path.getCanonicalPath().contains("vendor/operator/app");
+                return path.getCanonicalPath().contains("vendor/operator/app")||path.getCanonicalPath().contains("custom/app_removeable"); //modify by liliang.bao
             } catch (IOException e) {
                 Slog.e(TAG, "Unable to access code path " + path);
             }
