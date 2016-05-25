@@ -1534,8 +1534,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         if (mNavigationBar != null && mNavigationBarOnBottom) {
                             requestTransientBars(mNavigationBar);
                         }else{  
-                           Log.i(TAG, "onSwipeFromBottom...mHasNavigationBar:"+mHasNavigationBar+"  keyguardOn:"+keyguardOn());  
-			             if(mHasNavigationBar && !keyguardOn())
+                        	 boolean isCameraTop = false;
+            			ActivityManager am = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
+            			ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
+            			if (cn != null &&
+                    			cn.getClassName() != null &&
+                    			(cn.getClassName().equals("com.android.camera.SecureCameraActivity"))){
+                                      Log.i(TAG, "now the top activity is om.android.camera.SecureCameraActivity, so give it the key.");
+					  isCameraTop = true;
+				}
+                           Log.i(TAG, "onSwipeFromBottom...mHasNavigationBar:"+mHasNavigationBar+"  keyguardOn:"+keyguardOn()+"   isCameraTop:"+isCameraTop);  
+			   if(mHasNavigationBar && (!keyguardOn()||isCameraTop))
                            	showNavigationBar();  
                         }  
                     }
