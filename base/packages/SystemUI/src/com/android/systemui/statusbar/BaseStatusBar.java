@@ -1711,10 +1711,10 @@ public abstract class BaseStatusBar extends SystemUI implements
         try {
             if (visibleToUser) {
                 boolean pinnedHeadsUp = mHeadsUpManager.hasPinnedHeadsUp();
-                boolean clearNotificationEffects =
-                    ((mShowLockscreenNotifications && mState == StatusBarState.KEYGUARD) ||
+                boolean clearNotificationEffects = false;
+                    /*((mShowLockscreenNotifications && mState == StatusBarState.KEYGUARD) ||
                             (!pinnedHeadsUp && (mState == StatusBarState.SHADE
-                                    || mState == StatusBarState.SHADE_LOCKED)));
+                                    || mState == StatusBarState.SHADE_LOCKED)));*/
                 int notificationLoad = mNotificationData.getActiveNotifications().size();
                 if (pinnedHeadsUp && isPanelFullyCollapsed())  {
                     notificationLoad = 1;

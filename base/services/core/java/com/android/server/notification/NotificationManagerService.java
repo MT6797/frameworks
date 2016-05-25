@@ -3226,7 +3226,7 @@ public class NotificationManagerService extends SystemService {
         // Don't flash while we are in a call or screen is on
         // if (mLedNotification == null || mInCall || mScreenOn) {
         /// M: Add DM/PPL lock related.
-        if (ledNotification == null || mInCall || mScreenOn || mDmLock || mPplLock) {
+        if (ledNotification == null || mInCall /*|| mScreenOn*/ || mDmLock || mPplLock) {
             mNotificationLight.turnOff();
             mStatusBar.notificationLightOff();
         } else {
@@ -3234,11 +3234,12 @@ public class NotificationManagerService extends SystemService {
             int ledARGB = ledno.ledARGB;
             int ledOnMS = ledno.ledOnMS;
             int ledOffMS = ledno.ledOffMS;
-            if ((ledno.defaults & Notification.DEFAULT_LIGHTS) != 0) {
+            //if ((ledno.defaults & Notification.DEFAULT_LIGHTS) != 0) { //annotation on 20160511 by dengwenhao
+            /*### we use Notification default color,if want to custom, edit here  ###*/
                 ledARGB = mDefaultNotificationColor;
                 ledOnMS = mDefaultNotificationLedOn;
                 ledOffMS = mDefaultNotificationLedOff;
-            }
+            //}
             if (mNotificationPulseEnabled) {
                 // pulse repeatedly
                 mNotificationLight.setFlashing(ledARGB, Light.LIGHT_FLASH_TIMED,
