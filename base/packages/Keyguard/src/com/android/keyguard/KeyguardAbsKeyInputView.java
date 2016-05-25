@@ -211,11 +211,7 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
         if(mAutoVerify && !TextUtils.isEmpty(entry)
                 && !TextUtils.isEmpty(mDecrypted)
                 && entry.length() == mDecrypted.length()) {
-            if(entry.equals(mDecrypted)) {
-                performOkClick();
-            } else {
-                resetPasswordText(true /* animate */);
-            }
+            performOkClick();
         }
         if (mCallback != null) {
             mCallback.userActivity();
