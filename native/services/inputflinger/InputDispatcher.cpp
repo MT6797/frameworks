@@ -1344,6 +1344,8 @@ int32_t InputDispatcher::findTouchedWindowTargetsLocked(nsecs_t currentTime,
                     int32_t outsideTargetFlags = InputTarget::FLAG_DISPATCH_AS_OUTSIDE;
                     if (isWindowObscuredAtPointLocked(windowHandle, x, y)) {
                         outsideTargetFlags |= InputTarget::FLAG_WINDOW_IS_OBSCURED;
+                    } else if (isWindowObscuredLocked(windowHandle)) {
+                        outsideTargetFlags |= InputTarget::FLAG_WINDOW_IS_PARTIALLY_OBSCURED;
                     }
 
                     mTempTouchState.addOrUpdateWindow(
@@ -1381,6 +1383,8 @@ int32_t InputDispatcher::findTouchedWindowTargetsLocked(nsecs_t currentTime,
         }
         if (isWindowObscuredAtPointLocked(newTouchedWindowHandle, x, y)) {
             targetFlags |= InputTarget::FLAG_WINDOW_IS_OBSCURED;
+        } else if (isWindowObscuredLocked(newTouchedWindowHandle)) {
+            targetFlags |= InputTarget::FLAG_WINDOW_IS_PARTIALLY_OBSCURED;
         }
 
         // Update hover state.
@@ -1556,6 +1560,7 @@ int32_t InputDispatcher::findTouchedWindowTargetsLocked(nsecs_t currentTime,
                                 == InputWindowInfo::TYPE_WALLPAPER) {
                     mTempTouchState.addOrUpdateWindow(windowHandle,
                             InputTarget::FLAG_WINDOW_IS_OBSCURED
+                                    | InputTarget::FLAG_WINDOW_IS_PARTIALLY_OBSCURED
                                     | InputTarget::FLAG_DISPATCH_AS_IS,
                             BitSet32(0));
                 }
@@ -1744,6 +1749,27 @@ bool InputDispatcher::isWindowObscuredAtPointLocked(
         if (otherInfo->displayId == displayId
                 && otherInfo->visible && !otherInfo->isTrustedOverlay()
                 && otherInfo->frameContainsPoint(x, y)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool InputDispatcher::isWindowObscuredLocked(const sp<InputWindowHandle>& windowHandle) const {
+    int32_t displayId = windowHandle->getInfo()->displayId;
+    const InputWindowInfo* windowInfo = windowHandle->getInfo();
+    size_t numWindows = mWindowHandles.size();
+    for (size_t i = 0; i < numWindows; i++) {
+        sp<InputWindowHandle> otherHandle = mWindowHandles.itemAt(i);
+        if (otherHandle == windowHandle) {
+            break;
+        }
+
+        const InputWindowInfo* otherInfo = otherHandle->getInfo();
+        if (otherInfo->displayId == displayId
+                && otherInfo->visible && !otherInfo->isTrustedOverlay()
+                && otherInfo->overlaps(windowInfo)) {
             return true;
         }
     }
@@ -2023,6 +2049,9 @@ void InputDispatcher::enqueueDispatchEntryLocked(
         dispatchEntry->resolvedFlags = motionEntry->flags;
         if (dispatchEntry->targetFlags & InputTarget::FLAG_WINDOW_IS_OBSCURED) {
             dispatchEntry->resolvedFlags |= AMOTION_EVENT_FLAG_WINDOW_IS_OBSCURED;
+        }
+        if (dispatchEntry->targetFlags & InputTarget::FLAG_WINDOW_IS_PARTIALLY_OBSCURED) {
+            dispatchEntry->resolvedFlags |= AMOTION_EVENT_FLAG_WINDOW_IS_PARTIALLY_OBSCURED;
         }
 
         if (!connection->inputState.trackMotion(motionEntry,

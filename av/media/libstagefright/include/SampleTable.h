@@ -29,6 +29,7 @@
 #include <media/stagefright/MediaErrors.h>
 #include <utils/RefBase.h>
 #include <utils/threads.h>
+#include <utils/Vector.h>
 
 namespace android {
 
@@ -119,8 +120,9 @@ private:
     uint32_t mDefaultSampleSize;
     uint32_t mNumSampleSizes;
 
+    bool mHasTimeToSample;
     uint32_t mTimeToSampleCount;
-    uint32_t *mTimeToSample;
+    Vector<uint32_t> mTimeToSample;
 
     struct SampleTimeEntry {
         uint32_t mSampleIndex;
@@ -182,7 +184,7 @@ public:
     uint32_t getSkipOff();
     void setSkipOff(uint32_t skipOff);
     uint32_t getTimeToSampleCount();
-    uint32_t* getTimeToSample();
+    Vector<uint32_t> *getTimeToSample();
 
 private:
         uint32_t mStartTimeOffset;//added by hai.li to support track time offset

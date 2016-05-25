@@ -2247,10 +2247,10 @@ status_t MPEG4Extractor::parseChunk(off64_t *offset, int depth) {
                         data_offset, chunk_data_size, mLastTrack->timescaleFactor);
             //added by gary.wu to check final AU duration ALPS00613110
             uint32_t mTimeToSampleCount = mLastTrack->sampleTable->getTimeToSampleCount();
-            uint32_t *mTimeToSampleTable = mLastTrack->sampleTable->getTimeToSample();
+            Vector<uint32_t> *mTimeToSampleTable = mLastTrack->sampleTable->getTimeToSample();
             if( NULL != mTimeToSampleTable ) {
-                //ALOGD("sampleCount= %d, duration= %d", mTimeToSampleTable[0], mTimeToSampleTable[1]);
-                mLastTrack->meta->setPointer(kKeyTimeToSampleTable, mTimeToSampleTable);
+                //ALOGD("sampleCount= %d, duration= %d", (*mTimeToSampleTable)[0], (*mTimeToSampleTable)[1]);
+                mLastTrack->meta->setPointer(kKeyTimeToSampleTable, (void*)mTimeToSampleTable);
             }
             bool returnA __unused =mLastTrack->meta->setInt32(kKeyTimeToSampleNumberEntry, (int32_t)mTimeToSampleCount);
             //ALOGI("return %d, timescaleFactor %d, mTimeToSampleCount=%d", returnA, mLastTrack->timescaleFactor, mTimeToSampleCount);

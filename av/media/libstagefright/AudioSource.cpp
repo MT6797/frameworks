@@ -60,8 +60,12 @@ AudioSource::AudioSource(
     : mStarted(false),
       mSampleRate(sampleRate),
       mOutSampleRate(outSampleRate > 0 ? outSampleRate : sampleRate),
+      mTrackMaxAmplitude(false),
+      mStartTimeUs(0),
+      mMaxAmplitude(0),
       mPrevSampleTimeUs(0),
       mFirstSampleTimeUs(-1ll),
+      mInitialReadTimeUs(0),
       mNumFramesReceived(0),
       mNumClientOwnedBuffers(0) {
 #ifdef MTK_AOSP_ENHANCEMENT
@@ -497,8 +501,12 @@ AudioSource::AudioSource(
       mStarted(false),
       mSampleRate(sampleRate),
       mOutSampleRate(outSampleRate > 0 ? outSampleRate : sampleRate),
+      mTrackMaxAmplitude(false),
+      mStartTimeUs(0),
+      mMaxAmplitude(0),
       mPrevSampleTimeUs(0),
       mFirstSampleTimeUs(-1ll),
+      mInitialReadTimeUs(0),
       mNumFramesReceived(0),
       mNumClientOwnedBuffers(0) {
 
