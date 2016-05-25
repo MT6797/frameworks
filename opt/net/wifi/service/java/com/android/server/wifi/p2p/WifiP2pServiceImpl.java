@@ -4390,7 +4390,8 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
              * default that has low likelihood of collision with a peer */
             String id = Settings.Secure.getString(mContext.getContentResolver(),
                     Settings.Secure.ANDROID_ID);
-            return "Android_" + id.substring(0,4);
+		return SystemProperties.get("ro.wifi.name", "");
+            //return "Android_" + id.substring(0,4);
         }
         return deviceName;
     }

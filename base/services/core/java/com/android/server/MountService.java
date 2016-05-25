@@ -1293,7 +1293,7 @@ class MountService extends IMountService.Stub
 
             // Adoptable public disks are visible to apps, since they meet
             // public API requirement of being in a stable location.
-            if (vol.disk.isAdoptable() || vol.isPhoneStorage()) {
+            if (vol.disk.isAdoptable() || vol.isPhoneStorage() ||vol.isUSBOTG()) {  //modify by liliang.bao for filemanager can access otg dir
                 vol.mountFlags |= VolumeInfo.MOUNT_FLAG_VISIBLE;
             }
 

@@ -32,7 +32,7 @@
 
     <string name="def_active_profile" translatable="false">mtk_audioprofile_general</string>
 
-    <bool name="def_ipo_setting">true</bool>
+    <bool name="def_ipo_setting">false</bool>
 
     <integer name="wifi_select_ssid_type">0</integer>
 

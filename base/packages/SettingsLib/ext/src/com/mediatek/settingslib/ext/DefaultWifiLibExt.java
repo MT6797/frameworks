@@ -11,7 +11,7 @@ public class DefaultWifiLibExt implements IWifiLibExt {
 
     @Override
     public boolean shouldCheckNetworkCapabilities() {
-        return true;
+        return false;   //fix by liliang.bao for not check network
     }
 
     @Override
