@@ -2289,7 +2289,12 @@ class DatabaseHelper extends SQLiteOpenHelper {
                     stmt,
                     Settings.System.VOLUME_BLUETOOTH_SCO,
                     AudioSystem.getDefaultStreamVolume(AudioManager.STREAM_BLUETOOTH_SCO));
-
+//add by liliang.bao begin for mmi
+	      loadSetting(
+                    stmt,
+                    "volume_music_earpiece",
+                    15);
+//add by liliang.bao end
             // By default:
             // - ringtones, notification, system and music streams are affected by ringer mode
             // on non voice capable devices (tablets)
