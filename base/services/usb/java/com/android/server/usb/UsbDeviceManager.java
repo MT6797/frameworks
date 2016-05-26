@@ -405,7 +405,7 @@ functions = addFunction(functions,UsbManager.USB_FUNCTION_ACM);
         // current USB state
         private boolean mConnected;
         private boolean mConfigured;
-        private boolean mUsbDataUnlocked;
+        private boolean mUsbDataUnlocked=true;
         private String mCurrentFunctions;
         private String mDefaultFunctions;
         private boolean mCurrentFunctionsApplied;
@@ -1253,7 +1253,7 @@ functions = addFunction(functions,UsbManager.USB_FUNCTION_ACM);
                     mConfigured = (msg.arg2 == 1);
                     if (!mConnected) {
                         // When a disconnect occurs, relock access to sensitive user data
-                        mUsbDataUnlocked = false;
+                        //mUsbDataUnlocked = false;
                     }
                     updateUsbNotification();
                     updateAdbNotification();
