@@ -3212,7 +3212,7 @@ public final class PowerManagerService extends SystemService
     {	
     	try
     	{
-        	BufferedReader reader = new BufferedReader(new FileReader("/sys/class/input/input1/status"), 256);
+        	BufferedReader reader = new BufferedReader(new FileReader("/sys/class/input/input7/status"), 256);
        	 try {
         			String state = reader.readLine();
         			 Slog.d(TAG, "bll====>hall state: "+state);
