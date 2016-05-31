@@ -47,6 +47,8 @@ public class KeyguardIndicationController {
     private static final String TAG = "KeyguardIndicationController";
 
     private static final int MSG_HIDE_TRANSIENT = 1;
+    
+    private static final boolean SHOW_CHARGING_TIME = false;//TODO FIXME
 
     private final Context mContext;
     private final KeyguardIndicationTextView mTextView;
@@ -161,16 +163,18 @@ public class KeyguardIndicationController {
         }
 
         // Try fetching charging time from battery stats.
-        try {
-            long chargingTimeRemaining = mBatteryInfo.computeChargeTimeRemaining();
-            if (chargingTimeRemaining > 0) {
-                String chargingTimeFormatted = Formatter.formatShortElapsedTimeRoundingUpToMinutes(
-                        mContext, chargingTimeRemaining);
-                return mContext.getResources().getString(
-                        R.string.keyguard_indication_charging_time, chargingTimeFormatted);
+        if(SHOW_CHARGING_TIME) {
+            try {
+                long chargingTimeRemaining = mBatteryInfo.computeChargeTimeRemaining();
+                if (chargingTimeRemaining > 0) {
+                    String chargingTimeFormatted = Formatter.formatShortElapsedTimeRoundingUpToMinutes(
+                            mContext, chargingTimeRemaining);
+                    return mContext.getResources().getString(
+                            R.string.keyguard_indication_charging_time, chargingTimeFormatted);
+                }
+            } catch (RemoteException e) {
+                Log.e(TAG, "Error calling IBatteryStats: ", e);
             }
-        } catch (RemoteException e) {
-            Log.e(TAG, "Error calling IBatteryStats: ", e);
         }
 
         // Fall back to simple charging label.
