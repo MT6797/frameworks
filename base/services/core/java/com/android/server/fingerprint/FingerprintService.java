@@ -905,6 +905,11 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
             return FingerprintService.this.getAuthenticatorId();
         }
+
+        @Override // binder call
+        public void resetStatus() {
+            resetFailedAttempts();
+        }
     }
 
     @Override

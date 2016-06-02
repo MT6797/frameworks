@@ -1744,6 +1744,7 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
     public void clearFailedUnlockAttempts() {
         mFailedAttempts.delete(sCurrentUser);
         mFailedBiometricUnlockAttempts = 0;
+        mFpm.resetStatus();
     }
 
     public int getFailedUnlockAttempts() {

@@ -565,6 +565,20 @@ public class FingerprintManager {
         }
     }
 
+	/**
+     * Reset fp status
+     * @hide
+     */
+    @RequiresPermission(MANAGE_FINGERPRINT)
+    public void resetStatus() {
+        int result = 0;
+        if (mService != null) try {
+            mService.resetStatus();
+        } catch (RemoteException e) {
+            Log.w(TAG, "Remote exception in resetStatus: ", e);
+        }
+    }
+
     /**
      * Renames the given fingerprint template
      * @param fpId the fingerprint id

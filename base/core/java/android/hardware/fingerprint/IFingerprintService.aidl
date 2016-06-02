@@ -68,4 +68,7 @@ interface IFingerprintService {
 
     // Gets the authenticator ID for fingerprint
     long getAuthenticatorId(String opPackageName);
+
+    //reset status
+    void resetStatus();
 }
