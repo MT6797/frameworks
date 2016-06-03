@@ -2293,7 +2293,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 	      loadSetting(
                     stmt,
                     "volume_music_earpiece",
-                    15);
+                    11);
 //add by liliang.bao end
             // By default:
             // - ringtones, notification, system and music streams are affected by ringer mode
