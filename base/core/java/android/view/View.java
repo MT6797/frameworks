@@ -12801,6 +12801,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     public void invalidate(Rect dirty) {
         final int scrollX = mScrollX;
         final int scrollY = mScrollY;
+	if(dirty == null)
+		return ;
         invalidateInternal(dirty.left - scrollX, dirty.top - scrollY,
                 dirty.right - scrollX, dirty.bottom - scrollY, true, false);
     }
