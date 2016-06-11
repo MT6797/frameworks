@@ -182,7 +182,7 @@ public final class ActivityThread {
     static final boolean localLOGV = false;
     static final boolean DEBUG_MESSAGES = false;
     /** @hide */
-    public static final boolean DEBUG_BROADCAST = false;
+    public static final boolean DEBUG_BROADCAST = true;
     private static final boolean DEBUG_RESULTS = false;
     private static final boolean DEBUG_BACKUP = false;
     public static final boolean DEBUG_CONFIGURATION = false;
@@ -2840,9 +2840,12 @@ public final class ActivityThread {
             if (DEBUG_BROADCAST) Slog.i(TAG,
                     "Finishing failed broadcast to " + data.intent.getComponent());
             data.sendFinished(mgr);
-            throw new RuntimeException(
-                "Unable to instantiate receiver " + component
-                + ": " + e.toString(), e);
+       //     throw new RuntimeException(
+       //         "Unable to instantiate receiver " + component
+       //         + ": " + e.toString(), e);
+           Log.d(TAG,"Unable to instantiate receiver " + component
+                + ": " + e.toString());
+		  return;
         }
 
         try {
