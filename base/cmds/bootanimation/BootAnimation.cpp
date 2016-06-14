@@ -794,7 +794,7 @@ bool BootAnimation::movie()
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    eglSwapBuffers(mDisplay, mSurface);
+  //  eglSwapBuffers(mDisplay, mSurface);
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glEnable(GL_TEXTURE_2D);
