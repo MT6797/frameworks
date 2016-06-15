@@ -171,6 +171,8 @@ class AlarmManagerService extends SystemService {
     long mAllowWhileIdleMinTime;
     int mNumTimeChanged;
 
+    boolean mTimeTickSend = false;
+
     /**
      * For each uid, this is the last time we dispatched an "allow while idle" alarm,
      * used to determine the earliest we can dispatch the next such alarm.
@@ -2767,7 +2769,26 @@ class AlarmManagerService extends SystemService {
                         if (localLOGV) Slog.v(
                             TAG, "Checking for alarms... rtc=" + nowRTC
                             + ", elapsed=" + nowELAPSED);
-
+			    //add by liliang.bao begin	fix bug3998	
+			     for (int i = mAlarmBatches.size() - 1; i >= 0; i--) {
+           		     Batch b = mAlarmBatches.get(i);
+					 for (int j = 0; j < b.size(); j++ ) {
+                	 		 Alarm alarm = b.get(j);
+               				 if (alarm.operation.equals(mTimeTickSender)) {                  					
+							 		mTimeTickSend = true;
+									break;
+                				} 
+                			}             			 
+			       }
+			 	if(!mTimeTickSend)
+			 	{
+			 	         Slog.v(TAG, "==can't check TIME_TICK borcast ,so restart scheduleTimeTickEvent");
+				 		mClockReceiver.scheduleTimeTickEvent();
+			 	}
+			 	else
+			 	 	Slog.v(TAG, "==time tick bocast exist");
+			 	mTimeTickSend = false;
+				//add by liliang.bao end	
                         if (WAKEUP_STATS) {
                             if ((result & IS_WAKEUP_MASK) != 0) {
                                 long newEarliest = nowRTC - RECENT_WAKEUP_PERIOD;
