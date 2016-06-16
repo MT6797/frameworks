@@ -745,6 +745,12 @@ private int getCustomSystemResId(int id)
         if (res != null) {
             return res;
         }
+	//add by liliang.bao begin fix bug3985
+	if("com.mugua.xfvideo".equals(getResourcePackageName(id))&&res==null)
+	{
+		return "";
+	}
+        //add by liliang.bao end
         throw new NotFoundException("String resource ID #0x"
                                     + Integer.toHexString(id));
     }
