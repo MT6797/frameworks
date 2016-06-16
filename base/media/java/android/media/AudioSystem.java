@@ -708,7 +708,7 @@ public class AudioSystem
     public static int[] DEFAULT_STREAM_VOLUME = new int[] {
         4,  // STREAM_VOICE_CALL
         15,  // STREAM_SYSTEM
-        8,  // STREAM_RING
+        11,  // STREAM_RING
         8, // STREAM_MUSIC
         8,  // STREAM_ALARM
         8,  // STREAM_NOTIFICATION

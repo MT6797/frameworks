@@ -332,13 +332,13 @@ public class AudioProfileManager implements IAudioProfileManager {
             if (null == sDEFAULTSTATES) {
                 sDEFAULTSTATES = new HashMap<Integer, AudioProfileState>(PREDEFINED_PROFILES_COUNT);
                 /** Default values of ringer volume for different audio profiles. */
-                final int DEFAULT_RINGER_VOLUME_GENERAL = 8;
+                final int DEFAULT_RINGER_VOLUME_GENERAL = 11;
                 final int DEFAULT_RINGER_VOLUME_SILENT = 0;
                 final int DEFAULT_RINGER_VOLUME_MEETING = 0;
                 final int DEFAULT_RINGER_VOLUME_OUTDOOR = 15;
 
                 /** Default values of notification volume for different audio profiles. */
-                final int DEFAULT_NOTIFICATION_VOLUME_GENERAL = 8;
+                final int DEFAULT_NOTIFICATION_VOLUME_GENERAL = 11;
                 final int DEFAULT_NOTIFICATION_VOLUME_SILENT = 0;
                 final int DEFAULT_NOTIFICATION_VOLUME_MEETING = 0;
                 final int DEFAULT_NOTIFICATION_VOLUME_OUTDOOR = 15;
