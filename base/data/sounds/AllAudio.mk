@@ -184,7 +184,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/newwavelabs/Revelation.ogg:system/media/audio/ringtones/Revelation.ogg \
     $(LOCAL_PATH)/ringtones/ogg/Rigel.ogg:system/media/audio/ringtones/Rigel.ogg \
     $(LOCAL_PATH)/Ring_Classic_02.ogg:system/media/audio/ringtones/Ring_Classic_02.ogg \
-    $(LOCAL_PATH)/Ring_Digital_02.ogg:system/media/audio/ringtones/Ring_Digital_02.ogg \
     $(LOCAL_PATH)/Ring_Synth_02.ogg:system/media/audio/ringtones/Ring_Synth_02.ogg \
     $(LOCAL_PATH)/Ring_Synth_04.ogg:system/media/audio/ringtones/Ring_Synth_04.ogg \
     $(LOCAL_PATH)/newwavelabs/Road_Trip.ogg:system/media/audio/ringtones/Road_Trip.ogg \
@@ -206,7 +205,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/newwavelabs/Third_Eye.ogg:system/media/audio/ringtones/Third_Eye.ogg \
     $(LOCAL_PATH)/newwavelabs/Thunderfoot.ogg:system/media/audio/ringtones/Thunderfoot.ogg \
     $(LOCAL_PATH)/newwavelabs/TwirlAway.ogg:system/media/audio/ringtones/TwirlAway.ogg \
-    $(LOCAL_PATH)/ringtones/URSAMINOR.ogg:system/media/audio/ringtones/URSAMINOR.ogg \
     $(LOCAL_PATH)/ringtones/ogg/UrsaMinor.ogg:system/media/audio/ringtones/UrsaMinor.ogg \
     $(LOCAL_PATH)/newwavelabs/VeryAlarmed.ogg:system/media/audio/ringtones/VeryAlarmed.ogg \
     $(LOCAL_PATH)/ringtones/Vespa.ogg:system/media/audio/ringtones/Vespa.ogg \
