@@ -161,6 +161,13 @@ public interface ISystemUIStatusBarExt {
     void setCustomizedNoSimsVisible(boolean noSimsVisible);
 
     /**
+     * Set IconTint for op added views.
+     * @param tint the tint value.
+     * @param darkIntensity the darkIntensity value.
+     */
+    void setIconTint(int tint, float darkIntensity);
+
+    /**
      * To remove network icons in case of wifi only mode for WFC.
      * @param serviceState the current service state.
      * @return whether in serive or not - false for iWLAN

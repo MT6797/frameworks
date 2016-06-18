@@ -19,12 +19,12 @@ Copyright (C) 2014 The Android Open Source Project
         android:viewportWidth="26.0"
         android:viewportHeight="24.0">
     <path
-        android:fillColor="#4DFFFFFF"
+        android:fillColor="?attr/backgroundColor"
         android:pathData="M13,2.1c-7.3,0-12.1,4-12.6,4.4L13,22L25.6,6.5C25.1,6.1,20.3,2.1,13,2.1z M13.1,6l4.4,5.7H8.8L13.1,6z M13.1,19l-4.4-5.7h8.8L13.1,19z"/>
     <path
-        android:fillColor="#FFFFFFFF"
+        android:fillColor="?attr/fillColor"
         android:pathData="M14.2,7.5l3.3,4.2H8.8L12,7.4c-4.8,0.3-7.9,3-8.2,3.2L13,22l9.2-11.4C21.8,10.3,18.8,7.9,14.2,7.5z M13.1,19l-4.4-5.7h8.8L13.1,19z"/>
     <path
-        android:fillColor="#FFFFFFFF"
+        android:fillColor="?attr/fillColor"
         android:pathData="M13.1 17.5L10.7 14.3 15.6 14.3z"/>
 </vector>
