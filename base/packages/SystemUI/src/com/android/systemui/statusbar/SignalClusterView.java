@@ -646,8 +646,13 @@ public class SignalClusterView
         }
 
         public void setIconTint(int tint, float darkIntensity) {
+            /// M: Add for op views in tint mode. @{
+            mPhoneStateExt.setIconTint(tint, darkIntensity);
+            /// @}
             applyDarkIntensity(darkIntensity, mMobile, mMobileDark);
             setTint(mMobileType, tint);
+            // M: Also set network type in tint mode
+            setTint(mNetworkType, tint);
         }
 
         /// M: Set all added or customised view. @ {

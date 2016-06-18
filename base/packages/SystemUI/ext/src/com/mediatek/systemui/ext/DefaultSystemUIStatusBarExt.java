@@ -103,6 +103,10 @@ public class DefaultSystemUIStatusBarExt implements ISystemUIStatusBarExt {
     }
 
     @Override
+    public void setIconTint(int tint, float darkIntensity) {
+    }
+
+    @Override
     public boolean updateSignalStrengthWifiOnlyMode(ServiceState serviceState,
                        boolean connected) {
         return connected;
