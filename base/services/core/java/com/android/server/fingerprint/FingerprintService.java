@@ -87,7 +87,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
     private static final long MS_PER_SEC = 1000;
     private static final long FAIL_LOCKOUT_TIMEOUT_MS = 30*1000;
-    private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final int MAX_FAILED_ATTEMPTS = 4;
     private static final int FINGERPRINT_ACQUIRED_GOOD = 0;
 
     Handler mHandler = new Handler() {

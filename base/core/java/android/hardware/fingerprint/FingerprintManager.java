@@ -846,8 +846,9 @@ public class FingerprintManager {
             case FINGERPRINT_ACQUIRED_GOOD:
                 return null;
             case FINGERPRINT_ACQUIRED_PARTIAL:
-                return mContext.getString(
-                    com.android.internal.R.string.fingerprint_acquired_partial);
+		return null; //fix bug 4080
+               // return mContext.getString(
+                //    com.android.internal.R.string.fingerprint_acquired_partial);
             case FINGERPRINT_ACQUIRED_INSUFFICIENT:
                 return mContext.getString(
                     com.android.internal.R.string.fingerprint_acquired_insufficient);
