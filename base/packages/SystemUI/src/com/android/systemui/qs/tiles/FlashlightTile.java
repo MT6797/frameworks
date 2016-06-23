@@ -22,7 +22,13 @@ import com.android.internal.logging.MetricsLogger;
 import com.android.systemui.R;
 import com.android.systemui.qs.QSTile;
 import com.android.systemui.statusbar.policy.FlashlightController;
-
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.util.Log;
+import android.widget.Toast;
+import com.android.systemui.R;
 /** Quick settings tile: Control flashlight **/
 public class FlashlightTile extends QSTile<QSTile.BooleanState> implements
         FlashlightController.FlashlightListener {
@@ -32,17 +38,28 @@ public class FlashlightTile extends QSTile<QSTile.BooleanState> implements
     private final AnimationIcon mDisable
             = new AnimationIcon(R.drawable.ic_signal_flashlight_disable_animation);
     private final FlashlightController mFlashlightController;
-
+    private int mBatteryLevel;
+    private BatteryReceiver batteryReceiver = new BatteryReceiver();
+    private final String TAG="FlashlightTile";
+    private final int LOW_BATTERY_FLASHLITH_LEVEL = 17;
     public FlashlightTile(Host host) {
         super(host);
         mFlashlightController = host.getFlashlightController();
         mFlashlightController.addListener(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+	final Intent sticky = mContext.registerReceiver(batteryReceiver, filter); 
+	if (sticky != null) {
+            // preload the battery level
+            batteryReceiver.onReceive(mContext, sticky);
+        }
     }
 
     @Override
     protected void handleDestroy() {
         super.handleDestroy();
         mFlashlightController.removeListener(this);
+	mContext.unregisterReceiver(batteryReceiver);
     }
 
     @Override
@@ -63,6 +80,13 @@ public class FlashlightTile extends QSTile<QSTile.BooleanState> implements
         if (ActivityManager.isUserAMonkey()) {
             return;
         }
+	Log.d(TAG, "handleClick battery level:"+mBatteryLevel);
+	if(mBatteryLevel < LOW_BATTERY_FLASHLITH_LEVEL)
+	{
+		Toast.makeText(mContext,mContext.getResources().getString(R.string.battery_low_title),
+                            Toast.LENGTH_SHORT).show();
+		return;
+	}
         MetricsLogger.action(mContext, getMetricsCategory(), !mState.value);
         boolean newState = !mState.value;
         refreshState(newState ? UserBoolean.USER_TRUE : UserBoolean.USER_FALSE);
@@ -119,4 +143,14 @@ public class FlashlightTile extends QSTile<QSTile.BooleanState> implements
     public void onFlashlightAvailabilityChanged(boolean available) {
         refreshState();
     }
+
+class BatteryReceiver extends BroadcastReceiver{
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		// TODO Auto-generated method stub
+		if(Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())){
+			mBatteryLevel = intent.getIntExtra("level", 0);
+			}
+		}
+	} 
 }
