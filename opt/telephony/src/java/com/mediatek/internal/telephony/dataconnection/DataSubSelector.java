@@ -423,7 +423,10 @@ public class DataSubSelector {
             } else {
                 log("skip auto switch when detectedType is NOCHANGE for OP18 when user may set");
             }
-        } else {
+        }else if("yes".equals(SystemProperties.get("persist.radio.data.first", "yes")) && "yes".equals(SystemProperties.get("ro.mobile.data.enable", "no")))
+	{
+		subSelectorForOmExt(intent);
+	} else {
             subSelectorForOm(intent);
         }
     }
@@ -570,6 +573,53 @@ public class DataSubSelector {
             // always set capability to this phone
             setCapability(phoneId);
         }
+    }
+    private void subSelectorForOmExt(Intent intent) {
+        int phoneId = SubscriptionManager.INVALID_PHONE_INDEX;
+        int insertedSimCount = 0;
+        int insertedStatus = 0;
+        int detectedType = intent.getIntExtra(SubscriptionManager.INTENT_KEY_DETECT_STATUS, 0);
+        String[] currIccId = new String[mPhoneNum];
+
+        log("DataSubSelector for subSelectorForOmExt");
+
+        for (int i = 0; i < mPhoneNum; i++) {
+            currIccId[i] = SystemProperties.get(PROPERTY_ICCID[i]);
+            if (currIccId[i] == null || "".equals(currIccId[i])) {
+                log("error: iccid not found, wait for next sub ready");
+                return;
+            }
+            if (!NO_SIM_VALUE.equals(currIccId[i])) {
+                ++insertedSimCount;
+                insertedStatus = insertedStatus | (1 << i);
+            }
+        }
+        log("subSelectorForOmExt Inserted SIM count: " + insertedSimCount + ", insertedStatus: " + insertedStatus);
+
+        //Get previous default data
+        String defaultIccid = SystemProperties.get(PROPERTY_DEFAULT_DATA_ICCID);
+        log("subSelectorForOmExt Default data Iccid = " + defaultIccid);
+
+        if (insertedSimCount == 0) {
+            log("==subSelectorForOmExt=C0: No SIM inserted, set data unset");
+            setDefaultData(SubscriptionManager.INVALID_PHONE_INDEX);
+        } else if (insertedSimCount >= 1) {
+            for (int i = 0; i < mPhoneNum; i++) {
+                if ((insertedStatus & (1 << i)) != 0) {
+                    phoneId = i;
+                    break;
+                }
+             }
+	      log("subSelectorForOmExt  phoneId = " + phoneId);
+                if (setCapability(phoneId)) {
+                    setDefaultData(phoneId);
+		    setDataEnabled(phoneId,true);
+		log("subSelectorForOmExt setDataEnabled phoneId = " + phoneId);
+                }
+
+		SystemProperties.set("persist.radio.data.first", "no");                    
+        } 
+        
     }
 
     /*private void subSelectorForOm(Intent intent) {

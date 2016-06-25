@@ -2643,7 +2643,7 @@ public abstract class PhoneBase extends Handler implements Phone {
         }
         /// M: default data customization, we use DataSubSelector for op.
         if (OPERATOR_OM.equals(SystemProperties.get(PROPERTY_OPERATOR, OPERATOR_OM))
-                && TelephonyManager.getDefault().getPhoneCount() == 1) {
+                && TelephonyManager.getDefault().getPhoneCount() == 1 && "no".equals(SystemProperties.get("ro.mobile.data.enable", "no"))) {
             Rlog.d(LOG_TAG, "load version om. restore data switch.");
             mDcTracker.setDataEnabled(getDataEnabled());
         }
