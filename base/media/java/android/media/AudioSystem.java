@@ -706,7 +706,7 @@ public class AudioSystem
     * M: modify the default stream volume @{
     */
     public static int[] DEFAULT_STREAM_VOLUME = new int[] {
-        4,  // STREAM_VOICE_CALL
+        5,  // STREAM_VOICE_CALL
         15,  // STREAM_SYSTEM
         11,  // STREAM_RING
         8, // STREAM_MUSIC
