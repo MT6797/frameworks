@@ -272,6 +272,10 @@ OMX_ERRORTYPE SoftVideoDecoderOMXComponent::internalGetParameter(
             OMX_VIDEO_PARAM_PORTFORMATTYPE *formatParams =
                 (OMX_VIDEO_PARAM_PORTFORMATTYPE *)params;
 
+            if (!isValidOMXParam(formatParams)) {
+                return OMX_ErrorBadParameter;
+            }
+
             if (formatParams->nPortIndex > kMaxPortIndex) {
                 return OMX_ErrorBadPortIndex;
             }
@@ -299,6 +303,10 @@ OMX_ERRORTYPE SoftVideoDecoderOMXComponent::internalGetParameter(
         {
             OMX_VIDEO_PARAM_PROFILELEVELTYPE *profileLevel =
                   (OMX_VIDEO_PARAM_PROFILELEVELTYPE *) params;
+
+            if (!isValidOMXParam(profileLevel)) {
+                return OMX_ErrorBadParameter;
+            }
 
             if (profileLevel->nPortIndex != kInputPortIndex) {
                 ALOGE("Invalid port index: %" PRIu32, profileLevel->nPortIndex);
@@ -336,6 +344,10 @@ OMX_ERRORTYPE SoftVideoDecoderOMXComponent::internalSetParameter(
             const OMX_PARAM_COMPONENTROLETYPE *roleParams =
                 (const OMX_PARAM_COMPONENTROLETYPE *)params;
 
+            if (!isValidOMXParam(roleParams)) {
+                return OMX_ErrorBadParameter;
+            }
+
             if (strncmp((const char *)roleParams->cRole,
                         mComponentRole,
                         OMX_MAX_STRINGNAME_SIZE - 1)) {
@@ -349,6 +361,10 @@ OMX_ERRORTYPE SoftVideoDecoderOMXComponent::internalSetParameter(
         {
             OMX_VIDEO_PARAM_PORTFORMATTYPE *formatParams =
                 (OMX_VIDEO_PARAM_PORTFORMATTYPE *)params;
+
+            if (!isValidOMXParam(formatParams)) {
+                return OMX_ErrorBadParameter;
+            }
 
             if (formatParams->nPortIndex > kMaxPortIndex) {
                 return OMX_ErrorBadPortIndex;
@@ -377,6 +393,11 @@ OMX_ERRORTYPE SoftVideoDecoderOMXComponent::internalSetParameter(
         {
             const PrepareForAdaptivePlaybackParams* adaptivePlaybackParams =
                     (const PrepareForAdaptivePlaybackParams *)params;
+
+            if (!isValidOMXParam(adaptivePlaybackParams)) {
+                return OMX_ErrorBadParameter;
+            }
+
             mIsAdaptive = adaptivePlaybackParams->bEnable;
             if (mIsAdaptive) {
                 mAdaptiveMaxWidth = adaptivePlaybackParams->nMaxFrameWidth;
@@ -395,6 +416,11 @@ OMX_ERRORTYPE SoftVideoDecoderOMXComponent::internalSetParameter(
         {
             OMX_PARAM_PORTDEFINITIONTYPE *newParams =
                 (OMX_PARAM_PORTDEFINITIONTYPE *)params;
+
+            if (!isValidOMXParam(newParams)) {
+                return OMX_ErrorBadParameter;
+            }
+
             OMX_VIDEO_PORTDEFINITIONTYPE *video_def = &newParams->format.video;
             OMX_PARAM_PORTDEFINITIONTYPE *def = &editPortInfo(newParams->nPortIndex)->mDef;
 
@@ -446,6 +472,10 @@ OMX_ERRORTYPE SoftVideoDecoderOMXComponent::getConfig(
         case OMX_IndexConfigCommonOutputCrop:
         {
             OMX_CONFIG_RECTTYPE *rectParams = (OMX_CONFIG_RECTTYPE *)params;
+
+            if (!isValidOMXParam(rectParams)) {
+                return OMX_ErrorBadParameter;
+            }
 
             if (rectParams->nPortIndex != kOutputPortIndex) {
                 return OMX_ErrorUndefined;

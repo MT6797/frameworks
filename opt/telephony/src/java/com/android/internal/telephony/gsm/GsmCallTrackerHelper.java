@@ -36,7 +36,7 @@ import com.mediatek.common.mom.MobileManagerUtils;
 import android.os.RemoteException;
 /// @}
 
-/// M: CC052: DM&PPL @{
+/// M: CC052: DM @{
 import android.os.IBinder;
 import com.mediatek.common.dm.DmAgent;
 import android.content.Intent;
@@ -145,7 +145,7 @@ public final class GsmCallTrackerHelper {
         mContext = context;
         mTracker = tracker;
 
-        /// M: CC052: DM&PPL @{
+        /// M: CC052: DM @{
         IBinder binder = ServiceManager.getService("DmAgent");
         mDmAgent = DmAgent.Stub.asInterface(binder);
 
@@ -153,9 +153,6 @@ public final class GsmCallTrackerHelper {
 
         IntentFilter filter = new IntentFilter("com.mediatek.dm.LAWMO_LOCK");
         filter.addAction("com.mediatek.dm.LAWMO_UNLOCK");
-        /* Add for supporting Phone Privacy Lock Service */
-        filter.addAction("com.mediatek.ppl.NOTIFY_LOCK");
-        filter.addAction("com.mediatek.ppl.NOTIFY_UNLOCK");
         Intent intent = mContext.registerReceiver(mReceiver, filter);
 
         DmUpdateStatus();
@@ -299,7 +296,7 @@ public final class GsmCallTrackerHelper {
     }
     /// @}
 
-    /// M: CC052: DM&PPL @{
+    /// M: CC052: DM @{
     private void DmUpdateStatus() {
         try {
             if (mDmAgent != null) {
@@ -357,12 +354,6 @@ public final class GsmCallTrackerHelper {
                                 }
                         }
                     }
-                }
-            } else if (TextUtils.equals(action, "com.mediatek.ppl.NOTIFY_LOCK")) {
-                /* Add for supporting Phone Privacy Lock Service */
-                log("Receives " + action);
-                if (PhoneConstants.State.IDLE != mTracker.mState)  {
-                    mTracker.hangupAll();
                 }
             }
         }

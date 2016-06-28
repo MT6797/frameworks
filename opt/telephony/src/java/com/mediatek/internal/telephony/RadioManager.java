@@ -98,6 +98,7 @@ public class RadioManager extends Handler  {
     protected static final boolean AIRPLANE_MODE_ON = true;
     protected boolean mAirplaneMode = AIRPLANE_MODE_OFF;
 
+    private static final int WIFI_ONLY_INIT = -1;
     private static final boolean WIFI_ONLY_MODE_OFF = false;
     private static final boolean WIFI_ONLY_MODE_ON = true;
     private boolean mWifiOnlyMode = WIFI_ONLY_MODE_OFF;
@@ -184,7 +185,10 @@ public class RadioManager extends Handler  {
     protected RadioManager(Context context , int phoneCount, CommandsInterface[] ci) {
 
         int airplaneMode = Settings.Global.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0);
-        int wifionlyMode = ImsManager.getWfcMode(context);
+        int wifionlyMode = WIFI_ONLY_INIT;
+        if (ImsManager.isWfcEnabledByUser(context)) {
+            wifionlyMode = ImsManager.getWfcMode(context);
+        }
 
         log("Initialize RadioManager under airplane mode:" + airplaneMode +
             " wifi only mode:" + wifionlyMode);

@@ -87,6 +87,7 @@ public class GsmVTProvider extends GsmVideoCallProvider {
     public static final int SESSION_EVENT_ERROR_CAMERA                             = 8003;
     public static final int SESSION_EVENT_ERROR_CODEC                              = 8004;
     public static final int SESSION_EVENT_ERROR_REC                                = 8005;
+    public static final int SESSION_EVENT_ERROR_CAMERA_SET_IGNORED                 = 8006;
 
     public static final int SESSION_EVENT_WARNING_SERVICE_NOT_READY                = 9001;
 
@@ -554,6 +555,12 @@ public class GsmVTProvider extends GsmVideoCallProvider {
 
             case SESSION_EVENT_ERROR_REC:
                 Log.d(TAG, "postEventFromNative : msg = MSG_ERROR_REC");
+
+                vp.handleCallSessionEvent(msg);
+                break;
+
+            case SESSION_EVENT_ERROR_CAMERA_SET_IGNORED:
+                Log.d(TAG, "postEventFromNative : msg = MSG_ERROR_CAMERA_SET_IGNORED");
 
                 vp.handleCallSessionEvent(msg);
                 break;

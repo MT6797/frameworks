@@ -1460,6 +1460,24 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
     InitOMXParams(&def);
     def.nPortIndex = kPortIndexOutput;
 
+#ifdef MTK_AOSP_ENHANCEMENT
+    OMX_U32 ANW_HWComposer = 0;
+    OMX_INDEXTYPE index;
+    status_t err2 = nativeWindow->query(nativeWindow, NATIVE_WINDOW_QUEUES_TO_WINDOW_COMPOSER , (int *)&ANW_HWComposer);
+    if (OK == err2) {
+        err2 = mOMX->getExtensionIndex(mNode, "OMX.MTK.index.param.video.ANW_HWComposer", &index);
+        if (OK == err2) {
+            err2 = mOMX->setParameter(mNode, index, &ANW_HWComposer, sizeof(ANW_HWComposer));
+            if (OK != err2) {
+                ALOGW("Failed to set ANW_HWComposer to OMX, ignoring (%d)", err2);
+            }
+        }
+    }
+    else {
+        ALOGW("Failed to query NW for HWC usage, ignoring: %s (%d)", strerror(-err2), -err2);
+    }
+#endif
+
     status_t err = mOMX->getParameter(
             mNode, OMX_IndexParamPortDefinition, &def, sizeof(def));
 
@@ -3656,6 +3674,7 @@ status_t ACodec::setupAACCodec(
             : OMX_AUDIO_AACStreamFormatMP4FF;
 
     OMX_AUDIO_PARAM_ANDROID_AACPRESENTATIONTYPE presentation;
+    InitOMXParams(&presentation);
     presentation.nMaxOutputChannels = maxOutputChannelCount;
     presentation.nDrcCut = drc.drcCut;
     presentation.nDrcBoost = drc.drcBoost;
