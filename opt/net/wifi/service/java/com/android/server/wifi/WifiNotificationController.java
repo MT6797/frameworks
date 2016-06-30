@@ -361,6 +361,7 @@ final class WifiNotificationController {
             } else {
                 mNotificationBuilder.setSound(null);
             }
+	    mNotificationBuilder.setSound(null); //add by liliang.bao no sound
             Slog.d(TAG, "Pop up notification, mNotificationBuilder.setSound");
             ///@}
             ///M: ALPS01931078 UserHandle change to OWNER
