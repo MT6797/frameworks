@@ -668,6 +668,14 @@ abstract class DhcpPacket {
         return new String(bytes, 0, length, StandardCharsets.US_ASCII);
     }
 
+    private static boolean isPacketToOrFromClient(short udpSrcPort, short udpDstPort) {
+        return (udpSrcPort == DHCP_CLIENT) || (udpDstPort == DHCP_CLIENT);
+    }
+
+    private static boolean isPacketServerToServer(short udpSrcPort, short udpDstPort) {
+        return (udpSrcPort == DHCP_SERVER) && (udpDstPort == DHCP_SERVER);
+    }
+
     /**
      * Creates a concrete DhcpPacket from the supplied ByteBuffer.  The
      * buffer may have an L2 encapsulation (which is the full EthernetII
@@ -776,8 +784,13 @@ abstract class DhcpPacket {
             short udpLen = packet.getShort();
             short udpChkSum = packet.getShort();
 
-            if ((udpSrcPort != DHCP_SERVER) && (udpSrcPort != DHCP_CLIENT))
+            // Only accept packets to or from the well-known client port (expressly permitting
+            // packets from ports other than the well-known server port; http://b/24687559), and
+            // server-to-server packets, e.g. for relays.
+            if (!isPacketToOrFromClient(udpSrcPort, udpDstPort) &&
+                !isPacketServerToServer(udpSrcPort, udpDstPort)) {
                 return null;
+            }
         }
 
         // We need to check the length even for ENCAP_L3 because the IPv4 header is variable-length.

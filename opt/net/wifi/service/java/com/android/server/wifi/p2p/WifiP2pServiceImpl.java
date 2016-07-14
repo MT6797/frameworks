@@ -5732,21 +5732,29 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
     ///M: ALPS02475909: only 32 - 9  bytes is allowed for SSID postfix@{
     // Calculate byte length for the UTF-8 string
     private String getSsidPostfix(String deviceName) {
-        int count = 0;
-        int strLen = 0;
+        int utfCount = 0, strLen = 0;
+        // Default is UTF-8
+        byte[] bChar = deviceName.getBytes();
         for (int i = 0, len = deviceName.length(); i < len; i++) {
-            if (count >= 22) break;
+            byte b0 = bChar[utfCount];
+            //Log.d(TAG, "b0=" + b0+", utfCount="+utfCount+", strLen="+strLen);
+            if (utfCount > 22) break;
             strLen = i;
-            char ch = deviceName.charAt(i);
-            if (ch <= 0x7F) {
-                count++;
-            } else if (ch <= 0x7FF) {
-                count += 2;
-            } else if (Character.isHighSurrogate(ch)) {
-                count += 4;
-                ++i;
+            if ((b0 & 0x80) == 0) {
+                // Range:  U-00000000 - U-0000007F
+                utfCount += 1;
             } else {
-                count += 3;
+                if (b0 >= (byte) 0xFC && b0 <= (byte) 0xFD) {
+                    utfCount += 6;
+                } else if (b0 >= (byte) 0xF8) {
+                    utfCount += 5;
+                } else if (b0 >= (byte) 0xF0) {
+                    utfCount += 4;
+                } else if (b0 >= (byte) 0xE0) {
+                    utfCount += 3;
+                } else if (b0 >= (byte) 0xC0) {
+                    utfCount += 2;
+                }
             }
         }
         return deviceName.substring(0, strLen);

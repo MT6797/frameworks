@@ -8607,6 +8607,8 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiPno
                     if (config == null) {
                         loge("No network with id = " + netId);
                         messageHandlingStatus = MESSAGE_HANDLING_STATUS_FAIL;
+                        ///M: ALPS02573254 APK enables a non-existed netId will encounter ANR
+                        replyToMessage(message, message.what, FAILURE);
                         break;
                     }
 

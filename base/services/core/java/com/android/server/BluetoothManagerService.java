@@ -1918,8 +1918,11 @@ class BluetoothManagerService extends IBluetoothManager.Stub {
                         sendBluetoothServiceDownCallback();
                         unbindAndFinish();
                         sendBleStateChanged(prevState, newState);
-                        ///M: ALPS02447877:  broadcast off in off state
+                        // Don't broadcast as it has already been broadcast before
+                        isStandardBroadcast = false;
                     }
+                    /// M: ALPS02364788: Do not broadcast when BT on
+                    if (mEnable == true) isStandardBroadcast = false;
 
                 } else if (!intermediate_off) {
                     // connect to GattService
@@ -1947,8 +1950,6 @@ class BluetoothManagerService extends IBluetoothManager.Stub {
                     // Broadcast as STATE_OFF
                     newState = BluetoothAdapter.STATE_OFF;
                     sendBrEdrDownCallback();
-                    ///M: ALPS02447877:  broadcast off in off state
-                    isStandardBroadcast = false;
                 }
             } else if (newState == BluetoothAdapter.STATE_ON) {
                 boolean isUp = (newState==BluetoothAdapter.STATE_ON);
@@ -1969,10 +1970,6 @@ class BluetoothManagerService extends IBluetoothManager.Stub {
                 if (prevState == BluetoothAdapter.STATE_BLE_ON) {
                     // Show prevState of BLE_ON as OFF to standard users
                     prevState = BluetoothAdapter.STATE_OFF;
-                }
-                else if (prevState == BluetoothAdapter.STATE_BLE_TURNING_OFF) {
-                    // Show prevState of BLE_ON as OFF to standard users
-                    prevState = BluetoothAdapter.STATE_TURNING_OFF;
                 }
                 Intent intent = new Intent(BluetoothAdapter.ACTION_STATE_CHANGED);
                 intent.putExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, prevState);
