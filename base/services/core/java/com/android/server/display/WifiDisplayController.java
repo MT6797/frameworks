@@ -40,6 +40,7 @@ import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
+import android.net.wifi.p2p.WifiP2pGroupList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pWfdInfo;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
@@ -400,6 +401,7 @@ final class WifiDisplayController implements DumpUtils.Dump {
     private String mSinkMacAddress;
     private String mSinkIpAddress;
     private int mSinkPort;
+    private WifiP2pGroup mSinkP2pGroup;
     StatusBarManager mStatusBarManager;
     private Surface mSinkSurface;
     private AudioManager mAudioManager;
@@ -4612,6 +4614,9 @@ final class WifiDisplayController implements DumpUtils.Dump {
             stopPeerDiscovery();
             Slog.i(TAG, "Disconnected from WFD sink (P2P).");
 
+            // Remove persistent group
+            deletePersistentGroup();
+
             enterSinkState(SinkState.SINK_STATE_IDLE);
 
             updateIfSinkConnected(false);
@@ -4674,6 +4679,29 @@ final class WifiDisplayController implements DumpUtils.Dump {
         });
     }
 
+    private void deletePersistentGroup() {
+        Slog.d(TAG, "deletePersistentGroup");
+
+        if (mSinkP2pGroup == null) {
+            return;
+        }
+
+        mWifiP2pManager.requestPersistentGroupInfo(mWifiP2pChannel,
+            new WifiP2pManager.PersistentGroupInfoListener() {
+                public void onPersistentGroupInfoAvailable(WifiP2pGroupList groups) {
+
+                    Slog.i(TAG, "onPersistentGroupInfoAvailable()");
+
+                    if (groups.contains(mSinkP2pGroup.getNetworkId())) {
+
+                        mWifiP2pManager.deletePersistentGroup(
+                            mWifiP2pChannel, mSinkP2pGroup.getNetworkId(), null);
+                    }
+                    mSinkP2pGroup = null;
+            }
+        });
+    }
+
     private void handleSinkP2PConnection(NetworkInfo networkInfo) {
         Slog.i(TAG, "handleSinkP2PConnection(), sinkState:" + mSinkState);
 
@@ -4699,6 +4727,8 @@ final class WifiDisplayController implements DumpUtils.Dump {
                         Slog.i(TAG, "Error: group is null !!!");
                         return;
                     }
+
+                    mSinkP2pGroup = group;
 
                     //Get valid WFD client in the group
                     boolean found = false;

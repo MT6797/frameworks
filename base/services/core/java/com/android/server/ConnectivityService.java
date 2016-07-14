@@ -366,6 +366,10 @@ public class ConnectivityService extends IConnectivityManager.Stub
      */
     private static final int EVENT_REGISTER_NETWORK_LISTENER_WITH_INTENT = 31;
 
+    /**
+     * used internally to control mobile data always-on settings according to WFC setting.
+     */
+    private static final int EVENT_CONFIGURE_WFC_SETTING = 32;
     /** Handler used for internal events. */
     final private InternalHandler mHandler;
     /** Handler used for incoming {@link NetworkStateTracker} events. */
@@ -819,13 +823,8 @@ private static com.android.server.net.NetworkHttpMonitor mNetworkHttpMonitor;
     }
 
     private void handleMobileDataAlwaysOn() {
-
-        /// M: Support [VZ_REQ_WIFI_16368] No internet PDN is disconnected when Wi-Fi is connected.
-        int defaultValue = ("1".equals(SystemProperties.get("ro.mtk_epdg_support")) ? 1 : 0);
         final boolean enable = (Settings.Global.getInt(
-                mContext.getContentResolver(), Settings.Global.MOBILE_DATA_ALWAYS_ON,
-                defaultValue) == 1);
-
+                mContext.getContentResolver(), Settings.Global.MOBILE_DATA_ALWAYS_ON, 0) == 1);
         final boolean isEnabled = (mNetworkRequests.get(mDefaultMobileDataRequest) != null);
         if (enable == isEnabled) {
             return;  // Nothing to do.
@@ -849,6 +848,14 @@ private static com.android.server.net.NetworkHttpMonitor mNetworkHttpMonitor;
         mSettingsObserver.observe(
                 Settings.Global.getUriFor(Settings.Global.MOBILE_DATA_ALWAYS_ON),
                 EVENT_CONFIGURE_MOBILE_DATA_ALWAYS_ON);
+
+        /// M: Support [VZW_REQ_WIFI_16368] No internet PDN is disconnected when Wi-Fi is connected.
+        if ("1".equals(SystemProperties.get("ro.mtk_epdg_support")) &&
+                "1".equals(SystemProperties.get("ro.mtk_wfc_support"))) {
+            mSettingsObserver.observe(
+                Settings.Global.getUriFor(Settings.Global.WFC_IMS_ENABLED),
+                EVENT_CONFIGURE_WFC_SETTING);
+        }
     }
 
     private synchronized int nextNetworkRequestId() {
@@ -2620,6 +2627,13 @@ private static com.android.server.net.NetworkHttpMonitor mNetworkHttpMonitor;
                     }
                     break;
                 }
+                case EVENT_CONFIGURE_WFC_SETTING: {
+                    int enabled = Settings.Global.getInt(
+                        mContext.getContentResolver(), Settings.Global.WFC_IMS_ENABLED, 0);
+                    Settings.Global.putInt(mContext.getContentResolver(),
+                                Settings.Global.MOBILE_DATA_ALWAYS_ON, enabled);
+                    break;
+                }
             }
         }
     }
@@ -4007,6 +4021,17 @@ private static com.android.server.net.NetworkHttpMonitor mNetworkHttpMonitor;
         if (!Objects.equals(newLp, oldLp)) {
             notifyIfacesChanged();
             notifyNetworkCallbacks(networkAgent, ConnectivityManager.CALLBACK_IP_CHANGED);
+
+            /// M: Broadcast IP Change for default data connection.
+            if (isDefaultNetwork(networkAgent)) {
+                if (oldLp != null && newLp != null) {
+                    if (!oldLp.isIdenticalAddresses(newLp) ||
+                                    !oldLp.isIdenticalStackedLinks(newLp)) {
+                         log("send additional Connectivity Action to notify ip-change");
+                         mLegacyTypeTracker.update(networkAgent);
+                    }
+                }
+            }
         }
     }
 

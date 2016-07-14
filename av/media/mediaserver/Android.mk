@@ -72,6 +72,7 @@ LOCAL_C_INCLUDES += \
     $(TOP)/$(MTK_PATH_SOURCE)/frameworks/av \
     $(TOP)/$(MTK_PATH_SOURCE)/frameworks/av/memorydumper/include \
     frameworks/av/media/libmediaplayerservice \
+    frameworks/av/media/libmedia \
     frameworks/av/services/medialog \
     frameworks/av/services/audioflinger \
     frameworks/av/services/audiopolicy \

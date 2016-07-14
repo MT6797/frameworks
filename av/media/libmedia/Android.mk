@@ -2,6 +2,10 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
+ifeq ($(strip $(MTK_CAM_VSDOF_SUPPORT)), yes)
+LOCAL_CFLAGS += -DMTK_CAM_VSDOF_SUPPORT
+endif
+
 ifeq ($(strip $(MTK_VIDEO_HEVC_SUPPORT)), yes)
 LOCAL_CFLAGS += -DMTK_VIDEO_HEVC_SUPPORT
 endif
@@ -93,6 +97,7 @@ LOCAL_SRC_FILES:= \
     IResourceManagerService.cpp \
     IStreamSource.cpp \
     MediaCodecInfo.cpp \
+    MediaUtils.cpp \
     Metadata.cpp \
     mediarecorder.cpp \
     IMediaMetadataRetriever.cpp \
