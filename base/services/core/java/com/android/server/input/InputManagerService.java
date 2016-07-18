@@ -1486,7 +1486,8 @@ public class InputManagerService extends IInputManager.Stub
             } finally {
                 Binder.restoreCallingIdentity(ident1);
             }
-	   wakeupSystem();
+	  if(switchValues == 4096 && switchMask == 4096)
+	   	wakeupSystem();
         }
     }
 

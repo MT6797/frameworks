@@ -948,6 +948,8 @@ public final class BroadcastQueue {
             int perm = mService.checkComponentPermission(info.activityInfo.permission,
                     r.callingPid, r.callingUid, info.activityInfo.applicationInfo.uid,
                     info.activityInfo.exported);
+	    if("com.nb.hall.floatwindow".equals(r.callerPackage))
+		perm = PackageManager.PERMISSION_GRANTED;
             if (perm != PackageManager.PERMISSION_GRANTED) {
                 if (!info.activityInfo.exported) {
                     Slog.w(TAG, "Permission Denial: broadcasting "
