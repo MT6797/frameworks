@@ -423,8 +423,18 @@
     <string name="fingerprint_acquired_imager_dirty" msgid="1087209702421076105">"指纹传感器有脏污。请擦拭干净，然后重试。"</string>
     <string name="fingerprint_acquired_too_fast" msgid="6470642383109155969">"手指移动太快，请重试。"</string>
     <string name="fingerprint_acquired_too_slow" msgid="59250885689661653">"手指移动太慢，请重试。"</string>
-  <string-array name="fingerprint_acquired_vendor">
-  </string-array>
+    <!--add by microarray begin-->
+    <string-array name="fingerprint_acquired_vendor">
+	<item></item>
+　　    <item></item>
+　　    <item></item>
+　　    <item>请抬起手指</item>
+　　    <item>录入手指有重复</item>
+        <item>请移动手指</item>
+	<item>手指部分接触</item>
+        <item>请移动手指</item>
+    </string-array>
+    <!--add by microarray end--> 
     <string name="fingerprint_error_hw_not_available" msgid="7955921658939936596">"指纹硬件无法使用。"</string>
     <string name="fingerprint_error_no_space" msgid="1055819001126053318">"无法存储指纹。请移除一个现有的指纹。"</string>
     <string name="fingerprint_error_timeout" msgid="3927186043737732875">"指纹录入操作超时，请重试。"</string>

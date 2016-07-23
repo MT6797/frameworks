@@ -41,7 +41,7 @@ import javax.crypto.Mac;
 
 import static android.Manifest.permission.USE_FINGERPRINT;
 import static android.Manifest.permission.MANAGE_FINGERPRINT;
-
+import java.io.File;
 /**
  * A class that coordinates access to the fingerprint hardware.
  * <p>
@@ -164,7 +164,7 @@ public class FingerprintManager {
      * the above categories. Vendors are responsible for providing error strings for these errors.
      * @hide
      */
-    public static final int FINGERPRINT_ACQUIRED_VENDOR_BASE = 1000;
+    public static int FINGERPRINT_ACQUIRED_VENDOR_BASE = 1000;
 
     private IFingerprintService mService;
     private Context mContext;
@@ -784,6 +784,11 @@ public class FingerprintManager {
             Slog.v(TAG, "FingerprintManagerService was null");
         }
         mHandler = new MyHandler(context);
+	/*modify by microarray begin*/
+	File file=new File("/dev/madev0");    
+    	if(file.exists())
+		FINGERPRINT_ACQUIRED_VENDOR_BASE = 1101;
+        /*modify by microarray end*/
     }
 
     private int getCurrentUserId() {
