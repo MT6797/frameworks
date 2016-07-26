@@ -337,10 +337,10 @@ public class Ringtone {
         if (mLocalPlayer != null) {
             // do not play ringtones if stream volume is 0
             // (typically because ringer mode is silent).
-            if (mAudioManager.getStreamVolume(
-                    AudioAttributes.toLegacyStreamType(mAudioAttributes)) != 0) {
+           // if (mAudioManager.getStreamVolume(
+            //        AudioAttributes.toLegacyStreamType(mAudioAttributes)) != 0) {
                 startLocalPlayer();
-            }
+          //  }
         } else if (mAllowRemote && (mRemotePlayer != null)) {
             /// M: Avoid NullPointerException cause by mUri is null.
             final Uri canonicalUri = (mUri == null ? null : mUri.getCanonicalUri());
