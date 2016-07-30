@@ -694,9 +694,9 @@ class AlarmManagerService extends SystemService {
         final int N = mAlarmBatches.size();
         for (int i = 0; i < N; i++) {
             Batch b = mAlarmBatches.get(i);
-            //if ((b.flags&AlarmManager.FLAG_STANDALONE) == 0 && b.canHold(whenElapsed, maxWhen)) {
+            if ((b.flags&AlarmManager.FLAG_STANDALONE) == 0 && b.canHold(whenElapsed, maxWhen)) {
             //M mark b.flags for check condition
-            if (b.canHold(whenElapsed, maxWhen)) {
+            //if (b.canHold(whenElapsed, maxWhen)) {
                 return i;
             }
         }
@@ -1252,11 +1252,11 @@ class AlarmManagerService extends SystemService {
              + " a.needGrouping= " + a.needGrouping
              + "  a.flags= " + a.flags);
         }
-        // int whichBatch = ( (a.flags&AlarmManager.FLAG_STANDALONE) != 0)
-        //      ? -1 : attemptCoalesceLocked(a.whenElapsed, a.maxWhenElapsed);
+         int whichBatch = ( (a.flags&AlarmManager.FLAG_STANDALONE) != 0)
+              ? -1 : attemptCoalesceLocked(a.whenElapsed, a.maxWhenElapsed);
         // M using a.needGrouping for check condition
-        int whichBatch = (a.needGrouping == false)
-                ? -1 : attemptCoalesceLocked(a.whenElapsed, a.maxWhenElapsed);
+       // int whichBatch = (a.needGrouping == false)
+       //         ? -1 : attemptCoalesceLocked(a.whenElapsed, a.maxWhenElapsed);
         Slog.d(TAG, " whichBatch = " + whichBatch);
         if (whichBatch < 0) {
             Batch batch = new Batch(a);
@@ -2766,29 +2766,12 @@ class AlarmManagerService extends SystemService {
                     // If this was anything besides just a time change, then figure what if
                     // anything to do about alarms.
                     synchronized (mLock) {
-                        if (localLOGV) Slog.v(
+                        if (true) Slog.v(
                             TAG, "Checking for alarms... rtc=" + nowRTC
                             + ", elapsed=" + nowELAPSED);
-			    //add by liliang.bao begin	fix bug3998	
-			     for (int i = mAlarmBatches.size() - 1; i >= 0; i--) {
-           		     Batch b = mAlarmBatches.get(i);
-					 for (int j = 0; j < b.size(); j++ ) {
-                	 		 Alarm alarm = b.get(j);
-               				 if (alarm.operation.equals(mTimeTickSender)) {                  					
-							 		mTimeTickSend = true;
-									break;
-                				} 
-                			}             			 
-			       }
-			 	if(!mTimeTickSend)
-			 	{
-			 	         Slog.v(TAG, "==can't check TIME_TICK borcast ,so restart scheduleTimeTickEvent");
-				 		mClockReceiver.scheduleTimeTickEvent();
-			 	}
-			 	else
-			 	 	Slog.v(TAG, "==time tick bocast exist");
-			 	mTimeTickSend = false;
-				//add by liliang.bao end	
+			    		//add by liliang.bao begin	fix bug3998	
+			     		recoveryTimeTicket();
+			   			//add by liliang.bao end	
                         if (WAKEUP_STATS) {
                             if ((result & IS_WAKEUP_MASK) != 0) {
                                 long newEarliest = nowRTC - RECENT_WAKEUP_PERIOD;
@@ -2987,6 +2970,9 @@ class AlarmManagerService extends SystemService {
         public void onReceive(Context context, Intent intent) {
             synchronized (mLock) {
                 interactiveStateChangedLocked(Intent.ACTION_SCREEN_ON.equals(intent.getAction()));
+				//add by liliang.bao begin	fix bug3998	
+		   		recoveryTimeTicket();
+				//add by liliang.bao end
             }
         }
     }
@@ -3608,4 +3594,29 @@ class AlarmManagerService extends SystemService {
      }
     }
     /// M: end
+
+	protected void recoveryTimeTicket()
+    	{
+    		for (int i = mAlarmBatches.size() - 1; i >= 0; i--) {
+           		     Batch b = mAlarmBatches.get(i);
+					 for (int j = 0; j < b.size(); j++ ) {
+                	 		 Alarm alarm = b.get(j);
+               				 if (alarm.operation.equals(mTimeTickSender)) {                  					
+							 		mTimeTickSend = true;
+									break;
+                				} 
+                	 }             			 
+			}
+			if(!mTimeTickSend)
+			{
+				Slog.v(TAG, "==can't check TIME_TICK borcast ,so send TIME_TICK");
+				try {
+           				mTimeTickSender.send();
+       				} catch (PendingIntent.CanceledException e) {
+        			}
+			}
+			else
+				Slog.v(TAG, "==time tick bocast exist");
+			mTimeTickSend = false;
+    	}
 }
