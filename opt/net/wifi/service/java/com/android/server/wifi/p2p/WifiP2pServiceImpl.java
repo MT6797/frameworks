@@ -5736,6 +5736,8 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
         // Default is UTF-8
         byte[] bChar = deviceName.getBytes();
         for (int i = 0, len = deviceName.length(); i < len; i++) {
+	    if(utfCount >= len)
+		return deviceName;
             byte b0 = bChar[utfCount];
             //Log.d(TAG, "b0=" + b0+", utfCount="+utfCount+", strLen="+strLen);
             if (utfCount > 22) break;
