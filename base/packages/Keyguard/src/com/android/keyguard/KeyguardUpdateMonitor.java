@@ -445,7 +445,8 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
         if (acquireInfo != FingerprintManager.FINGERPRINT_ACQUIRED_GOOD) {
             return;
         }
-        if (!mDeviceInteractive && !mScreenOn) {
+        //if (!mDeviceInteractive && !mScreenOn) { 
+	if (/*!mDeviceInteractive && modify by MA fix bug*/ !mScreenOn) {
             releaseFingerprintWakeLock();
             mWakeLock = mPowerManager.newWakeLock(
                     PowerManager.PARTIAL_WAKE_LOCK, FINGERPRINT_WAKE_LOCK_NAME);
