@@ -1280,14 +1280,14 @@
     <string name="fingerprint_acquired_too_slow">Finger moved too slow. Please try again.</string>
     <!-- Array containing custom messages shown during fingerprint acquisision from vendor.  Vendor is expected to add and translate these strings -->
     <string-array name="fingerprint_acquired_vendor">
-	<item></item>
-　　    <item></item>
-　　    <item></item>
-　　    <item>please lift your finger</item>
-　　    <item>the finger has enrolled</item>
-        <item>please move your finger</item>
-	<item>finger partial cover</item>
-        <item>please move your finger</item>
+        <item></item>
+        <item></item>
+        <item></item>
+        <item>Please move your finger to capture the edges of your fingerprint.</item>
+        <item>No full touch from your finger, please try again.</item>
+        <item>Please move your finger to capture the edges of your fingerprint.</item>
+        <item>No full touch from your finger, please try again.</item>
+        <item>Please move your finger to capture the edges of your fingerprint.</item>
     </string-array>
 
     <!-- Error message shown when the fingerprint hardware can't be accessed -->
