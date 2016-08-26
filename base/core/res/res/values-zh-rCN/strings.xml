@@ -431,7 +431,7 @@
 　　    <item>请抬起手指</item>
 　　    <item>录入手指有重复</item>
         <item>请移动手指</item>
-	<item>手指部分接触</item>
+	<item>手指接触不充分,请重新录入</item>
         <item>请移动手指</item>
     </string-array>
     <!--add by microarray end--> 
