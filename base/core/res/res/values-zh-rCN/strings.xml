@@ -428,11 +428,11 @@
         <item></item>
         <item></item>
         <item></item>
+        <item>请抬起手指。</item>
+        <item>录入手指有重复。</item>
         <item>请移动手指位置，获取边缘指纹。</item>
         <item>手指未接触充分，请再次录入。</item>
-        <item>请移动手指位置，获取边缘指纹。</item>
-        <item>手指未接触充分，请再次录入。</item>
-        <item>请移动手指位置，获取边缘指纹。</item>
+        <item>请移动手指。</item>
     </string-array>
     <!--add by microarray end--> 
     <string name="fingerprint_error_hw_not_available" msgid="7955921658939936596">"指纹硬件无法使用。"</string>

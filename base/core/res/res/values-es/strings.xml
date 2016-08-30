@@ -427,11 +427,11 @@
         <item></item>
         <item></item>
         <item></item>
+        <item>Levante su dedo por favor.</item>
+        <item>El dedo ha sido registrado.</item>
         <item>Mueve el dedo para capturar los bordes de tu huella.</item>
         <item>El contacto con tu dedo no es total, por favor inténtalo de nuevo.</item>
-        <item>Mueve el dedo para capturar los bordes de tu huella.</item>
-        <item>El contacto con tu dedo no es total, por favor inténtalo de nuevo.</item>
-        <item>Mueve el dedo para capturar los bordes de tu huella.</item>
+        <item>Mueve su dedo por favor.</item>
     </string-array>
     <string name="fingerprint_error_hw_not_available" msgid="7955921658939936596">"El hardware de huella digital no está disponible."</string>
     <string name="fingerprint_error_no_space" msgid="1055819001126053318">"No se puede almacenar la huella digital. Elimina una ya creada."</string>

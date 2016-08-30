@@ -427,11 +427,11 @@
         <item></item>
         <item></item>
         <item></item>
+        <item>Per favore sollevare il dito.</item>
+        <item>Hai già registrato questa impronta.</item>
         <item>Per favore muovere il dito per catturare i bordi dell%1$simpronta.</item>
         <item>Non toccare direttamente al centro, per favore provare ancora.</item>
-        <item>Per favore muovere il dito per catturare i bordi dell%1$simpronta.</item>
-        <item>Non toccare direttamente al centro, per favore provare ancora.</item>
-        <item>Per favore muovere il dito per catturare i bordi dell%1$simpronta.</item>
+        <item>Per favore muovere il dito.</item>
     </string-array>
     <string name="fingerprint_error_hw_not_available" msgid="7955921658939936596">"Hardware per l\'impronta digitale non disponibile."</string>
     <string name="fingerprint_error_no_space" msgid="1055819001126053318">"Impossibile memorizzare l\'impronta digitale. Rimuovi un\'impronta esistente."</string>

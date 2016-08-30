@@ -1283,11 +1283,11 @@
         <item></item>
         <item></item>
         <item></item>
+        <item>Please lift your finger.</item>
+        <item>You have already registered this finger.</item>
         <item>Please move your finger to capture the edges of your fingerprint.</item>
         <item>No full touch from your finger, please try again.</item>
-        <item>Please move your finger to capture the edges of your fingerprint.</item>
-        <item>No full touch from your finger, please try again.</item>
-        <item>Please move your finger to capture the edges of your fingerprint.</item>
+        <item>Please move your finger.</item>
     </string-array>
 
     <!-- Error message shown when the fingerprint hardware can't be accessed -->

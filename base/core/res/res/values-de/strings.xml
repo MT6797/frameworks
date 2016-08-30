@@ -427,11 +427,11 @@
         <item></item>
         <item></item>
         <item></item>
+        <item>Heben Sie den Finger.</item>
+        <item>Dieser Finger wurde bereits hinzugefügt.</item>
         <item>Bitte bewegen Sie den Finger, um den Rand des Fingerabdrucks zu erfassen.</item>
         <item>Ihr Fingerabdruck konnte nicht komplett erfasst werden. Bitte bedecken Sie die gesamte Fläche und versuchen es erneut.</item>
-        <item>Bitte bewegen Sie den Finger, um den Rand des Fingerabdrucks zu erfassen.</item>
-        <item>Ihr Fingerabdruck konnte nicht komplett erfasst werden. Bitte bedecken Sie die gesamte Fläche und versuchen es erneut.</item>
-        <item>Bitte bewegen Sie den Finger, um den Rand des Fingerabdrucks zu erfassen.</item>
+        <item>Bitte bewegen Sie den Finger.</item>
     </string-array>
     <string name="fingerprint_error_hw_not_available" msgid="7955921658939936596">"Fingerabdruckhardware nicht verfügbar"</string>
     <string name="fingerprint_error_no_space" msgid="1055819001126053318">"Fingerabdruck kann nicht gespeichert werden. Entfernen Sie einen vorhandenen Fingerabdruck."</string>

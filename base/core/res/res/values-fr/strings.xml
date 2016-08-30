@@ -427,11 +427,11 @@
         <item></item>
         <item></item>
         <item></item>
+        <item>Veuillez lever votre doigt.</item>
+        <item>Cette empreinte a déjà été enregistrée.</item>
         <item>Veuillez bouger votre doigt pour en capturer les bords.</item>
         <item>Prise d%1$sempreinte incomplète. Merci de recommencer.</item>
-        <item>Veuillez bouger votre doigt pour en capturer les bords.</item>
-        <item>Prise d%1$sempreinte incomplète. Merci de recommencer.</item>
-        <item>Veuillez bouger votre doigt pour en capturer les bords.</item>
+        <item>Veuillez déplacer votre doigt.</item>
     </string-array>
     <string name="fingerprint_error_hw_not_available" msgid="7955921658939936596">"Matériel d\'empreinte numérique indisponible."</string>
     <string name="fingerprint_error_no_space" msgid="1055819001126053318">"Impossible d\'enregistrer l\'empreinte numérique. Veuillez supprimer une empreinte."</string>

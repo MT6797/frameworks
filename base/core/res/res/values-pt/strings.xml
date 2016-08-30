@@ -427,11 +427,11 @@
         <item></item>
         <item></item>
         <item></item>
+        <item>Por favor levante o seu dedo.</item>
+        <item>Já registou a impressão deste dedo.</item>
         <item>Por favor mova a ponta do dedo para capturar os cantos da sua impressão digital.</item>
         <item>Não click inteiramente com o seu dedo, por favor tente de novo.</item>
-        <item>Por favor mova a ponta do dedo para capturar os cantos da sua impressão digital.</item>
-        <item>Não click inteiramente com o seu dedo, por favor tente de novo.</item>
-        <item>Por favor mova a ponta do dedo para capturar os cantos da sua impressão digital.</item>
+        <item>Por favor mova o seu dedo.</item>
     </string-array>
     <string name="fingerprint_error_hw_not_available" msgid="7955921658939936596">"Hardware de impressão digital não disponível."</string>
     <string name="fingerprint_error_no_space" msgid="1055819001126053318">"Não foi possível armazenar a impressão digital. Remova uma impressão digital já existente."</string>
