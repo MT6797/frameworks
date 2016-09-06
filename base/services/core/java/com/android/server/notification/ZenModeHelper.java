@@ -640,8 +640,8 @@ public class ZenModeHelper {
                         if (mZenMode == Global.ZEN_MODE_OFF) {
                             newZen = Global.ZEN_MODE_ALARMS;
                         }
-                        ringerModeInternalOut = isVibrate ? AudioManager.RINGER_MODE_VIBRATE
-                                : AudioManager.RINGER_MODE_SILENT;
+                   //     ringerModeInternalOut = isVibrate ? AudioManager.RINGER_MODE_VIBRATE
+                   //             : AudioManager.RINGER_MODE_SILENT;
                     } else {
                         ringerModeInternalOut = ringerModeInternal;
                     }
