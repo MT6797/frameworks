@@ -3560,6 +3560,8 @@ private static final String APP_FILTER_CONFIG_PATH="/custom/etc/filter.xml";
  	{
 
 		ApplicationInfo info = getApplicationInfo("com.android.browser", 0,0);
+		if(info == null)
+		     return -1;
 		Slog.w(TAG, "browser uid:"+info.uid);
 		return info.uid;
  	}
