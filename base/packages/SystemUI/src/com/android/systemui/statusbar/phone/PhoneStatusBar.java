@@ -3969,6 +3969,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mGroupManager.setStatusBarState(state);
         mStatusBarWindowManager.setStatusBarState(state);
         updateDozing();
+	//add by liliang.bao begin bug4420
+	if(mScreenOnFromKeyguard)
+             mNotificationPanel.setTouchDisabled(false);
+	//add by liliang.bao end 
     }
 
     @Override
@@ -4488,4 +4492,15 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     }
     /// M: Support "Operator plugin - Customize Carrier Label for PLMN". @}
+//add by liliang.bao begin bug4420
+	public void setNotificationPanewlTouchDisabled()
+	{
+		if(mNotificationPanel.isTracking())
+		{
+			Log.d(TAG,"===>setNotificationPanewlTouchDisabled");
+			mNotificationPanel.setTouchDisabled(true);
+			mNotificationPanel.onTrackingStopped(false);
+		}
+	}
+//add by liliang.bao end
 }

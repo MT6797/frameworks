@@ -341,7 +341,7 @@ public class KeyguardViewMediator extends SystemUI {
 
     private boolean mWakeAndUnlocking;
     private IKeyguardDrawnCallback mDrawnCallback;
-
+    private PhoneStatusBar mPhoneStatusBar;
     KeyguardUpdateMonitorCallback mUpdateCallback = new KeyguardUpdateMonitorCallback() {
 
         @Override
@@ -565,6 +565,9 @@ public class KeyguardViewMediator extends SystemUI {
                     if (wakeAndUnlocking) {
                         mStatusBarKeyguardViewManager.notifyDeviceWakeUpRequested();
                     }
+		    //add by liliang.bao begin bug4420
+		    mPhoneStatusBar.setNotificationPanewlTouchDisabled();
+		    //add by liliang.bao end
                     mStatusBarKeyguardViewManager.animateCollapsePanels(
                             FINGERPRINT_COLLAPSE_SPEEDUP_FACTOR);
                 }
@@ -2085,6 +2088,9 @@ public class KeyguardViewMediator extends SystemUI {
             ScrimController scrimController) {
         mStatusBarKeyguardViewManager.registerStatusBar(phoneStatusBar, container,
                 statusBarWindowManager, scrimController);
+       //add by liliang.bao begin bug4420
+	mPhoneStatusBar = phoneStatusBar;
+       //add by liliang.bao end
         return mStatusBarKeyguardViewManager;
     }
 
