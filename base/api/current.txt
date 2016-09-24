@@ -13932,6 +13932,7 @@ package android.hardware.fingerprint {
     ctor public FingerprintManager.AuthenticationCallback();
     method public void onAuthenticationError(int, java.lang.CharSequence);
     method public void onAuthenticationFailed();
+    method public void onAuthenticationFailedAttempts(int);
     method public void onAuthenticationHelp(int, java.lang.CharSequence);
     method public void onAuthenticationSucceeded(android.hardware.fingerprint.FingerprintManager.AuthenticationResult);
   }

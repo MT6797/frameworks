@@ -323,6 +323,11 @@ public class FingerprintManager {
         public void onAuthenticationFailed() { }
 
         /**
+         * Called when a fingerprint is valid but not recognized.
+         */
+        public void onAuthenticationFailedAttempts(int failedAttempts) { }
+
+        /**
          * Called when a fingerprint image has been acquired, but wasn't processed yet.
          *
          * @param acquireInfo one of FINGERPRINT_ACQUIRED_* constants
@@ -703,7 +708,7 @@ public class FingerprintManager {
                     sendAuthenticatedSucceeded((Fingerprint) msg.obj);
                     break;
                 case MSG_AUTHENTICATION_FAILED:
-                    sendAuthenticatedFailed();
+                    sendAuthenticatedFailed(msg.arg1 /* failedAttempts */);
                     break;
                 case MSG_ERROR:
                     sendErrorResult((Long) msg.obj /* deviceId */, msg.arg1 /* errMsgId */);
@@ -752,9 +757,9 @@ public class FingerprintManager {
             }
         }
 
-        private void sendAuthenticatedFailed() {
+        private void sendAuthenticatedFailed(int failedAttempts) {
             if (mAuthenticationCallback != null) {
-               mAuthenticationCallback.onAuthenticationFailed();
+               mAuthenticationCallback.onAuthenticationFailedAttempts(failedAttempts);
             }
         }
 
@@ -899,7 +904,12 @@ public class FingerprintManager {
 
         @Override // binder call
         public void onAuthenticationFailed(long deviceId) {
-            mHandler.obtainMessage(MSG_AUTHENTICATION_FAILED).sendToTarget();;
+            //mHandler.obtainMessage(MSG_AUTHENTICATION_FAILED, 0, 0, deviceId).sendToTarget();
+        }
+
+        @Override // binder call
+        public void onAuthenticationFailedAttempts(long deviceId, int failedAttempts) {
+            mHandler.obtainMessage(MSG_AUTHENTICATION_FAILED, failedAttempts, 0, deviceId).sendToTarget();
         }
 
         @Override // binder call

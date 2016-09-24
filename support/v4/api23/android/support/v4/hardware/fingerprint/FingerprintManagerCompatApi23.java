@@ -101,6 +101,11 @@ public final class FingerprintManagerCompatApi23 {
             public void onAuthenticationFailed() {
                 callback.onAuthenticationFailed();
             }
+
+            @Override
+            public void onAuthenticationFailedAttempts(int failedAttempts) {
+                //callback.onAuthenticationFailed();
+            }
         };
     }
 

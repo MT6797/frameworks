@@ -676,7 +676,9 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
 
         @Override
         public void onFingerprintHelp(int msgId, String helpString) {
-            if (!KeyguardUpdateMonitor.getInstance(mContext).isUnlockingWithFingerprintAllowed()) {
+            int failedAttempt = KeyguardUpdateMonitor.getInstance(mContext).getFailedAttemptCount();
+            if (!KeyguardUpdateMonitor.getInstance(mContext).isUnlockingWithFingerprintAllowed()
+                    || failedAttempt <= 0) {
                 return;
             }
             mLockIcon.setTransientFpError(true);
@@ -693,10 +695,10 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
                 return;
             }
             // TODO: Go to bouncer if this is "too many attempts" (lockout) error.
-            mIndicationController.showTransientIndication(errString,
+            /*mIndicationController.showTransientIndication(errString,
                     getResources().getColor(R.color.system_warning_color, null));
             removeCallbacks(mHideTransientIndicationRunnable);
-            postDelayed(mHideTransientIndicationRunnable, 5000);
+            postDelayed(mHideTransientIndicationRunnable, 5000);*/ //Show hint instead
         }
     };
 

@@ -22,6 +22,7 @@ import android.app.AppOpsManager;
 import android.app.IUserSwitchObserver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.os.Binder;
@@ -44,7 +45,11 @@ import android.os.UserManager;
 /// M: Soter support @{
 import android.security.keystore.SoterUtil;
 /// M: Soter support @}
+import android.util.Log;
 import android.util.Slog;
+import android.view.Gravity;
+import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.android.server.SystemService;
 
@@ -88,6 +93,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     private static final long MS_PER_SEC = 1000;
     private static final long FAIL_LOCKOUT_TIMEOUT_MS = 30*1000;
     private static final int MAX_FAILED_ATTEMPTS = 4;
+    private static final int MAX_FAILED_ATTEMPTS_SCREEN_OFF = 6;
     private static final int FINGERPRINT_ACQUIRED_GOOD = 0;
 
     Handler mHandler = new Handler() {
@@ -108,8 +114,10 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     private Context mContext;
     private long mHalDeviceId;
     private int mFailedAttempts;
+    private int mScrenOffFailedAttempts;
     private IFingerprintDaemon mDaemon;
     private PowerManager mPowerManager;
+
 
     private final Runnable mLockoutReset = new Runnable() {
         @Override
@@ -127,12 +135,14 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
     @Override
     public void binderDied() {
+        android.util.Log.e("z.cccc", TAG +".binderDied------------------------");
         Slog.v(TAG, "fingerprintd died");
         mDaemon = null;
         dispatchError(mHalDeviceId, FingerprintManager.FINGERPRINT_ERROR_HW_UNAVAILABLE);
     }
 
     public IFingerprintDaemon getFingerprintDaemon() {
+        android.util.Log.e("z.cccc", TAG +".getFingerprintDaemon------------------------");
         if (mDaemon == null) {
             mDaemon = IFingerprintDaemon.Stub.asInterface(ServiceManager.getService(FINGERPRINTD));
             if (mDaemon != null) {
@@ -158,6 +168,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     protected void dispatchEnumerate(long deviceId, int[] fingerIds, int[] groupIds) {
+        android.util.Log.e("z.cccc", TAG +".dispatchEnumerate------------------------");
         if (fingerIds.length != groupIds.length) {
             Slog.w(TAG, "fingerIds and groupIds differ in length: f[]="
                     + fingerIds + ", g[]=" + groupIds);
@@ -168,6 +179,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     protected void dispatchRemoved(long deviceId, int fingerId, int groupId) {
+        android.util.Log.e("z.cccc", TAG +".dispatchRemoved------------------------");
         final ClientMonitor client = mRemoveClient;
         if (fingerId != 0) {
             removeTemplateForUser(mRemoveClient, fingerId);
@@ -178,6 +190,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     protected void dispatchError(long deviceId, int error) {
+        android.util.Log.e("z.cccc", TAG +".dispatchError------------------------");
         if (mEnrollClient != null) {
             final IBinder token = mEnrollClient.token;
             if (mEnrollClient.sendError(error)) {
@@ -194,6 +207,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     protected void dispatchAuthenticated(long deviceId, int fingerId, int groupId) {
+        android.util.Log.e("z.cccc", TAG +".dispatchAuthenticated------------------------" + mAuthClient);
         if (mAuthClient != null) {
             final IBinder token = mAuthClient.token;
             if (mAuthClient.sendAuthenticated(fingerId, groupId)) {
@@ -204,10 +218,17 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
                 /// M: Soter support @}
                 removeClient(mAuthClient);
             }
+        } else {
+            if(fingerId != 0) {
+                mContext.sendBroadcast(new Intent("com.android.fp.FP_DISABLE_ACQUIRE_VERIFY_SUCCESS"));
+            } else {
+                mContext.sendBroadcast(new Intent("com.android.fp.FP_DISABLE_ACQUIRE"));
+            }
         }
     }
 
     protected void dispatchAcquired(long deviceId, int acquiredInfo) {
+        android.util.Log.e("z.cccc", TAG +".dispatchAcquired------------------------" + mAuthClient);
         if (mEnrollClient != null) {
             if (mEnrollClient.sendAcquired(acquiredInfo)) {
                 removeClient(mEnrollClient);
@@ -220,15 +241,18 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     private void userActivity() {
+        android.util.Log.e("z.cccc", TAG +".userActivity------------------------");
         long now = SystemClock.uptimeMillis();
         mPowerManager.userActivity(now, PowerManager.USER_ACTIVITY_EVENT_TOUCH, 0);
     }
 
     void handleUserSwitching(int userId) {
+        android.util.Log.e("z.cccc", TAG +".handleUserSwitching------------------------");
         updateActiveGroup(userId);
     }
 
     protected void dispatchEnrollResult(long deviceId, int fingerId, int groupId, int remaining) {
+        android.util.Log.e("z.cccc", TAG +".dispatchEnrollResult------------------------");
         if (mEnrollClient != null) {
             if (mEnrollClient.sendEnrollResult(fingerId, groupId, remaining)) {
                 if (remaining == 0) {
@@ -240,6 +264,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     private void removeClient(ClientMonitor client) {
+        android.util.Log.e("z.cccc", TAG +".removeClient------------------------");
         if (client == null) return;
         client.destroy();
         if (client == mAuthClient) {
@@ -252,19 +277,34 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     private boolean inLockoutMode() {
-        return mFailedAttempts > MAX_FAILED_ATTEMPTS;
+        if(mPowerManager.isInteractive()) {
+            return mFailedAttempts > MAX_FAILED_ATTEMPTS;
+        } else {
+            return mScrenOffFailedAttempts > MAX_FAILED_ATTEMPTS_SCREEN_OFF;
+        }
     }
 
     private void resetFailedAttempts() {
+        long delay = SystemClock.elapsedRealtime() - mScreenOnBlockStartRealTime;
+        android.util.Log.e("z.cccc", TAG + "Unblocked screen on after " + delay + " ms");
+        android.util.Log.e("z.cccc", TAG +".resetFailedAttempts------------------------" + delay);
         if (DEBUG && inLockoutMode()) {
             Slog.v(TAG, "Reset fingerprint lockout");
         }
         mFailedAttempts = 0;
+        mScrenOffFailedAttempts = 0;
     }
 
     private boolean handleFailedAttempt(ClientMonitor clientMonitor) {
-        mFailedAttempts++;
-        if (mFailedAttempts > MAX_FAILED_ATTEMPTS) {
+        android.util.Log.e("z.cccc", TAG + ".handleFailedAttempt------------------------" + mPowerManager.isInteractive()
+                + " - " + mFailedAttempts
+                + " - " + mScrenOffFailedAttempts);
+        if(mPowerManager.isInteractive()) {
+            mFailedAttempts++;
+        } else {
+            mScrenOffFailedAttempts++;
+        }
+        if (inLockoutMode()) {
             // Failing multiple times will continue to push out the lockout time.
             mHandler.removeCallbacks(mLockoutReset);
             mHandler.postDelayed(mLockoutReset, FAIL_LOCKOUT_TIMEOUT_MS);
@@ -272,21 +312,25 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
                     && !clientMonitor.sendError(FingerprintManager.FINGERPRINT_ERROR_LOCKOUT)) {
                 Slog.w(TAG, "Cannot send lockout message to client");
             }
+
             return true;
         }
         return false;
     }
 
     private void removeTemplateForUser(ClientMonitor clientMonitor, int fingerId) {
+        android.util.Log.e("z.cccc", TAG +".removeTemplateForUser------------------------");
         mFingerprintUtils.removeFingerprintIdForUser(mContext, fingerId, clientMonitor.userId);
     }
 
     private void addTemplateForUser(ClientMonitor clientMonitor, int fingerId) {
+        android.util.Log.e("z.cccc", TAG +".addTemplateForUser------------------------");
         mFingerprintUtils.addFingerprintForUser(mContext, fingerId, clientMonitor.userId);
     }
 
     void startEnrollment(IBinder token, byte[] cryptoToken, int groupId,
             IFingerprintServiceReceiver receiver, int flags, boolean restricted) {
+        android.util.Log.e("z.cccc", TAG +".startEnrollment------------------------");
         IFingerprintDaemon daemon = getFingerprintDaemon();
         if (daemon == null) {
             Slog.w(TAG, "enroll: no fingeprintd!");
@@ -306,6 +350,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     public long startPreEnroll(IBinder token) {
+        android.util.Log.e("z.cccc", TAG +".startPreEnroll------------------------");
         IFingerprintDaemon daemon = getFingerprintDaemon();
         if (daemon == null) {
             Slog.w(TAG, "startPreEnroll: no fingeprintd!");
@@ -320,6 +365,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     public int startPostEnroll(IBinder token) {
+        android.util.Log.e("z.cccc", TAG +".startPostEnroll------------------------");
         IFingerprintDaemon daemon = getFingerprintDaemon();
         if (daemon == null) {
             Slog.w(TAG, "startPostEnroll: no fingeprintd!");
@@ -334,6 +380,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     private void stopPendingOperations(boolean initiatedByClient) {
+        android.util.Log.e("z.cccc", TAG +".stopPendingOperations------------------------");
         if (mEnrollClient != null) {
             stopEnrollment(mEnrollClient.token, initiatedByClient);
         }
@@ -350,6 +397,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
      * @param initiatedByClient if this call is the result of client action (e.g. calling cancel)
      */
     void stopEnrollment(IBinder token, boolean initiatedByClient) {
+        android.util.Log.e("z.cccc", TAG +".stopEnrollment------------------------");
         IFingerprintDaemon daemon = getFingerprintDaemon();
         if (daemon == null) {
             Slog.w(TAG, "stopEnrollment: no fingeprintd!");
@@ -373,6 +421,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
     void startAuthentication(IBinder token, long opId, int groupId,
             IFingerprintServiceReceiver receiver, int flags, boolean restricted) {
+        android.util.Log.e("z.cccc", TAG +".startAuthentication------------------------");
         /// M: Soter support @{
         if (isSimulated()) {
             mAuthClient = new ClientMonitor(token, opId, receiver, groupId, restricted);
@@ -395,6 +444,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
             mAuthClient = null;
             return;
         }
+        resetFailedAttempts();
         try {
             final int result = daemon.authenticate(opId, groupId);
             if (result != 0) {
@@ -412,6 +462,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
      * @param initiatedByClient if this call is the result of client action (e.g. calling cancel)
      */
     void stopAuthentication(IBinder token, boolean initiatedByClient) {
+        android.util.Log.e("z.cccc", TAG +".stopAuthentication------------------------");
         IFingerprintDaemon daemon = getFingerprintDaemon();
         if (daemon == null) {
             Slog.w(TAG, "stopAuthentication: no fingeprintd!");
@@ -435,6 +486,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
     void startRemove(IBinder token, int fingerId, int userId,
             IFingerprintServiceReceiver receiver, boolean restricted) {
+        android.util.Log.e("z.cccc", TAG +".startRemove------------------------");
         IFingerprintDaemon daemon = getFingerprintDaemon();
         if (daemon == null) {
             Slog.w(TAG, "startRemove: no fingeprintd!");
@@ -458,6 +510,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     public boolean hasEnrolledFingerprints(int userId) {
+        android.util.Log.e("z.cccc", TAG +".hasEnrolledFingerprints------------------------");
         /// M: Soter support @{
         if (isSimulated()) {
             return true;
@@ -539,6 +592,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
         /// M: Soter support @}
 
         public void destroy() {
+            android.util.Log.e("z.cccc", TAG +".destroy------------------------");
             if (token != null) {
                 try {
                     token.unlinkToDeath(this, 0);
@@ -553,6 +607,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
         @Override
         public void binderDied() {
+            android.util.Log.e("z.cccc", TAG +".binderDied------------------------");
             token = null;
             removeClient(this);
             receiver = null;
@@ -560,6 +615,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
         @Override
         protected void finalize() throws Throwable {
+            android.util.Log.e("z.cccc", TAG +".finalize------------------------");
             try {
                 if (token != null) {
                     if (DEBUG) Slog.w(TAG, "removing leaked reference: " + token);
@@ -603,12 +659,13 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
          * @return true if we're done.
          */
         private boolean sendAuthenticated(int fpId, int groupId) {
+            android.util.Log.e("z.cccc", TAG +".sendAuthenticated------------------------" + fpId + " , " + groupId);
             boolean result = false;
             boolean authenticated = fpId != 0;
             if (receiver != null) {
                 try {
                     if (!authenticated) {
-                        receiver.onAuthenticationFailed(mHalDeviceId);
+                        receiver.onAuthenticationFailedAttempts(mHalDeviceId, MAX_FAILED_ATTEMPTS - mFailedAttempts);
                     } else {
                         /// M: Soter support @{
                         Fingerprint fp = !restricted ?
@@ -639,6 +696,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
          * @return true if we're done.
          */
         private boolean sendAcquired(int acquiredInfo) {
+            android.util.Log.e("z.cccc", TAG +".sendAcquired------------------------");
             if (receiver == null) return true; // client not listening
             try {
                 receiver.onAcquired(mHalDeviceId, acquiredInfo);
@@ -659,6 +717,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
          * @return true if we're done.
          */
         private boolean sendError(int error) {
+            android.util.Log.e("z.cccc", TAG +".sendError------------------------" + receiver + " - " + error);
             if (receiver != null) {
                 try {
                     receiver.onError(mHalDeviceId, error);
@@ -671,6 +730,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
         /// M: Soter support @{
         private void addAuthTokenToKeyStore() {
+            android.util.Log.e("z.cccc", TAG +".addAuthTokenToKeyStore------------------------");
             if (!isSimulated()) return;
             java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocate(37 + 32);
             bb.order(java.nio.ByteOrder.nativeOrder());
@@ -686,7 +746,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
         }
         /// M: Soter support @}
     }
-
+    private long mScreenOnBlockStartRealTime;
     private IFingerprintDaemonCallback mDaemonCallback = new IFingerprintDaemonCallback.Stub() {
 
         @Override
@@ -696,16 +756,20 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
         @Override
         public void onAcquired(long deviceId, int acquiredInfo) {
+            mScreenOnBlockStartRealTime = SystemClock.elapsedRealtime();
+            android.util.Log.e("z.cc", TAG +".onAcquired------------------------" + deviceId + " , " + mScreenOnBlockStartRealTime);
             dispatchAcquired(deviceId, acquiredInfo);
         }
 
         @Override
         public void onAuthenticated(long deviceId, int fingerId, int groupId) {
+            android.util.Log.e("z.cc", TAG +".onAuthenticated------------------------" + deviceId + " , " + fingerId);
             dispatchAuthenticated(deviceId, fingerId, groupId);
         }
 
         @Override
         public void onError(long deviceId, int error) {
+            android.util.Log.e("z.cc", TAG +".onError------------------------" + deviceId + " , " + error);
             dispatchError(deviceId, error);
         }
 
@@ -785,6 +849,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
         public void authenticate(final IBinder token, final long opId, final int groupId,
                 final IFingerprintServiceReceiver receiver, final int flags,
                 final String opPackageName) {
+            android.util.Log.e("z.cccc", TAG +".authenticate------------------------");
             if (!isCurrentUserOrProfile(UserHandle.getCallingUserId())) {
                 Slog.w(TAG, "Can't authenticate non-current user");
                 return;
@@ -809,6 +874,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
         @Override // Binder call
         public void cancelAuthentication(final IBinder token, String opPackageName) {
+            android.util.Log.e("z.cccc", TAG +".cancelAuthentication------------------------");
             if (!canUseFingerprint(opPackageName)) {
                 return;
             }
@@ -908,7 +974,9 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
 
         @Override // binder call
         public void resetStatus() {
+            android.util.Log.e("z.cccc", TAG +".resetStatus------------------------");
             resetFailedAttempts();
+            //mScrenOffFailedAttempts = 0;
         }
     }
 
@@ -921,6 +989,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     private void updateActiveGroup(int userId) {
+        android.util.Log.e("z.cccc", TAG +".updateActiveGroup------------------------");
         IFingerprintDaemon daemon = getFingerprintDaemon();
         if (daemon != null) {
             try {

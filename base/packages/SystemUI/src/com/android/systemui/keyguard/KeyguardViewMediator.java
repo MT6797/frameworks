@@ -32,9 +32,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
+import android.hardware.fingerprint.FingerprintManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.Looper;
@@ -51,6 +53,7 @@ import android.telephony.TelephonyManager;
 import android.util.EventLog;
 import android.util.Log;
 import android.util.Slog;
+import android.view.Gravity;
 import android.view.IWindowManager;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -58,6 +61,7 @@ import android.view.WindowManagerGlobal;
 import android.view.WindowManagerPolicy;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import com.android.internal.policy.IKeyguardDrawnCallback;
 import com.android.internal.policy.IKeyguardExitCallback;
@@ -165,6 +169,9 @@ public class KeyguardViewMediator extends SystemUI {
     private static final int NOTIFY_STARTED_WAKING_UP = 21;
     private static final int NOTIFY_SCREEN_TURNED_ON = 22;
     private static final int NOTIFY_SCREEN_TURNED_OFF = 23;
+
+    private static final int MSG_SHOW_FP_DISABLE_TOAST = 24;
+    private static final int MSG_SHOW_FP_DISABLE_VERIFY_SUCCESS_TOAST = 25;
 
     /**
      * The default amount of time we stay awake (used for all key input)
@@ -552,6 +559,11 @@ public class KeyguardViewMediator extends SystemUI {
         public void onFingerprintAuthenticated(int userId, boolean wakeAndUnlocking) {
             boolean unlockingWithFingerprintAllowed =
                     mUpdateMonitor.isUnlockingWithFingerprintAllowed();
+            android.util.Log.e("z.cccc", TAG +".onFingerprintAuthenticated------------------------" + mStatusBarKeyguardViewManager.isBouncerShowing()
+                    + " - " + wakeAndUnlocking
+                    + " - " + mShowing
+                    + " - " + unlockingWithFingerprintAllowed
+                    + " - " + mDeviceInteractive);
             if (mStatusBarKeyguardViewManager.isBouncerShowing()) {
                 if (unlockingWithFingerprintAllowed) {
                     mStatusBarKeyguardViewManager.notifyKeyguardAuthenticated();
@@ -573,6 +585,67 @@ public class KeyguardViewMediator extends SystemUI {
                 }
             }
         };
+
+        @Override
+        public void onFingerprintError(int msgId, String errString) {
+            android.util.Log.e("z.cc", TAG + ".onFingerprintError------------------------" + msgId + " - " + errString);
+            if (msgId == FingerprintManager.FINGERPRINT_ERROR_LOCKOUT) {
+                mUpdateMonitor.doAcquire();
+                mUpdateMonitor.setFingerprintDetectionHeld(true);
+                mUpdateMonitor.wakeUp();
+                mStatusBarKeyguardViewManager.animateCollapsePanels(
+                        FINGERPRINT_COLLAPSE_SPEEDUP_FACTOR);
+                showToast(false);
+            }
+        }
+
+        @Override
+        public void onFingerprintHelp(int msgId, final String helpString) {
+            android.util.Log.e("z.cccc", TAG + ".onFingerprintHelp------------------------"
+                    + mStatusBarKeyguardViewManager.isBouncerShowing()
+                    + " - " + mShowing
+                    + " - " + mDeviceInteractive
+                    + " - " + mUpdateMonitor.isUnlockingWithFingerprintAllowed());
+            if (!mStatusBarKeyguardViewManager.isBouncerShowing()
+                    && mUpdateMonitor.isUnlockingWithFingerprintAllowed()) {
+                return;
+            }
+            mUpdateMonitor.doAcquire();
+            int currentUser = ActivityManager.getCurrentUser();
+            if (((mUpdateMonitor.getUserTrustIsManaged(currentUser)
+                    || mUpdateMonitor.isUnlockWithFingerPrintPossible(currentUser))
+                    && !mTrustManager.hasUserAuthenticatedSinceBoot(currentUser))
+                    || !mUpdateMonitor.isUnlockingWithFingerprintAllowed()) {
+                if (!mDeviceInteractive) {
+                    mUpdateMonitor.wakeUp();
+                }
+                mStatusBarKeyguardViewManager.animateCollapsePanels(
+                        FINGERPRINT_COLLAPSE_SPEEDUP_FACTOR);
+                return;
+            }
+            int failedAttempt = KeyguardUpdateMonitor.getInstance(mContext).getFailedAttemptCount();
+            if (msgId == -1 && failedAttempt <= 0) {
+                return;
+            }
+
+            if (mDeviceInteractive) {
+                mHandler.post(new Runnable() {
+                    public void run() {
+                        if (null != mToast) {
+                            mToast.cancel();
+                            mToast = null;
+                        }
+                        mToast = Toast.makeText(mContext, helpString, Toast.LENGTH_SHORT);
+                        mToast.getWindowParams().type = WindowManager.LayoutParams.TYPE_STATUS_BAR_PANEL;
+                        mToast.getWindowParams().privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_SHOW_FOR_ALL_USERS;
+                        mToast.getWindowParams().flags |= WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+                        mToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP, 0, 552);
+                        mToast.show();
+                    }
+                });
+            }
+
+        }
 
     };
 
@@ -752,6 +825,8 @@ public class KeyguardViewMediator extends SystemUI {
         /// M: fix 629523, music state not set as pause
         filter.addAction(IPO_SHUTDOWN);
         filter.addAction(IPO_BOOTUP) ;
+        filter.addAction("com.android.fp.FP_DISABLE_ACQUIRE");
+        filter.addAction("com.android.fp.FP_DISABLE_ACQUIRE_VERIFY_SUCCESS");
         mContext.registerReceiver(mBroadcastReceiver, filter);
         /// @}
 
@@ -1508,6 +1583,10 @@ public class KeyguardViewMediator extends SystemUI {
                    mUpdateMonitor.setPinPukMeDismissFlagOfPhoneId(i, false) ;
                    Log.d(TAG, "setPinPukMeDismissFlagOfPhoneId false: " + i);
                }
+            } else if("com.android.fp.FP_DISABLE_ACQUIRE".equals(action)) {
+                mHandler.sendEmptyMessage(MSG_SHOW_FP_DISABLE_TOAST);
+            } else if("com.android.fp.FP_DISABLE_ACQUIRE_VERIFY_SUCCESS".equals(action)) {
+                mHandler.sendEmptyMessage(MSG_SHOW_FP_DISABLE_VERIFY_SUCCESS_TOAST);
             }
             /// @}
         }
@@ -1635,6 +1714,12 @@ public class KeyguardViewMediator extends SystemUI {
                     // Fall through.
                 case ON_ACTIVITY_DRAWN:
                     handleOnActivityDrawn();
+                    break;
+                case MSG_SHOW_FP_DISABLE_TOAST:
+                    wakeUpWhenFingerprintDisable(false);
+                    break;
+                case MSG_SHOW_FP_DISABLE_VERIFY_SUCCESS_TOAST:
+                    wakeUpWhenFingerprintDisable(true);
                     break;
             }
         }
@@ -2328,5 +2413,67 @@ public class KeyguardViewMediator extends SystemUI {
 
     public boolean isKeyguardExternallyEnabled() {
         return mExternallyEnabled;
+    }
+
+    private CountDownTimer mCountDownTimer;
+    private int mLeftSeconds;
+    private Toast mToast;
+    private void showToast(final boolean verifySuccess) {
+        android.util.Log.e("z.cccc", TAG + ".showToast------------------------" + mCountDownTimer);
+
+        if(null == mCountDownTimer) {
+            mLeftSeconds = (int)KEYGUARD_DISPLAY_TIMEOUT_DELAY_DEFAULT / 1000;
+            mCountDownTimer = new CountDownTimer(KEYGUARD_DISPLAY_TIMEOUT_DELAY_DEFAULT, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    final int secondsRemaining = (int) (millisUntilFinished / 1000);
+                    mLeftSeconds = secondsRemaining;
+                }
+
+                @Override
+                public void onFinish() {
+                    mLeftSeconds = -1;
+                    if(null != mToast) {
+                        mToast.cancel();
+                        mToast = null;
+                    }
+                    mCountDownTimer = null;
+                    mUpdateMonitor.releaseFingerprintWakeLock(true);
+                }
+
+            }.start();
+        }
+
+        if(mDeviceInteractive) {
+            if(null != mToast) {
+                mToast.cancel();
+                mToast = null;
+            }
+            String toastStr = "";
+            if(verifySuccess) {
+                toastStr = mContext.getString(com.android.internal.R.string.fingerprint_error_lockout);
+            } else {
+                toastStr = String.format(mContext.getResources().getQuantityString(
+                        com.android.internal.R.plurals.restr_pin_countdown, mLeftSeconds),
+                        mLeftSeconds);
+            }
+            mToast = Toast.makeText(mContext, toastStr, Toast.LENGTH_SHORT);
+            mToast.getWindowParams().type = WindowManager.LayoutParams.TYPE_STATUS_BAR_PANEL;
+            mToast.getWindowParams().privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_SHOW_FOR_ALL_USERS;
+            mToast.getWindowParams().flags |= WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+            mToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP, 0, 552);
+            mToast.show();
+        }
+    }
+
+    private void wakeUpWhenFingerprintDisable(boolean verifySuccess) {
+        android.util.Log.e("z.cccc", TAG + ".wakeUpWhenFingerprintDisable------------------------" + mUpdateMonitor.isFingerprintDetectionHeld());
+        if(mUpdateMonitor.isFingerprintDetectionHeld()) {
+            mUpdateMonitor.doAcquire();
+            mUpdateMonitor.wakeUp();
+            mStatusBarKeyguardViewManager.animateCollapsePanels(
+                    FINGERPRINT_COLLAPSE_SPEEDUP_FACTOR);
+            showToast(verifySuccess);
+        }
     }
 }

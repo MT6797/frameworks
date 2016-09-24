@@ -196,6 +196,8 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
     private TrustManager mTrustManager;
     private PowerManager mPowerManager;
 
+    private boolean mFingerprintDetectionHeld;
+
     // M: modify for mock
     @VisibleForTesting
     final Handler mHandler = new Handler() {
@@ -436,17 +438,17 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
         }
     }
 
-    private void handleFingerprintAuthFailed() {
+    private void handleFingerprintAuthFailed(final int failedAttempts) {
+        mFailedAttemptCount = failedAttempts;
         releaseFingerprintWakeLock();
-        handleFingerprintHelp(-1, mContext.getString(R.string.fingerprint_not_recognized));
+        handleFingerprintHelp(-1, mContext.getString(R.string.fingerprint_error_attempt, failedAttempts));
     }
 
     private void handleFingerprintAcquired(int acquireInfo) {
         if (acquireInfo != FingerprintManager.FINGERPRINT_ACQUIRED_GOOD) {
             return;
         }
-        //if (!mDeviceInteractive && !mScreenOn) { 
-	if (/*!mDeviceInteractive && modify by MA fix bug*/ !mScreenOn) {
+        if (!mDeviceInteractive && !mScreenOn) {
             releaseFingerprintWakeLock();
             mWakeLock = mPowerManager.newWakeLock(
                     PowerManager.PARTIAL_WAKE_LOCK, FINGERPRINT_WAKE_LOCK_NAME);
@@ -745,7 +747,12 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
 
         @Override
         public void onAuthenticationFailed() {
-            handleFingerprintAuthFailed();
+            //To do nothing. use onAuthenticationFailedAttempts instead
+        };
+
+        @Override
+        public void onAuthenticationFailedAttempts(int failedAttempts) {
+            handleFingerprintAuthFailed(failedAttempts);
         };
 
         @Override
@@ -755,6 +762,7 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
 
         @Override
         public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+            android.util.Log.e("z.cccc", TAG +".onAuthenticationHelp------------------------");
             handleFingerprintHelp(helpMsgId, helpString !=null ? helpString.toString():" ");
         }
 
@@ -1085,7 +1093,7 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
         boolean shouldListenForFingerprint = shouldListenForFingerprint();
         if (mFingerprintDetectionRunning && !shouldListenForFingerprint) {
             stopListeningForFingerprint();
-        } else if (!mFingerprintDetectionRunning && shouldListenForFingerprint) {
+        } else if (!mFingerprintDetectionRunning && shouldListenForFingerprint && !mFingerprintDetectionHeld) {
             startListeningForFingerprint();
         }
     }
@@ -1745,6 +1753,7 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
     public void clearFailedUnlockAttempts() {
         mFailedAttempts.delete(sCurrentUser);
         mFailedBiometricUnlockAttempts = 0;
+        mFingerprintDetectionHeld = false;
         mFpm.resetStatus();
     }
 
@@ -1885,16 +1894,24 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
     // TODO: use these callbacks elsewhere in place of the existing notifyScreen*()
     // (KeyguardViewMediator, KeyguardHostView)
     public void dispatchStartedWakingUp() {
+        boolean lastDeviceInteractive = mDeviceInteractive;
         synchronized (this) {
             mDeviceInteractive = true;
         }
+        /*if(lastDeviceInteractive != mDeviceInteractive) {
+            mFpm.resetStatus();
+        }*/
         mHandler.sendEmptyMessage(MSG_STARTED_WAKING_UP);
     }
 
     public void dispatchFinishedGoingToSleep(int why) {
+        boolean lastDeviceInteractive = mDeviceInteractive;
         synchronized(this) {
             mDeviceInteractive = false;
         }
+        /*if(lastDeviceInteractive != mDeviceInteractive) {
+            mFpm.resetStatus();
+        }*/
         mHandler.sendMessage(mHandler.obtainMessage(MSG_FINISHED_GOING_TO_SLEEP, why, 0));
     }
 
@@ -2362,5 +2379,72 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
     ///M: clear sim state when ipo shutdown
     public void clearSimStateMap() {
         mSimStateOfPhoneId.clear();
+    }
+
+    /**
+     * @hide
+     */
+    public void setFingerprintDetectionHeld(boolean isHeld) {
+        mFingerprintDetectionHeld = isHeld;
+    }
+
+    /**
+     * @hide
+     */
+    public boolean isFingerprintDetectionHeld() {
+        return mFingerprintDetectionHeld;
+    }
+
+    /**
+     * @hide
+     */
+    public void resetFingerprintDetectionState() {
+        if(mFingerprintDetectionHeld) {
+            mFpm.resetStatus();
+            mFingerprintDetectionHeld = false;
+            updateFingerprintListeningState();
+        }
+    }
+
+    /**
+     * @hide
+     */
+    public void releaseFingerprintWakeLock(boolean resetFingerprintDetectionState) {
+        android.util.Log.e("z.cccc", TAG +".releaseFingerprintWakeLock------------------------");
+        releaseFingerprintWakeLock();
+        if(resetFingerprintDetectionState) {
+            resetFingerprintDetectionState();
+        }
+    }
+
+    private static final long FAIL_LOCKOUT_TIMEOUT_MS = 30*1000;
+    /**
+     * @hide
+     */
+    public void doAcquire() {
+        android.util.Log.e("z.cccc", TAG +".doAcquire------------------------");
+        releaseFingerprintWakeLock(false);
+        mWakeLock = mPowerManager.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK, FINGERPRINT_WAKE_LOCK_NAME);
+        mWakeLock.acquire();
+        mHandler.postDelayed(mReleaseFingerprintWakeLockRunnable,
+                FAIL_LOCKOUT_TIMEOUT_MS);
+    }
+
+    /**
+     * @hide
+     */
+    public void wakeUp() {
+        if(!mDeviceInteractive) {
+            mPowerManager.wakeUp(SystemClock.uptimeMillis());
+        }
+    }
+
+    private int mFailedAttemptCount = 0;
+    /**
+     * @hide
+     */
+    public int getFailedAttemptCount() {
+        return mFailedAttemptCount;
     }
 }

@@ -127,4 +127,6 @@
       <item quantity="one">设备已保持锁定状态达 <xliff:g id="NUMBER_0">%d</xliff:g> 小时。请确认密码。</item>
     </plurals>
     <string name="fingerprint_not_recognized" msgid="2690661881608146617">"无法识别"</string>
+
+    <string name="fingerprint_error_attempt">无法识别，您还可尝试 <xliff:g id="number">%d</xliff:g> 次。</string>
 </resources>
