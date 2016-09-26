@@ -1471,25 +1471,25 @@ public class InputManagerService extends IInputManager.Stub
 	    }
         if((switchValues == 4096 || switchValues == 0) && (switchMask == 4096)){
 	     int hallVaule = 1;
-            //Intent intent1 = new Intent();
+            Intent intent1 = new Intent();
             Slog.d(TAG, "ORBIT_FLEX: " + "switchValues = " + switchValues + "switchMask = " + switchMask);
             if(switchValues == 4096){
-              //  intent1.putExtra("state", 1);
+                intent1.putExtra("state", 1);
                 hallVaule = 1;
                 Slog.d(TAG, "state = 1, orbit flex open");
             } else {
-             //   intent1.putExtra("state", 0);
+                intent1.putExtra("state", 0);
                 Slog.d(TAG, "state = 0, orbit flex close");
 		  hallVaule = 0;
             }
 	    mWindowManagerCallbacks.notifyHallChanged(hallVaule);
-          /*  intent1.setAction(Intent.ACTION_ORBIT_FLEX);
+            intent1.setAction(Intent.ACTION_ORBIT_FLEX);
             final long ident1 = Binder.clearCallingIdentity();
             try {
                 ActivityManagerNative.broadcastStickyIntent(intent1, null, UserHandle.USER_ALL);
             } finally {
                 Binder.restoreCallingIdentity(ident1);
-            }*/
+            }
 	  if(switchValues == 4096 && switchMask == 4096)
 	   	wakeupSystem();
         }
