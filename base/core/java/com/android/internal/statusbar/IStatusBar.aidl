@@ -76,5 +76,6 @@ oneway interface IStatusBar
     void hideDefaultAccountStatus();
     /** @ } */
     void showNavigationBar(); //add by liliang.bao 
+    void notifyHallChanged(int hallValue);
 }
 

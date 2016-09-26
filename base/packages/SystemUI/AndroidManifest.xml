@@ -141,7 +141,11 @@
 
     <!-- M: Add for op feature -->
     <uses-permission android:name="android.permission.READ_PRECISE_PHONE_STATE" />
-
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <application
         android:name=".SystemUIApplication"
         android:persistent="true"
@@ -418,5 +422,7 @@
                 <action android:name="com.android.systemui.action.CLEAR_TUNER" />
             </intent-filter>
         </receiver>
+        <service android:name="com.nb.hall.floatwindow.PhoneStatusService" >
+        </service>
     </application>
 </manifest>

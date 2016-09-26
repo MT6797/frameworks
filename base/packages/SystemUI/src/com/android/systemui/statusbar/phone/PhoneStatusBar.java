@@ -194,6 +194,8 @@ import static com.android.systemui.statusbar.phone.BarTransitions.MODE_SEMI_TRAN
 import static com.android.systemui.statusbar.phone.BarTransitions.MODE_TRANSLUCENT;
 import static com.android.systemui.statusbar.phone.BarTransitions.MODE_TRANSPARENT;
 import static com.android.systemui.statusbar.phone.BarTransitions.MODE_WARNING;
+import com.nb.hall.floatwindow.*;
+import android.os.SystemProperties;
 
 public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         DragDownHelper.DragDownCallback, ActivityStarter, OnUnlockMethodChangedListener,
@@ -4503,4 +4505,23 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 		}
 	}
 //add by liliang.bao end
+    @Override // CommandQueue  
+    public void notifyHallChanged(int hallvalue) {  
+           	Log.i(TAG, " notifyHallChanged...");  
+		if ("1".equals(SystemProperties.get("sys.config.mmitest", "0"))) {
+			HallFloatWindow.removeView();
+			return;
+		}
+
+		if ("1".equals(util.readHallState())) {
+			Log.d(TAG, "11111");
+			HallFloatWindow.removeView();
+		} 
+		else {
+			HallFloatWindow instance = HallFloatWindow.getInstance();
+			if(instance == null)
+				HallFloatWindow.createFloatWindow(mContext);
+			Log.d(TAG, "2222");
+		}
+        } 
 }

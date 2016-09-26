@@ -929,4 +929,25 @@ public class StatusBarManagerService extends IStatusBarService.Stub {
         }  
     } 
 //add by liliang.bao end
+
+    @Override  
+    public void notifyHallChanged(int hallValue)
+   {
+  	 enforceStatusBar();  
+  
+        android.util.Log.d(TAG, TAG + " notifyHallChanged...");  
+  	final int value = hallValue;
+        synchronized(mLock) {  
+            mHandler.post(new Runnable() {  
+                    public void run() {  
+                        if (mBar != null) {  
+                            try {  
+                                mBar.notifyHallChanged(value);  
+                            } catch (RemoteException ex) {  
+                            }  
+                        }  
+                    }  
+                });  
+        }  
+   }
 }

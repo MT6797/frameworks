@@ -444,6 +444,12 @@ final class InputMonitor implements InputManagerService.WindowManagerCallbacks {
             return mInputDevicesReady;
         }
     }
+	
+    @Override
+    public void notifyHallChanged(int value)
+   {
+	 mService.mPolicy.notifyHallChanged(value);
+   }
 
     /* Notifies that the lid switch changed state. */
     @Override

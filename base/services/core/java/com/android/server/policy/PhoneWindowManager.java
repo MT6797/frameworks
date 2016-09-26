@@ -4844,7 +4844,26 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         return 0;
     }
-
+    /** {@inheritDoc} */
+    @Override
+    public void notifyHallChanged(int hallValue)
+    {
+	final int value = hallValue;
+    	mHandler.post(new Runnable() {  
+            @Override  
+            public void run() {  
+                try {  
+                    IStatusBarService statusbar = getStatusBarService();  
+                   if (statusbar != null) {  
+                        statusbar.notifyHallChanged(value);  
+                    }  
+                } catch (RemoteException e) {  
+                    // re-acquire status bar service next time it is needed.  
+                    mStatusBarService = null;  
+                }  
+            }  
+        });  
+    }
     /** {@inheritDoc} */
     @Override
     public void notifyLidSwitchChanged(long whenNanos, boolean lidOpen) {

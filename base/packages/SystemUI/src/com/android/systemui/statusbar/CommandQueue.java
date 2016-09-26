@@ -70,6 +70,7 @@ public class CommandQueue extends IStatusBar.Stub {
     private static final int MSG_HIDE_DEFAULT_ACCOUNT = 25 << MSG_SHIFT;
     /** @} */
     private static final int MSG_SHOW_NAVIGATIONBAR   = 26 << MSG_SHIFT;  //add by liliang.bao
+    private static final int MSG_NOTIFICATION_HALL_CHANGE   = 27 << MSG_SHIFT;  //add by liliang.bao
     public static final int FLAG_EXCLUDE_NONE = 0;
     public static final int FLAG_EXCLUDE_SEARCH_PANEL = 1 << 0;
     public static final int FLAG_EXCLUDE_RECENTS_PANEL = 1 << 1;
@@ -120,6 +121,7 @@ public class CommandQueue extends IStatusBar.Stub {
         public void hideDefaultAccountStatus();
         /// @ }
         public void showNavigationBar();   //add by liliang.bao
+        public void notifyHallChanged(int hallValue);
     }
 
     public CommandQueue(Callbacks callbacks, StatusBarIconList list) {
@@ -410,8 +412,11 @@ public class CommandQueue extends IStatusBar.Stub {
                     mCallbacks.hideDefaultAccountStatus();
                     break;
                 /// @}
-				case MSG_SHOW_NAVIGATIONBAR:  
-                   mCallbacks.showNavigationBar();  
+		case MSG_SHOW_NAVIGATIONBAR:  
+                   mCallbacks.showNavigationBar();
+		     break;
+		case MSG_NOTIFICATION_HALL_CHANGE:
+			mCallbacks.notifyHallChanged((Integer)msg.obj);
                    break;
             }
         }
@@ -441,6 +446,13 @@ public class CommandQueue extends IStatusBar.Stub {
             mHandler.sendEmptyMessage(MSG_SHOW_NAVIGATIONBAR);  
         }  
     } 
+	public void notifyHallChanged(int hallValue)
+	{
+	    synchronized (mList) {  
+            mHandler.removeMessages(MSG_NOTIFICATION_HALL_CHANGE);  
+            mHandler.obtainMessage(MSG_NOTIFICATION_HALL_CHANGE, hallValue).sendToTarget();
+         }  
+	}
 //add by liliang.bao end
 }
 

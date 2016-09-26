@@ -2250,4 +2250,5 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
     /// @ }
    public void showNavigationBar(){}   //add by liliang.bao
+   public void notifyHallChanged(int hallValue){} //add by liliang.bao
 }

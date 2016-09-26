@@ -36,7 +36,7 @@ LOCAL_JAVA_LIBRARIES += mediatek-framework
 LOCAL_PACKAGE_NAME := SystemUITests
 
 LOCAL_STATIC_JAVA_LIBRARIES := mockito-target Keyguard com.mediatek.systemui.ext services.core
-
+LOCAL_STATIC_JAVA_LIBRARIES +=android-support-v4
 # sign this with platform cert, so this test is allowed to inject key events into
 # UI it doesn't own. This is necessary to allow screenshots to be taken
 LOCAL_CERTIFICATE := platform

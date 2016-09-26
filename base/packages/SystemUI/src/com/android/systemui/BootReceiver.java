@@ -22,7 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
 import android.util.Log;
-
+import com.nb.hall.floatwindow.*;
 /**
  * Performs a number of miscellaneous, non-system-critical actions
  * after the system has finished booting.
@@ -39,6 +39,16 @@ public class BootReceiver extends BroadcastReceiver {
                 Intent loadavg = new Intent(context, com.android.systemui.LoadAverageService.class);
                 context.startService(loadavg);
             }
+
+	    Intent service = new Intent(context, com.nb.hall.floatwindow.PhoneStatusService.class);
+			context.startService(service);
+			if ("1".equals(util.readHallState())) {
+				HallFloatWindow.removeView();
+			} else {
+				HallFloatWindow instance = HallFloatWindow.getInstance();
+				if(instance == null)
+					HallFloatWindow.createFloatWindow(context);
+			}
         } catch (Exception e) {
             Log.e(TAG, "Can't start load average service", e);
         }

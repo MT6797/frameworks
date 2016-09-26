@@ -1027,7 +1027,7 @@ public interface WindowManagerPolicy {
      * Return whether the default display is on and not blocked by a black surface.
      */
     public boolean isScreenOn();
-
+    public void notifyHallChanged(int value);
     /**
      * Tell the policy that the lid switch has changed state.
      * @param whenNanos The time when the change occurred in uptime nanoseconds.

@@ -143,4 +143,11 @@
     <color name="volume_icon_color">#ffffffff</color>
     <color name="volume_settings_icon_color">#7fffffff</color>
     <color name="volume_slider_inactive">#FFB0BEC5</color><!-- blue grey 200 -->
+
+    <color name="clock_white">#ffffffff</color>
+    <color name="clock_gray">#99ffffff</color>
+    
+    <color name="transparent_background">#00000000</color>
+    <color name="black">#ff000000</color>
+    <color name="end_call_touch_feedback_tint">#dddddd</color>
 </resources>

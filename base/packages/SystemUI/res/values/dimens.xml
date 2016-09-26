@@ -589,4 +589,14 @@
     <dimen name="assist_disclosure_shadow_thickness">1.5dp</dimen>
     
     <dimen name="navigation_extra_key_pad_width">18dp</dimen>
+
+    <dimen name="main_screen_height">258dip</dimen>
+    <dimen name="main_screen_width">258dip</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="kg_status_clock_font_size">75dp</dimen>
+    <dimen name="widget_label_font_size">16sp</dimen>
+    <dimen name="margin_top">34dip</dimen>
+    <dimen name="margin_left">3dip</dimen>
+    <dimen name="end_call_floating_action_button_diameter">72dp</dimen>
 </resources>
