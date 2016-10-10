@@ -26,7 +26,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-
+import android.app.StatusBarManager;
 import com.android.systemui.R;
 import com.android.systemui.qs.QSPanel;
 import com.android.systemui.statusbar.policy.KeyguardUserSwitcher;
@@ -120,6 +120,12 @@ public class MultiUserSwitch extends FrameLayout implements View.OnClickListener
                         mTmpInt2);
             }
         } else {
+
+ 	StatusBarManager statusBar =
+                       (StatusBarManager) getContext().getSystemService(Context.STATUS_BAR_SERVICE);
+	if(statusBar!=null)
+            statusBar.collapsePanels();
+
             Intent intent = ContactsContract.QuickContact.composeQuickContactsIntent(
                     getContext(), v, ContactsContract.Profile.CONTENT_URI,
                     ContactsContract.QuickContact.MODE_LARGE, null);
