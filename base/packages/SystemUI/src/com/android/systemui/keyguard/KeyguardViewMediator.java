@@ -24,6 +24,7 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.app.StatusBarManager;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.app.trust.TrustManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -569,7 +570,23 @@ public class KeyguardViewMediator extends SystemUI {
                     mStatusBarKeyguardViewManager.notifyKeyguardAuthenticated();
                 }
             } else {
-                if (wakeAndUnlocking && mShowing && unlockingWithFingerprintAllowed) {
+                if ((wakeAndUnlocking || mOccluded) && mShowing && unlockingWithFingerprintAllowed) {
+                    if(mOccluded) {
+                        try {
+                        ActivityManager activityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+                        List<RunningTaskInfo> tasks = activityManager.getRunningTasks(1);
+                        RunningTaskInfo taskInfo = tasks.get(0);
+                        /*ComponentName cn = taskInfo.topActivity;
+                        Intent intent = Intent.makeMainActivity(cn);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+                                | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        mContext.startActivity(intent);*/
+                        activityManager.removeTask(taskInfo.id);
+                        } catch(Exception e) {
+                            android.util.Log.e("z.cccc", "Error:" + e);
+                        }
+                    }
                     mWakeAndUnlocking = true;
                     mStatusBarKeyguardViewManager.setWakeAndUnlocking();
                     keyguardDone(true, true);

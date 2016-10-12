@@ -23,6 +23,7 @@ import android.app.IUserSwitchObserver;
 import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
 import android.app.trust.TrustManager;
+import android.app.trust.ITrustManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -1098,8 +1099,17 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
         }
     }
 
+    private boolean isDeviceLocked() {
+        ITrustManager mTrustManager = ITrustManager.Stub.asInterface(
+                ServiceManager.getService(Context.TRUST_SERVICE));
+        try {
+            return mTrustManager.isDeviceLocked(ActivityManager.getCurrentUser());
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
     private boolean shouldListenForFingerprint() {
-        return mKeyguardIsVisible && !mSwitchingUser;
+        return isDeviceLocked();
     }
 
     private void startListeningForFingerprint() {
