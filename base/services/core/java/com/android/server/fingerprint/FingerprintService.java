@@ -93,7 +93,6 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     private static final long MS_PER_SEC = 1000;
     private static final long FAIL_LOCKOUT_TIMEOUT_MS = 30*1000;
     private static final int MAX_FAILED_ATTEMPTS = 4;
-    private static final int MAX_FAILED_ATTEMPTS_SCREEN_OFF = 6;
     private static final int FINGERPRINT_ACQUIRED_GOOD = 0;
 
     Handler mHandler = new Handler() {
@@ -114,7 +113,6 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     private Context mContext;
     private long mHalDeviceId;
     private int mFailedAttempts;
-    private int mScrenOffFailedAttempts;
     private IFingerprintDaemon mDaemon;
     private PowerManager mPowerManager;
 
@@ -277,11 +275,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     }
 
     private boolean inLockoutMode() {
-        if(mPowerManager.isInteractive()) {
-            return mFailedAttempts > MAX_FAILED_ATTEMPTS;
-        } else {
-            return mScrenOffFailedAttempts > MAX_FAILED_ATTEMPTS_SCREEN_OFF;
-        }
+        return mFailedAttempts > MAX_FAILED_ATTEMPTS;
     }
 
     private void resetFailedAttempts() {
@@ -292,18 +286,12 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
             Slog.v(TAG, "Reset fingerprint lockout");
         }
         mFailedAttempts = 0;
-        mScrenOffFailedAttempts = 0;
     }
 
     private boolean handleFailedAttempt(ClientMonitor clientMonitor) {
         android.util.Log.e("z.cccc", TAG + ".handleFailedAttempt------------------------" + mPowerManager.isInteractive()
-                + " - " + mFailedAttempts
-                + " - " + mScrenOffFailedAttempts);
-        if(mPowerManager.isInteractive()) {
-            mFailedAttempts++;
-        } else {
-            mScrenOffFailedAttempts++;
-        }
+                + " - " + mFailedAttempts);
+        mFailedAttempts++;
         if (inLockoutMode()) {
             // Failing multiple times will continue to push out the lockout time.
             mHandler.removeCallbacks(mLockoutReset);
@@ -659,7 +647,7 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
          * @return true if we're done.
          */
         private boolean sendAuthenticated(int fpId, int groupId) {
-            android.util.Log.e("z.cccc", TAG +".sendAuthenticated------------------------" + fpId + " , " + groupId);
+            android.util.Log.e("z.ccccc", TAG +".sendAuthenticated------------------------" + fpId + " , " + mFailedAttempts);
             boolean result = false;
             boolean authenticated = fpId != 0;
             if (receiver != null) {
@@ -976,7 +964,6 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
         public void resetStatus() {
             android.util.Log.e("z.cccc", TAG +".resetStatus------------------------");
             resetFailedAttempts();
-            //mScrenOffFailedAttempts = 0;
         }
     }
 
