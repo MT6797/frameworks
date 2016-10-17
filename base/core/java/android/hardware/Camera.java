@@ -4080,6 +4080,11 @@ public class Camera {
          */
         public void set(String key, String value) {
             Log.v(TAG, "set Key = " + key + ", value = " + value);
+			// if (key.equals("zsd-mode")){
+				// value = "off";
+				// Log.v(TAG, "zhou set Key = " + key + ", value = " + value);
+				// Log.v(TAG, "zhou Stack:",new Throwable("stack dump"));
+			// }
             if (key.indexOf('=') != -1 || key.indexOf(';') != -1 || key.indexOf(0) != -1) {
                 Log.e(TAG, "Key \"" + key + "\" contains invalid character (= or ; or \\0)");
                 return;

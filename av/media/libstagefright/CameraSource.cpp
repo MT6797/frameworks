@@ -1090,6 +1090,7 @@ void CameraSource::ProxyListener::dataCallbackTimestamp(
 
 void CameraSource::DeathNotifier::binderDied(const wp<IBinder>& who __unused) {
     ALOGI("Camera recording proxy died");
+	// ALOGI("zhou Stack:",new Throwable("stack dump"));
 }
 
 #ifdef MTK_AOSP_ENHANCEMENT
