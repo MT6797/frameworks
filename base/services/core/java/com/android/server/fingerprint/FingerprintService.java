@@ -70,6 +70,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+//blestech add
+import android.app.ActivityManagerInternal;
+import com.android.server.LocalServices;
+import static android.os.PowerManagerInternal.WAKEFULNESS_AWAKE;
+import android.view.WindowManagerPolicy;
+import android.os.SystemProperties;
+import android.util.Log;
+import android.hardware.fingerprint.IFpsFingerManager;
+import android.content.ServiceConnection;
+import android.content.ComponentName;
+//blestech end
+
+
 /**
  * A service to manage multiple clients that want to access the fingerprint HAL API.
  * The service is responsible for maintaining a list of clients and dispatching all
@@ -94,6 +107,26 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
     private static final long FAIL_LOCKOUT_TIMEOUT_MS = 30*1000;
     private static final int MAX_FAILED_ATTEMPTS = 4;
     private static final int FINGERPRINT_ACQUIRED_GOOD = 0;
+	//blestech add
+	private ActivityManagerInternal mActivityManagerInternal;
+	private WindowManagerPolicy mPolicy;
+	private IFpsFingerManager fm = null;
+
+	private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            Log.i(TAG, "on FingerService ServiceConnected");
+            fm = IFpsFingerManager.Stub.asInterface(service);
+        }
+		
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            fm = null;
+        }
+    };
+	//blestech end
 
     Handler mHandler = new Handler() {
         @Override
@@ -129,6 +162,10 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
         mContext = context;
         mAppOps = context.getSystemService(AppOpsManager.class);
         mPowerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+		//blestech add
+		mActivityManagerInternal = LocalServices.getService(ActivityManagerInternal.class);
+		mPolicy = getLocalService(WindowManagerPolicy.class);
+		//blestech end
     }
 
     @Override
@@ -294,6 +331,25 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
         mFailedAttempts++;
         if (inLockoutMode()) {
             // Failing multiple times will continue to push out the lockout time.
+			//blestech add
+			if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+				try {
+					fm.FpNull();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if(mPowerManager.isInteractive()){
+					mPolicy.startedWakingUp();
+					userActivity();
+					mActivityManagerInternal.onWakefulnessChanged(WAKEFULNESS_AWAKE);
+				}else{
+					long now = SystemClock.uptimeMillis();
+					mPowerManager.wakeUp(SystemClock.uptimeMillis());
+				}
+			}
+			//blestech end
             mHandler.removeCallbacks(mLockoutReset);
             mHandler.postDelayed(mLockoutReset, FAIL_LOCKOUT_TIMEOUT_MS);
             if (clientMonitor != null
@@ -441,6 +497,16 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
         } catch (RemoteException e) {
             Slog.e(TAG, "startAuthentication failed", e);
         }
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			if(fm == null){
+				Intent intent = new Intent();
+			    intent.setAction("com.btlfinger.service");
+			    intent.setPackage("com.btlfinger.fingerprintunlock");
+			    mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+			}
+		}
+		//blestech end
     }
 
     /**
@@ -470,6 +536,14 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
             client.sendError(FingerprintManager.FINGERPRINT_ERROR_CANCELED);
         }
         removeClient(mAuthClient);
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			if(fm != null){
+			    mContext.unbindService(mConnection);
+				fm = null;
+			}
+		}
+		//blestech end
     }
 
     void startRemove(IBinder token, int fingerId, int userId,
@@ -660,6 +734,21 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
                                 new Fingerprint("" /* TODO */, groupId, fpId, isSimulated() ? 548398617248L : mHalDeviceId) : null;
                         addAuthTokenToKeyStore();
                         /// M: Soter support @}
+						//blestech add
+						if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+							if(mPowerManager.isInteractive()){
+								mPolicy.startedWakingUp();
+							userActivity();
+								mActivityManagerInternal.onWakefulnessChanged(WAKEFULNESS_AWAKE);
+							}
+							try {
+								fm.FpSetEnFun();
+							} catch (RemoteException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						//blestech end
                         receiver.onAuthenticationSucceeded(mHalDeviceId, fp);
                     }
                 } catch (RemoteException e) {
@@ -676,6 +765,13 @@ public class FingerprintService extends SystemService implements IBinder.DeathRe
                 FingerprintUtils.vibrateFingerprintSuccess(getContext());
                 result |= true; // we have a valid fingerprint
                 mLockoutReset.run();
+				//blestech add
+				if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+					if(mPowerManager.isInteractive()){
+						userActivity();
+					}
+				}
+				//blestech end
             }
             return result;
         }

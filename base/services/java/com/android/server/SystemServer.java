@@ -1538,6 +1538,15 @@ public final class SystemServer {
     /// @}
 
     static final void startSystemUi(Context context) {
+	//blestech add
+	//log.d(TAG, "startFingerprintService");
+	{	
+	String action = "com.btlfinger.service";
+	Intent intent = new Intent(action);
+	intent.setPackage("com.btlfinger.fingerprintunlock");
+	context.startService(intent);
+	}
+	//blestech end
         Intent intent = new Intent();
         intent.setComponent(new ComponentName("com.android.systemui",
                     "com.android.systemui.SystemUIService"));

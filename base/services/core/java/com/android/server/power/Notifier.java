@@ -54,6 +54,9 @@ import android.util.EventLog;
 import android.util.Slog;
 import android.view.WindowManagerPolicy;
 import android.view.inputmethod.InputMethodManagerInternal;
+//blestech add
+import android.os.SystemProperties;
+//blestech end
 
 /**
  * Sends broadcasts about important power state changes.
@@ -527,16 +530,29 @@ final class Notifier {
                         + ", mPendingGoToSleepBroadcast = " + mPendingGoToSleepBroadcast
                         + ", mBroadcastedInteractiveState = " + mBroadcastedInteractiveState);
         }
-        if (!mBroadcastInProgress
+		
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			if(mPendingInteractiveState == INTERACTIVE_STATE_ASLEEP && !SystemProperties.getBoolean("sys.btl_fingerprint_flag", false)){
+				mContext.sendOrderedBroadcast(mScreenOffIntent, null);	
+				return;
+			}else{
+				//mContext.sendOrderedBroadcast(mScreenOnIntent, null);
+				return;
+			}
+		}else{
+			if (!mBroadcastInProgress
                 && mPendingInteractiveState != INTERACTIVE_STATE_UNKNOWN
                 && (mPendingWakeUpBroadcast || mPendingGoToSleepBroadcast
                         || mPendingInteractiveState != mBroadcastedInteractiveState)) {
-            mBroadcastInProgress = true;
-            mSuspendBlocker.acquire();
-            Message msg = mHandler.obtainMessage(MSG_BROADCAST);
-            msg.setAsynchronous(true);
-            mHandler.sendMessage(msg);
-        }
+		        mBroadcastInProgress = true;
+		        mSuspendBlocker.acquire();
+		        Message msg = mHandler.obtainMessage(MSG_BROADCAST);
+		        msg.setAsynchronous(true);
+		        mHandler.sendMessage(msg);
+		    }	
+		}
+        //blestech end
     }
 
     private void finishPendingBroadcastLocked() {

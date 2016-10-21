@@ -199,6 +199,10 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
 
     private boolean mFingerprintDetectionHeld;
 
+	//blestech add
+	private boolean mAlarmFlag = false;
+	//blestech end
+
     // M: modify for mock
     @VisibleForTesting
     final Handler mHandler = new Handler() {
@@ -596,6 +600,12 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
     }
 
     public boolean isUnlockingWithFingerprintAllowed() {
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			mUserHasAuthenticatedSinceBoot = mTrustManager.hasUserAuthenticatedSinceBoot(
+		                ActivityManager.getCurrentUser());
+		}
+		//blestech end
         return mUserHasAuthenticatedSinceBoot;
     }
 
@@ -705,7 +715,14 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
                 }
                 mHandler.sendMessage(
                         mHandler.obtainMessage(MSG_SERVICE_STATE_CHANGE, subId, 0, serviceState));
-            }
+            }//blestech add
+	        else if(action.equals("com.android.deskclock.ALARM_ALERT")){
+		    	stopListeningForFingerprint();
+			}else if(action.equals("com.android.deskclock.ALARM_DONE")){
+				mAlarmFlag = true;
+				updateFingerprintListeningState();
+			}
+			//blestech end
         }
     };
 
@@ -960,7 +977,11 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
 
     protected void handleStartedWakingUp() {
         Log.d(TAG, "handleStartedWakingUp");
-        updateFingerprintListeningState();
+		//blestech add
+        if(!SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			updateFingerprintListeningState();
+		}
+        //blestech end
         final int count = mCallbacks.size();
         for (int i = 0; i < count; i++) {
             KeyguardUpdateMonitorCallback cb = mCallbacks.get(i).get();
@@ -1043,6 +1064,13 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
         /// M: ALPS02139605 It always prompt "incorrect SIM PIN code, you have 3 remaining attempt"
         filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
 
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			filter.addAction("com.android.deskclock.ALARM_ALERT");
+			filter.addAction("com.android.deskclock.ALARM_DONE");
+		}
+		//blestech end
+
         context.registerReceiver(mBroadcastReceiver, filter);
 
         final IntentFilter bootCompleteFilter = new IntentFilter();
@@ -1109,7 +1137,18 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
         }
     }
     private boolean shouldListenForFingerprint() {
-        return isDeviceLocked();
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			boolean ret = (mKeyguardIsVisible||!mDeviceInteractive||mAlarmFlag) && !mSwitchingUser;
+
+			if(mAlarmFlag){
+				mAlarmFlag = false;
+			}
+	        return ret;
+		}else{
+			return mKeyguardIsVisible && !mSwitchingUser;
+		}	
+		//blestech end
     }
 
     private void startListeningForFingerprint() {

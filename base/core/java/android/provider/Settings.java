@@ -2153,6 +2153,81 @@ public final class Settings {
 
         private static final Validator ADVANCED_SETTINGS_VALIDATOR = sBooleanValidator;
 
+
+ /*[blestech] add begin*/
+        /**
+         *上一个解锁的应用包名
+         * @hide
+         */
+        public static final String BTLFINGER_FINGERPRINT_LAST_PACKAGE_NAME = "com_btlfinger_fingerprint_lastapp_package";
+		
+        /**
+         *是否将指纹应用于屏幕解锁
+         * @hide
+         */
+        public static final String BTLFINGER_FINGERPRINT_USEDTO_SCREENLOCK = "com_btlfinger_fingerprint_usedto_screenlock";
+		
+        /**
+         *是否将指纹应用于camera
+         * @hide
+         */
+        public static final String BTLFINGER_FINGERPRINT_USEDTO_CAMERA = "com_btlfinger_fingerprint_usedto_camera";
+		
+        /**
+         *是否将指纹应用于call
+         * @hide
+         */
+        public static final String BTLFINGER_FINGERPRINT_USEDTO_CALL = "com_btlfinger_fingerprint_usedto_call";
+		
+        /**
+         *是否将指纹应用于desktop
+         * @hide
+         */
+        public static final String BTLFINGER_FINGERPRINT_USEDTO_DESKTOP = "com_btlfinger_fingerprint_usedto_desktop";
+		
+        /**
+         *是否将指纹应用于music
+         * @hide
+         */
+        public static final String BTLFINGER_FINGERPRINT_USEDTO_MUSIC = "com_btlfinger_fingerprint_usedto_music";
+
+		 /**
+         *应用加密列表
+         * @hide
+         */
+        public static final String BTLFINGER_FINGERPRINT_USEDTO_READER = "com_btlfinger_fingerprint_usedto_reader";
+		
+        /**
+         *是否将指纹应用于应用解锁
+         * @hide
+         */
+        public static final String BTLFINGER_FINGERPRINT_USEDTO_APPLOCK = "com_btlfinger_fingerprint_usedto_applock";
+		
+        /**
+         *应用加密列表
+         * @hide
+         */
+        public static final String BTLFINGER_FINGERPRINT_NEEDLOCKAPP_PACKAGE_NAME = "com_btlfinger_fingerprint_needlockapp_package";
+
+
+		public static final String BTLFINGER_FINGERPRINT_UP_FLAG = "com_btlfinger_fingerprint_up_flag";
+
+
+		public static final String BTLFINGER_FINGERPRINT_INITIALIZE_PWD = "com_btlfinger_fingerprint_initialize_pwd";
+
+		public static final String BTLFINGER_FINGERPRINT_MUSIC_RES1 = null;
+
+		public static final String BTLFINGER_FINGERPRINT_MUSIC_RES2 = null;
+
+		public static final String BTLFINGER_FINGERPRINT_MUSIC_RES3 = null;
+
+		public static final String BTLFINGER_FINGERPRINT_CAMERA_RES1 = null;
+
+		public static final String BTLFINGER_FINGERPRINT_CAMERA_RES2 = null;
+
+		public static final String BTLFINGER_FINGERPRINT_CAMERA_RES3 = null;
+        /*[blestech] add end*/
+
         /**
          * ADVANCED_SETTINGS default value.
          * @hide

@@ -28,8 +28,9 @@
 
 // Log debug messages about InputDispatcherPolicy
 #define DEBUG_INPUT_DISPATCHER_POLICY 0
-
-
+/*[blestech] add begin*/
+#include <cutils/properties.h>
+/*[blestech] add end*/
 #include "JNIHelp.h"
 #include "jni.h"
 #include <atomic>
@@ -939,6 +940,13 @@ void NativeInputManager::interceptMotionBeforeQueueing(nsecs_t when, uint32_t& p
             policyFlags |= POLICY_FLAG_PASS_TO_USER;
         }
     }
+	/*[blestech] add begin*/
+	char fingerprint_flag[PROPERTY_VALUE_MAX] = {0};
+  	property_get("sys.btl_fingerprint_flag", fingerprint_flag, "0");
+	if(!strncmp(fingerprint_flag, "1", 1)) {
+		policyFlags &= ~POLICY_FLAG_PASS_TO_USER;
+	}
+	/*[blestech] add end*/
 }
 
 void NativeInputManager::handleInterceptActions(jint wmActions, nsecs_t when,

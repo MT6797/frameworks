@@ -13950,6 +13950,40 @@ package android.hardware.fingerprint {
     method public java.security.Signature getSignature();
   }
 
+  public abstract interface IFpsFingerClient implements android.os.IInterface {
+    method public abstract void getValue(int, int) throws android.os.RemoteException;
+  }
+
+  public static abstract class IFpsFingerClient.Stub extends android.os.Binder implements android.hardware.fingerprint.IFpsFingerClient {
+    ctor public IFpsFingerClient.Stub();
+    method public android.os.IBinder asBinder();
+    method public static android.hardware.fingerprint.IFpsFingerClient asInterface(android.os.IBinder);
+    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
+  }
+
+  public abstract interface IFpsFingerManager implements android.os.IInterface {
+    method public abstract int FpBroadcast() throws android.os.RemoteException;
+    method public abstract int FpEnFun(int) throws android.os.RemoteException;
+    method public abstract int FpGetFun() throws android.os.RemoteException;
+    method public abstract int FpIsFun() throws android.os.RemoteException;
+    method public abstract int FpIsFunBroad() throws android.os.RemoteException;
+    method public abstract int FpMessage() throws android.os.RemoteException;
+    method public abstract int FpNull() throws android.os.RemoteException;
+    method public abstract int FpSetEnFun() throws android.os.RemoteException;
+    method public abstract int FpSetFun(int) throws android.os.RemoteException;
+    method public abstract int SetKeyCode(int) throws android.os.RemoteException;
+    method public abstract void listen(android.hardware.fingerprint.IFpsFingerClient) throws android.os.RemoteException;
+    method public abstract int mmiFpTest() throws android.os.RemoteException;
+    method public abstract void waitScreenOn() throws android.os.RemoteException;
+  }
+
+  public static abstract class IFpsFingerManager.Stub extends android.os.Binder implements android.hardware.fingerprint.IFpsFingerManager {
+    ctor public IFpsFingerManager.Stub();
+    method public android.os.IBinder asBinder();
+    method public static android.hardware.fingerprint.IFpsFingerManager asInterface(android.os.IBinder);
+    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
+  }
+
 }
 
 package android.hardware.input {
@@ -26663,6 +26697,14 @@ package android.provider {
     field public static final java.lang.String BLUETOOTH_DISCOVERABILITY = "bluetooth_discoverability";
     field public static final java.lang.String BLUETOOTH_DISCOVERABILITY_TIMEOUT = "bluetooth_discoverability_timeout";
     field public static final deprecated java.lang.String BLUETOOTH_ON = "bluetooth_on";
+    field public static final java.lang.String BTLFINGER_FINGERPRINT_CAMERA_RES1;
+    field public static final java.lang.String BTLFINGER_FINGERPRINT_CAMERA_RES2;
+    field public static final java.lang.String BTLFINGER_FINGERPRINT_CAMERA_RES3;
+    field public static final java.lang.String BTLFINGER_FINGERPRINT_INITIALIZE_PWD = "com_btlfinger_fingerprint_initialize_pwd";
+    field public static final java.lang.String BTLFINGER_FINGERPRINT_MUSIC_RES1;
+    field public static final java.lang.String BTLFINGER_FINGERPRINT_MUSIC_RES2;
+    field public static final java.lang.String BTLFINGER_FINGERPRINT_MUSIC_RES3;
+    field public static final java.lang.String BTLFINGER_FINGERPRINT_UP_FLAG = "com_btlfinger_fingerprint_up_flag";
     field public static final android.net.Uri CONTENT_URI;
     field public static final deprecated java.lang.String DATA_ROAMING = "data_roaming";
     field public static final java.lang.String DATE_FORMAT = "date_format";

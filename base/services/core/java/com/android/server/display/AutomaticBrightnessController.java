@@ -45,6 +45,10 @@ import android.util.TimeUtils;
 
 import java.io.PrintWriter;
 
+//blestech add
+import android.os.SystemProperties;
+//belstech end
+
 class AutomaticBrightnessController {
     private static final String TAG = "AutomaticBrightnessController";
 
@@ -559,6 +563,10 @@ class AutomaticBrightnessController {
                 mCallbacks.updateBrightness();
             }
         }
+
+		//blestech add
+		SystemProperties.set("sys.btl_fingerprint_data", Integer.toString(mScreenAutoBrightness));
+		//belstech end
     }
 
     private int clampScreenBrightness(int value) {

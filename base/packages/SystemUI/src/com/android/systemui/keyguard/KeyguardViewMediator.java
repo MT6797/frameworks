@@ -95,6 +95,14 @@ import java.util.List;
 
 import static android.provider.Settings.System.SCREEN_OFF_TIMEOUT;
 
+//blestech add
+import android.hardware.fingerprint.IFpsFingerManager;
+import android.content.ServiceConnection;
+import android.content.ComponentName;
+import android.os.IBinder;
+//blestech end
+
+
 /**
  * Mediates requests related to the keyguard.  This includes queries about the
  * state of the keyguard, power management events that effect whether the keyguard
@@ -350,6 +358,40 @@ public class KeyguardViewMediator extends SystemUI {
     private boolean mWakeAndUnlocking;
     private IKeyguardDrawnCallback mDrawnCallback;
     private PhoneStatusBar mPhoneStatusBar;
+	
+	//blestech add
+	private int mPState = 0;
+	private int mLastShowingSequence = 0;
+	private boolean mLockedFlag = true;
+	private boolean mLaterLockedFlag = false;
+	private boolean mEnabledFlag = true;
+	private boolean mUserPresentFlag = false;
+	private boolean mNextLockSoundFlag = false;
+	private boolean mInteractiveFalse = false;
+
+	private IFpsFingerManager fm = null;
+	private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            Log.i(TAG, "on FingerService ServiceConnected");
+            fm = IFpsFingerManager.Stub.asInterface(service);
+        }
+		
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            fm = null;
+        }
+    };
+
+	private final BroadcastReceiver mUnlockReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			hideLocked();
+		}
+	};
+//blestech end
     KeyguardUpdateMonitorCallback mUpdateCallback = new KeyguardUpdateMonitorCallback() {
 
         @Override
@@ -397,6 +439,9 @@ public class KeyguardViewMediator extends SystemUI {
                     /// M: [ALPS02044073] Fix IME is shown above Keyguard
                     // doKeyguardLocked(null);
                 }
+				//blestech add
+				mPState = phoneState;
+				//blestech end
             }
         }
 
@@ -601,6 +646,20 @@ public class KeyguardViewMediator extends SystemUI {
                             FINGERPRINT_COLLAPSE_SPEEDUP_FACTOR);
                 }
             }
+
+			//blestech add
+			if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+				onStartedWakingUp();
+				Log.d(TAG, "onFingerprintAuthenticated11111111mShowing: " + mShowing + ", mHiding=" + mHiding);
+				
+				if(mUpdateMonitor.isUnlockingWithFingerprintAllowed() && !mShowing && !mLaterLockedFlag && TelephonyManager.CALL_STATE_RINGING!=mPState){
+					Log.i(TAG, "onFingerprintAuthenticated22222222222222");
+					mSuppressNextLockSound = false;
+					playSounds(false);
+					sendUserPresentBroadcast();
+				}	
+			}
+			//blestech end
         };
 
         @Override
@@ -699,6 +758,22 @@ public class KeyguardViewMediator extends SystemUI {
         @Override
         public void keyguardGone() {
             // mKeyguardDisplayManager.hide();
+			//blestech add
+			if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+				try {
+					fm.FpIsFunBroad();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if(mInteractiveFalse){
+					mInteractiveFalse = false;
+					mDeviceInteractive = false;
+				}
+			}
+			//blestech end
+			
             if (mKeyguardDisplayManager != null) {
                 Log.d(TAG, "keyguard gone, call mKeyguardDisplayManager.hide()");
                 mKeyguardDisplayManager.hide();
@@ -966,6 +1041,19 @@ public class KeyguardViewMediator extends SystemUI {
                     KeyguardPluginFactory.getKeyguardUtilExt(mContext)
                             .lockImmediatelyWhenScreenTimeout();
             /// @}
+			//blestech add
+			if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+				if(why==WindowManagerPolicy.OFF_BECAUSE_OF_USER && !mUpdateMonitor.isUnlockingWithFingerprintAllowed()){
+					Log.d(TAG, "onStartedGoingToSleep1111111(" + why + ")");
+					return;
+				}
+				
+				mEnabledFlag = mExternallyEnabled;
+				if(SystemProperties.getBoolean("sys.btl_fingerprint_flag", false) && !mShowing && mExternallyEnabled){
+					mExternallyEnabled = false;
+				}
+			}
+			//blestech end
 
             if (DBG_WAKE) {
                 Log.d(TAG, "onStartedGoingToSleep(" + why +
@@ -993,12 +1081,23 @@ public class KeyguardViewMediator extends SystemUI {
                         && !lockWhenTimeout)
                     || (why == WindowManagerPolicy.OFF_BECAUSE_OF_USER
                     && (!lockImmediately && !mIsIPOShutDown))) {
-                doKeyguardLaterLocked();
+				//blestech add
+				if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+		            if(mLastShowingSequence!=mDelayedShowingSequence && !lockImmediately){
+						doKeyguardLaterLocked();
+					}
+				}else{
+					doKeyguardLaterLocked();
+				}
+				//blestech end
             } else if (why == WindowManagerPolicy.OFF_BECAUSE_OF_PROX_SENSOR) {
                 // Do not enable the keyguard if the prox sensor forced the screen off.
                 Log.d(TAG, "Screen off because PROX_SENSOR, do not draw lock view.") ;
             } else if (!mLockPatternUtils.isLockScreenDisabled(currentUser)) {
                 mPendingLock = true;
+				//blestech add
+				mLaterLockedFlag = false;
+				//blestech end
             }
 
             if (mPendingLock) {
@@ -1010,9 +1109,36 @@ public class KeyguardViewMediator extends SystemUI {
     public void onFinishedGoingToSleep(int why) {
         if (DEBUG) Log.d(TAG, "onFinishedGoingToSleep(" + why + ")");
         synchronized (this) {
-            mDeviceInteractive = false;
-            mGoingToSleep = false;
-
+			
+			mDeviceInteractive = false;
+		    mGoingToSleep = false;
+			
+			//blestech add
+			if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+				if(why==WindowManagerPolicy.OFF_BECAUSE_OF_USER && !mUpdateMonitor.isUnlockingWithFingerprintAllowed()){
+					mPhoneStatusBar.setNotificationPanewlTouchDisabled();
+					Log.d(TAG, "onFinishedGoingToSleep1111111(" + why + ")");
+					resetStateLocked();
+					return;
+				}
+				
+				int currentUser = KeyguardUpdateMonitor.getCurrentUser();
+				if(mShowing && mUpdateMonitor.isUnlockingWithFingerprintAllowed()){
+						Log.d(TAG, "onFinishedGoingToSleep222222222:"+mShowing);
+						mNextLockSoundFlag = true;
+						mUserPresentFlag = true;
+						mDeviceInteractive = true;
+						mInteractiveFalse = true;
+						try {
+							fm.FpBroadcast();
+						} catch (RemoteException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+				}
+			}
+			//blestech end
+		
             resetKeyguardDonePendingLocked();
             mHideAnimationRun = false;
 
@@ -1023,10 +1149,19 @@ public class KeyguardViewMediator extends SystemUI {
                 mPendingReset = false;
             }
             if (mPendingLock) {
-                doKeyguardLocked(null);
+			//blestech add
+			if(!SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+				doKeyguardLocked(null);
+			}	
+			//blestech end
                 mPendingLock = false;
             }
         }
+	
+		//blestech add
+        mExternallyEnabled = mEnabledFlag;
+		//blestech end
+		
         KeyguardUpdateMonitor.getInstance(mContext).dispatchFinishedGoingToSleep(why);
     }
 
@@ -1073,6 +1208,11 @@ public class KeyguardViewMediator extends SystemUI {
             doKeyguardLocked(null);
         } else {
             // Lock in the future
+		    //blestech add
+		    //mLockedFlag = false;
+			mLaterLockedFlag = true;
+			mLastShowingSequence = mDelayedShowingSequence;
+			//blestech end 
             long when = SystemClock.elapsedRealtime() + timeout;
             Intent intent = new Intent(DELAYED_KEYGUARD_ACTION);
             intent.putExtra("seq", mDelayedShowingSequence);
@@ -1162,6 +1302,9 @@ public class KeyguardViewMediator extends SystemUI {
             if (DEBUG) Log.d(TAG, "setKeyguardEnabled(" + enabled + ")");
 
             mExternallyEnabled = enabled;
+			//blestech add
+			mEnabledFlag = enabled;
+			//blestech end
 
             if (!enabled && mShowing) {
                 if (mExitSecureCallback != null) {
@@ -1352,8 +1495,36 @@ public class KeyguardViewMediator extends SystemUI {
      * Enable the keyguard if the settings are appropriate.
      */
     private void doKeyguardLocked(Bundle options) {
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			if(mLaterLockedFlag){
+				Log.d(TAG, "doKeyguardLocked1111111 mLaterLockedFlag ");
+				try {
+					fm.FpSetEnFun();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return;
+			}
+		}
+		//blestech end
+		
         // if another app is disabling us, don't show
         if (!mExternallyEnabled || PowerOffAlarmManager.isAlarmBoot()) {
+			//blestech add
+			if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+				if(!mPendingLock){
+					try {
+						fm.FpSetEnFun();
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	
+				}
+			}
+			//blestech end
+			
             if (DEBUG) {
                 Log.d(TAG, "doKeyguard: not showing because externally disabled");
                 Log.d(TAG, "doKeyguard : externally disabled reason.." +
@@ -1378,6 +1549,16 @@ public class KeyguardViewMediator extends SystemUI {
         // if the keyguard is already showing, don't bother
         if (mStatusBarKeyguardViewManager.isShowing()) {
             if (DEBUG) Log.d(TAG, "doKeyguard: not showing because it is already showing");
+			//blestech add
+			if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+				try {
+					fm.FpSetEnFun();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			//blestech add
             resetStateLocked();
             if (DEBUG) {
                 Log.d(TAG, "doKeyguard: not showing because it is already showing");
@@ -1578,7 +1759,14 @@ public class KeyguardViewMediator extends SystemUI {
                 synchronized (KeyguardViewMediator.this) {
                     if (mDelayedShowingSequence == sequence) {
                         mSuppressNextLockSound = true;
-                        doKeyguardLocked(null);
+						//blestech add
+						if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+							mExternallyEnabled = mEnabledFlag;			
+							mLaterLockedFlag = false;
+						}else{
+							doKeyguardLocked(null);
+						}
+						//blestech end
                     }
                 }
             } else if (PRE_SHUTDOWN.equals(action)) {
@@ -1789,7 +1977,13 @@ public class KeyguardViewMediator extends SystemUI {
             if (authenticated) {
                 // after succesfully exiting securely, no need to reshow
                 // the keyguard when they've released the lock
-                mExternallyEnabled = true;
+                //blestech add
+				if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+                	mExternallyEnabled = mEnabledFlag;
+				}else{
+					mExternallyEnabled = true;
+				}
+				//blestech end
                 mNeedToReshowWhenReenabled = false;
                 updateInputRestricted();
             }
@@ -1801,6 +1995,14 @@ public class KeyguardViewMediator extends SystemUI {
 
     private void sendUserPresentBroadcast() {
         synchronized (this) {
+			//blestech add 
+			Log.i(TAG, "sendUserPresentBroadcast111111111111111111:"+mUserPresentFlag);
+			if (mUserPresentFlag && SystemProperties.getBoolean("sys.btl_fingerprint_use", false)) {
+				mUserPresentFlag = false;
+				return;
+			}
+			//blestech end		
+		
             if (mBootCompleted) {
                 final UserHandle currentUser = new UserHandle(KeyguardUpdateMonitor.getCurrentUser());
                 final UserManager um = (UserManager) mContext.getSystemService(
@@ -1838,7 +2040,14 @@ public class KeyguardViewMediator extends SystemUI {
     private void playSounds(boolean locked) {
         // User feedback for keyguard.
         Log.d(TAG, "playSounds(locked = " + locked
-            + "), mSuppressNextLockSound =" + mSuppressNextLockSound);
+            + "), mSuppressNextLockSound =" + mSuppressNextLockSound+":"+mNextLockSoundFlag);
+
+		//blestech add 
+		if (mNextLockSoundFlag && SystemProperties.getBoolean("sys.btl_fingerprint_use", false)) {
+			mNextLockSoundFlag = false;
+			return;
+		}
+		//blestech end
 
         if (mSuppressNextLockSound) {
             mSuppressNextLockSound = false;
@@ -1947,6 +2156,16 @@ public class KeyguardViewMediator extends SystemUI {
         } else {
             Log.d(TAG, "handle show mKeyguardDisplayManager is null") ;
         }
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			try {
+				fm.FpMessage();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		//blestech end
     }
 
     private final Runnable mKeyguardGoingAwayRunnable = new Runnable() {
@@ -2176,6 +2395,17 @@ public class KeyguardViewMediator extends SystemUI {
 
     public void onBootCompleted() {
         Log.d(TAG, "onBootCompleted() is called") ;
+
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			Log.d(TAG, "onBootCompleted() is called") ;
+			Intent intent = new Intent();
+		    intent.setAction("com.btlfinger.service");
+		    intent.setPackage("com.btlfinger.fingerprintunlock");
+		    mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+			mContext.registerReceiver(mUnlockReceiver, new IntentFilter("com.blestech.fingerprint.unlock"));
+		}//blestech end
+		
         mUpdateMonitor.dispatchBootCompleted();
         synchronized (this) {
             mBootCompleted = true;

@@ -20,6 +20,16 @@ import android.app.ActivityManager;
 import android.app.ActivityManagerInternal;
 import android.app.ActivityManagerInternal.SleepToken;
 import android.app.ActivityManagerNative;
+/*[blestech] add begin */
+import android.hardware.fingerprint.IFpsFingerManager;
+import android.os.BatteryManager;
+import android.telephony.TelephonyManager;
+import android.telephony.PhoneStateListener;
+import android.app.Service;
+
+import static android.os.PowerManagerInternal.WAKEFULNESS_ASLEEP;
+import static android.os.PowerManagerInternal.WAKEFULNESS_AWAKE;
+/*[blestech] add end */
 import android.app.AppOpsManager;
 import android.app.IActivityManager;
 import android.app.IUiModeManager;
@@ -207,6 +217,101 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     static public final String SYSTEM_DIALOG_REASON_RECENT_APPS = "recentapps";
     static public final String SYSTEM_DIALOG_REASON_HOME_KEY = "homekey";
     static public final String SYSTEM_DIALOG_REASON_ASSIST = "assist";
+
+	/*[blestech] add begin*/
+	public static final String FINGER_PRINT_MATCH_ACTION = "com.blestech.fingerprint.match";
+
+	private static final long FINGERPRINT_KEY_DEBOUNCE_DELAY_MILLIS = 250;
+	private long mFingerprintDownKeyTime = 0;
+	private static final int MSG_FINGERPRINT_KEY = 18;
+	private boolean mAlarmFlag = false;
+	private boolean mPhoneFlag = false;
+
+	private Intent mScreenOnIntent;
+    private Intent mScreenOffIntent;
+	private TelephonyManager tm;
+	PowerManager.WakeLock mFingerPrintWakeLock;
+
+	private int mBatteryStatus = 4;
+	private IFpsFingerManager fm = null;
+	private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            Log.i(TAG, "on FingerService ServiceConnected");
+            fm = IFpsFingerManager.Stub.asInterface(service);
+        }
+		
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            fm = null;
+        }
+    };
+
+	PhoneStateListener phonestatelistener = new PhoneStateListener() {
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+
+            super.onCallStateChanged(state, incomingNumber);
+            Message msg = null;
+            switch (state) {
+
+            case TelephonyManager.CALL_STATE_IDLE:
+                Log.i(TAG, "CALL_STATE_IDLE");
+				if(mPhoneFlag){
+					mPhoneFlag = false;
+					try {
+						fm.FpNull();
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					//lockNow(null);
+					startedWakingUp();
+					mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
+					mActivityManagerInternal.onWakefulnessChanged(WAKEFULNESS_AWAKE);
+				}
+				
+                break;
+            case TelephonyManager.CALL_STATE_OFFHOOK:
+                Log.i(TAG, "CALL_STATE_OFFHOOK");
+				startedWakingUp();
+				mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
+				mActivityManagerInternal.onWakefulnessChanged(WAKEFULNESS_AWAKE);
+				Intent intent1 = new Intent(Intent.ACTION_MAIN);  
+		          intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION);              
+		         // intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);              
+		          ComponentName cn = new ComponentName("com.android.dialer", "com.android.incallui.InCallActivity");              
+		          intent1.setComponent(cn); 
+		          mContext.startActivity(intent1);
+                break;
+            case TelephonyManager.CALL_STATE_RINGING:
+                Log.i(TAG, "CALL_STATE_RINGING");
+				try {
+					if(isFun()!=0 && fm.FpGetFun()==0){
+						Log.d(TAG, "BatteryReceiver5555555");
+						mContext.sendOrderedBroadcast(mScreenOnIntent, null);
+					}else if(isFun()==0){
+						enFun(1);
+						mPhoneFlag = true;
+
+						if(mPowerManager.isInteractive()){
+							Log.d(TAG, "CALL_STATE_RINGING666666666666");							
+						}
+					} 
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+                break;
+            default:
+                break;
+            }
+        }
+    };
+	/*[blestech] add end*/
 
     /**
      * These are the system UI flags that, when changing, can cause the layout
@@ -694,6 +799,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 case MSG_UPDATE_DREAMING_SLEEP_TOKEN:
                     updateDreamingSleepToken(msg.arg1 != 0);
                     break;
+				/*[blestech] add begin*/
+                case MSG_FINGERPRINT_KEY:
+					if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+				    	transferFingerprintKey();
+					}
+				    break;
+                /*[blestech] add end*/
             }
         }
     }
@@ -1028,20 +1140,34 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             switch (mShortPressOnPowerBehavior) {
                 case SHORT_PRESS_POWER_NOTHING:
                     break;
+					//blestech start
                 case SHORT_PRESS_POWER_GO_TO_SLEEP:
-                    mPowerManager.goToSleep(eventTime,
+					if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+						setFun();
+					}else{
+						mPowerManager.goToSleep(eventTime,
                             PowerManager.GO_TO_SLEEP_REASON_POWER_BUTTON, 0);
-                    break;
+					}
+				break;
                 case SHORT_PRESS_POWER_REALLY_GO_TO_SLEEP:
-                    mPowerManager.goToSleep(eventTime,
+					if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+						setFun();
+					}else{
+						mPowerManager.goToSleep(eventTime,
                             PowerManager.GO_TO_SLEEP_REASON_POWER_BUTTON,
                             PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
+					}	
                     break;
                 case SHORT_PRESS_POWER_REALLY_GO_TO_SLEEP_AND_GO_HOME:
-                    mPowerManager.goToSleep(eventTime,
+					if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+						setFun();	
+					}else{
+						mPowerManager.goToSleep(eventTime,
                             PowerManager.GO_TO_SLEEP_REASON_POWER_BUTTON,
                             PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
+					}
                     launchHomeFromHotKey();
+					//blestech end
                     break;
                 case SHORT_PRESS_POWER_GO_HOME:
                     launchHomeFromHotKey(true /* awakenFromDreams */, false /*respectKeyguard*/);
@@ -1620,6 +1746,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         mWindowManagerInternal.registerAppTransitionListener(
                 mStatusBarController.getAppTransitionListener());
+
+		//blestech add
+		mFingerPrintWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                "PhoneWindowManager.mFingerPrintWakeLock");
+		//blestech end
     }
 
     /**
@@ -5064,6 +5195,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     + " interactive=" + interactive + " keyguardActive=" + keyguardActive
                     + " policyFlags=" + Integer.toHexString(policyFlags));
         }
+		//blestech add start
+		if(keyCode!=KeyEvent.KEYCODE_POWER && keyCode!=KeyEvent.KEYCODE_F10 && SystemProperties.getBoolean("sys.btl_fingerprint_flag", false) && SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){		
+			return 0;
+		}
+		//blestech add end
 
         // Basic policy based on interactive state.
         int result;
@@ -5119,6 +5255,27 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         // Handle special keys.
         switch (keyCode) {
+            /*[blestech] add begin */			
+			case KeyEvent.KEYCODE_F10:
+				if(down && SystemProperties.getBoolean("sys.btl_fingerprint_use", false)) {
+				    Log.v("btl_jni", "KEYCODE_F10");
+					mFingerPrintWakeLock.acquire(100);
+
+					final long now = SystemClock.uptimeMillis();
+				
+                    if (((now - mFingerprintDownKeyTime) >= FINGERPRINT_KEY_DEBOUNCE_DELAY_MILLIS)
+						|| mFingerprintDownKeyTime == 0){            
+				        Message msg = mHandler.obtainMessage(MSG_FINGERPRINT_KEY);
+                        msg.setAsynchronous(true);
+                        msg.sendToTarget();
+						mFingerprintDownKeyTime = now;
+					}
+
+					//mHandler.sendEmptyMessageDelayed(MSG_FINGERPRINT_KEY, 3000);
+					//mBroadcastWakeLock.release();
+				}
+				break;
+            /*[blestech] add end */				
             case KeyEvent.KEYCODE_VOLUME_DOWN:
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_MUTE: {
@@ -5555,6 +5712,29 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         startActivityAsUser(voiceIntent, UserHandle.CURRENT_OR_SELF);
         mBroadcastWakeLock.release();
     }
+	
+	/*[blestech] add begin*/
+	void transferFingerprintKey() {
+		if(!mPowerManager.isInteractive()){
+			try {
+				if(fm.FpGetFun() == 0){
+					fm.FpEnFun(0);
+					//SystemProperties.set("sys.btl_fingerprint_flag", "1");
+			
+					mActivityManagerInternal.onWakefulnessChanged(WAKEFULNESS_AWAKE);
+					mPowerManager.wakeUp(SystemClock.uptimeMillis(), "android.policy:POWER");
+					mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
+				}	
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
+		}
+
+		Intent fingerprintIntent = new Intent(FINGER_PRINT_MATCH_ACTION);
+		mContext.sendBroadcast(fingerprintIntent);
+    }
+  /*[blestech] add end*/
 
     BroadcastReceiver mDockReceiver = new BroadcastReceiver() {
         @Override
@@ -5708,6 +5888,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void wakeUpFromPowerKey(long eventTime) {
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			try {
+				fm.FpNull();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		//blestech end
         wakeUp(eventTime, mAllowTheaterModeWakeFromPowerKey, "android.policy:POWER");
     }
 
@@ -5780,7 +5970,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
             if (mKeyguardDelegate != null) {
                 mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
-                mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT, 1000);
+				//blestech add
+				if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+					mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT, 0);
+				}else{
+					mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT, 1000);
+				}
+				//blestech end
                 mKeyguardDelegate.onScreenTurningOn(mKeyguardDrawnCallback);
             } else {
                 if (DEBUG_WAKEUP) Slog.d(TAG,
@@ -6294,6 +6490,33 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mKeyguardDelegate.bindService(mContext);
             mKeyguardDelegate.onBootCompleted();
         }
+
+		//blestech add
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			mScreenOnIntent = new Intent(Intent.ACTION_SCREEN_ON);
+		    mScreenOnIntent.addFlags(
+				   Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_FOREGROUND);
+		    mScreenOffIntent = new Intent(Intent.ACTION_SCREEN_OFF);
+		    mScreenOffIntent.addFlags(
+				   Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_FOREGROUND);
+
+			Log.d(TAG, "systemReady111111111111111111:");
+			Intent btlIntent = new Intent();
+		    btlIntent.setAction("com.btlfinger.service");
+		    btlIntent.setPackage("com.btlfinger.fingerprintunlock");
+		    mContext.bindService(btlIntent, mConnection, Context.BIND_AUTO_CREATE);
+
+			IntentFilter batteryfilter = new IntentFilter();
+			batteryfilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+			batteryfilter.addAction("com.android.deskclock.ALARM_ALERT");
+			batteryfilter.addAction("com.android.deskclock.ALARM_DONE");
+			batteryfilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+			mContext.registerReceiver(new BatteryReceiver(), batteryfilter);
+
+			tm = (TelephonyManager)mContext.getSystemService(Service.TELEPHONY_SERVICE);
+			tm.listen(phonestatelistener, PhoneStateListener.LISTEN_CALL_STATE);
+		}
+		
         synchronized (mLock) {
             mSystemBooted = true;
         }
@@ -7673,4 +7896,120 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         });  
     }
 //add by liliang.bao end
+
+/*[blestech] add begin*/
+	public void enFun(int enable) {
+		//Log.d(TAG, "enFun00000000000:"+enable);
+		if(enable == 1){
+			//Log.d(TAG, "enFun1111111111111:");
+			try {
+				fm.FpSetEnFun();
+
+				mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else{
+			try {
+				fm.FpSetFun(0);
+				fm.FpEnFun(enable); 
+				mContext.sendOrderedBroadcast(mScreenOffIntent, null);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}	
+    }
+
+	public int isFun() {
+		//Log.d(TAG, "isFun00000000");
+		
+       	try {
+			return fm.FpIsFun(); 
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+    }
+
+	private void setFun(){
+		//Log.d(TAG, "setBlackLight00000000");
+		if(isFun()==1 && mPowerManager.isInteractive()){
+		Log.d(TAG, "setFun11111111111");
+			enFun(0);			
+			mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
+			startedGoingToSleep(WindowManagerPolicy.OFF_BECAUSE_OF_USER);
+			finishedGoingToSleep(WindowManagerPolicy.OFF_BECAUSE_OF_USER);
+			mActivityManagerInternal.onWakefulnessChanged(WAKEFULNESS_ASLEEP);
+		}else{
+		Log.d(TAG, "setFun22222222222");
+			try {
+				fm.FpNull();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			startedWakingUp();
+			mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
+			mActivityManagerInternal.onWakefulnessChanged(WAKEFULNESS_AWAKE);		
+		}
+	}
+
+	private final class BatteryReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        	String action = intent.getAction();	
+			if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
+				int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+				//Log.d(TAG, "BatteryReceiver1111111111111:"+mBatteryStatus+":"+status);
+				try {
+					if(mBatteryStatus!=status && (isFun()==0||fm.FpGetFun()==0)){
+						Log.d(TAG, "BatteryReceiver22222222");
+						fm.FpNull();
+
+					startedWakingUp();
+					mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
+					mActivityManagerInternal.onWakefulnessChanged(WAKEFULNESS_AWAKE);
+					}
+				}catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				mBatteryStatus = status;
+		    } else if(action.equals("com.android.deskclock.ALARM_ALERT")){
+		    	try {
+					if(isFun()!=0 && fm.FpGetFun()==0){
+						Log.d(TAG, "BatteryReceiver5555555");
+						mContext.sendOrderedBroadcast(mScreenOnIntent, null);
+					}else if(isFun()==0){
+						Log.d(TAG, "BatteryReceiver3333333");
+						enFun(1);
+						mAlarmFlag = true;
+					}
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}else if(action.equals("com.android.deskclock.ALARM_DONE")){
+				Log.d(TAG, "BatteryReceiver4444444"+mAlarmFlag);
+				if(mAlarmFlag){
+					mAlarmFlag = false;
+					try {
+						fm.FpNull();
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					startedWakingUp();
+					mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
+					mActivityManagerInternal.onWakefulnessChanged(WAKEFULNESS_AWAKE);
+				}
+			}	
+        }
+    }
+	
+    /*[blestech] add end*/
 }
