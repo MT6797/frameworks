@@ -1543,7 +1543,7 @@ public final class SystemServer {
 	File file=new File("/dev/bl229x");    
     	if(file.exists())
 	{
-	log.d(TAG, "ble startFingerprintService");	
+	Log.d(TAG, "ble startFingerprintService");	
 	String action = "com.btlfinger.service";
 	Intent intent = new Intent(action);
 	intent.setPackage("com.btlfinger.fingerprintunlock");
