@@ -1159,7 +1159,8 @@ public class KeyguardViewMediator extends SystemUI {
         }
 	
 		//blestech add
-        mExternallyEnabled = mEnabledFlag;
+	if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false))
+        	mExternallyEnabled = mEnabledFlag;
 		//blestech end
 		
         KeyguardUpdateMonitor.getInstance(mContext).dispatchFinishedGoingToSleep(why);

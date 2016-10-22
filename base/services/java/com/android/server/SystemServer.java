@@ -1540,7 +1540,10 @@ public final class SystemServer {
     static final void startSystemUi(Context context) {
 	//blestech add
 	//log.d(TAG, "startFingerprintService");
-	{	
+	File file=new File("/dev/bl229x");    
+    	if(file.exists())
+	{
+	log.d(TAG, "ble startFingerprintService");	
 	String action = "com.btlfinger.service";
 	Intent intent = new Intent(action);
 	intent.setPackage("com.btlfinger.fingerprintunlock");
