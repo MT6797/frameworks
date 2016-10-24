@@ -2160,7 +2160,9 @@ public class KeyguardViewMediator extends SystemUI {
 		//blestech add
 		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
 			try {
-				fm.FpMessage();
+				if(fm != null){
+					fm.FpMessage();
+				}
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
