@@ -16,4 +16,6 @@ interface IFpsFingerManager
     int FpMessage();
     int FpIsFunBroad();
     int FpNull();
+	int FpWait();
+	int FpSetWait(int wait);
 }

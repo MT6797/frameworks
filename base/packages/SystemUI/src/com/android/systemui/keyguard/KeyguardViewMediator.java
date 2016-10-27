@@ -1082,13 +1082,13 @@ public class KeyguardViewMediator extends SystemUI {
                     || (why == WindowManagerPolicy.OFF_BECAUSE_OF_USER
                     && (!lockImmediately && !mIsIPOShutDown))) {
 				//blestech add
-				if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			/*	if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
 		            if(mLastShowingSequence!=mDelayedShowingSequence && !lockImmediately){
 						doKeyguardLaterLocked();
 					}
-				}else{
+				}else{*/
 					doKeyguardLaterLocked();
-				}
+				//}
 				//blestech end
             } else if (why == WindowManagerPolicy.OFF_BECAUSE_OF_PROX_SENSOR) {
                 // Do not enable the keyguard if the prox sensor forced the screen off.
@@ -1746,7 +1746,43 @@ public class KeyguardViewMediator extends SystemUI {
      * @param newUserId The id of the incoming user.
      */
     public void setCurrentUser(int newUserId) {
+
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false) && newUserId==65535){
+			int currentUser = KeyguardUpdateMonitor.getCurrentUser();
+			final boolean lockImmediately = mLockPatternUtils.getPowerButtonInstantlyLocks(currentUser)
+                            || !mLockPatternUtils.isSecure(currentUser);
+			if(!lockImmediately && !mIsIPOShutDown && mUpdateMonitor.isUnlockingWithFingerprintAllowed() && !mShowing){
+				doKeyguardLaterLocked();
+			}else if(!mShowing){
+				mLaterLockedFlag = false;
+				mPendingLock = true;
+			}
+			if(!mUpdateMonitor.isUnlockingWithFingerprintAllowed()){
+				mPhoneStatusBar.setNotificationPanewlTouchDisabled();
+				resetStateLocked();
+			}else if(mShowing){
+				mNextLockSoundFlag = true;
+				mUserPresentFlag = true;
+				mDeviceInteractive = true;
+				mInteractiveFalse = true;
+				mUpdateMonitor.clearFingerprintRecognized();
+				mUpdateMonitor.fingerDetection(false);
+				try {
+					fm.FpBroadcast();
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+			}else{
+				if(mPendingLock){
+					mPendingLock = false;
+					playSounds(true);
+				}
+				mUpdateMonitor.clearFingerprintRecognized();
+				mUpdateMonitor.fingerDetection(true);
+			}
+		}else{
         KeyguardUpdateMonitor.setCurrentUser(newUserId);
+		}
     }
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {

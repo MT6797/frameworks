@@ -719,8 +719,7 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
 	        else if(action.equals("com.android.deskclock.ALARM_ALERT")){
 		    	stopListeningForFingerprint();
 			}else if(action.equals("com.android.deskclock.ALARM_DONE")){
-				mAlarmFlag = true;
-				updateFingerprintListeningState();
+				fingerDetection(true);
 			}
 			//blestech end
         }
@@ -2489,6 +2488,12 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener {
         }
     }
 
+	public void fingerDetection(boolean islock){
+		mAlarmFlag = true;
+		if(islock){
+			updateFingerprintListeningState();
+		}		
+    }
     private int mFailedAttemptCount = 0;
     /**
      * @hide

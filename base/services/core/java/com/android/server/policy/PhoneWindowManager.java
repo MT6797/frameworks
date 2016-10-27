@@ -7940,8 +7940,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 		Log.d(TAG, "setFun11111111111");
 			enFun(0);			
 			mPowerManager.userActivity(SystemClock.uptimeMillis(), false);
-			startedGoingToSleep(WindowManagerPolicy.OFF_BECAUSE_OF_USER);
-			finishedGoingToSleep(WindowManagerPolicy.OFF_BECAUSE_OF_USER);
+			//startedGoingToSleep(WindowManagerPolicy.OFF_BECAUSE_OF_USER);
+			//finishedGoingToSleep(WindowManagerPolicy.OFF_BECAUSE_OF_USER);
+			try {
+				fm.FpWait();
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 			mActivityManagerInternal.onWakefulnessChanged(WAKEFULNESS_ASLEEP);
 		}else{
 		Log.d(TAG, "setFun22222222222");
