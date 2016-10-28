@@ -14313,6 +14313,8 @@ package android.hardware.fingerprint {
     method public abstract int FpNull() throws android.os.RemoteException;
     method public abstract int FpSetEnFun() throws android.os.RemoteException;
     method public abstract int FpSetFun(int) throws android.os.RemoteException;
+    method public abstract int FpSetWait(int) throws android.os.RemoteException;
+    method public abstract int FpWait() throws android.os.RemoteException;
     method public abstract int SetKeyCode(int) throws android.os.RemoteException;
     method public abstract void listen(android.hardware.fingerprint.IFpsFingerClient) throws android.os.RemoteException;
     method public abstract int mmiFpTest() throws android.os.RemoteException;
