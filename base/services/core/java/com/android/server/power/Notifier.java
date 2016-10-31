@@ -534,11 +534,10 @@ final class Notifier {
 		//blestech add
 		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
 			if(mPendingInteractiveState == INTERACTIVE_STATE_ASLEEP && !SystemProperties.getBoolean("sys.btl_fingerprint_flag", false)){
-				mContext.sendOrderedBroadcast(mScreenOffIntent, null);	
-				return;
-			}else{
-				//mContext.sendOrderedBroadcast(mScreenOnIntent, null);
-				return;
+				mSuspendBlocker.acquire();
+		        Message msg = mHandler.obtainMessage(MSG_BROADCAST);
+		        msg.setAsynchronous(true);
+		        mHandler.sendMessage(msg);
 			}
 		}else{
 			if (!mBroadcastInProgress
@@ -576,6 +575,13 @@ final class Notifier {
     }
 
     private void sendNextBroadcast() {
+		if(SystemProperties.getBoolean("sys.btl_fingerprint_use", false)){
+			if(mPendingInteractiveState == INTERACTIVE_STATE_ASLEEP && !SystemProperties.getBoolean("sys.btl_fingerprint_flag", false) && ActivityManagerNative.isSystemReady()){
+				mContext.sendOrderedBroadcast(mScreenOffIntent, null);
+				mSuspendBlocker.release();
+				return;
+		    }	
+		}
         final int powerState;
 
         if (DEBUG) {
